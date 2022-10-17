@@ -1,15 +1,12 @@
-//testing push
-
 require ('dotenv').config(); 
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const hbs = require('express-handlebars')
+//const hbs = require('express-handlebars')
 const db = require('./config/connection')
 const session = require('express-session')
-
 var app = express();
 
 /* -------------------------------------------------------------------------- */
@@ -40,13 +37,15 @@ app.use(session({
 /*                             view engine setup                              */
 /* -------------------------------------------------------------------------- */
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
-app.engine('hbs', hbs.engine({
-  extname: 'hbs',
-  defaultLayout: false,
-  layoutsDir: __dirname + '/views/layout/',
-  partialsDir: __dirname + '/views/partials'
-}))
+app.set('view engine','ejs')
+
+// app.set('view engine', 'hbs');
+// app.engine('hbs', hbs.engine({
+//   extname: 'hbs',
+//   defaultLayout: false,
+//   layoutsDir: __dirname + '/views/layout/',
+//   partialsDir: __dirname + '/views/partials'
+// }))
 /* -------------------------------------------------------------------------- */
 /*                                  APP.USE                                   */
 /* -------------------------------------------------------------------------- */
@@ -65,14 +64,14 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 /* -------------------------------------------------------------------------- */
-/*                               error handler                                */
+/*                      error handler middleware                              */
 /* -------------------------------------------------------------------------- */
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  res.status(err.status || 500);
-  res.render('error');
-});
+// app.use(function(err, req, res, next) {
+//   // set locals, only providing error in development
+//   res.locals.message = err.message;
+//   res.locals.error = req.app.get('env') === 'development' ? err : {};
+//   res.status(err.status || 500);
+//   res.render('error');
+// });
 
 module.exports = app;

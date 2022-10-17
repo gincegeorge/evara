@@ -12,10 +12,10 @@ const verifyUserLogin = (req,res,next)=>{
   }else{
     res.redirect('/login')
   }
-}
+} 
 
 /* GET home page. */
-router.get('/', verifyUserLogin,userController.getHomepage)
+router.get('/',verifyUserLogin,userController.getHomepage)
 
 //GET shop page
 router.get('/shop',verifyUserLogin,userController.getShoppage)

@@ -25,6 +25,10 @@ const postAdminLogin = (req, res) => {
         }
     })
 }
+const getLogout = (req, res) => {
+    req.session.adminLoginStatus = false
+    res.redirect('/admin/login')
+}
 const getAdminDashboard = function (req, res, next) {
     res.render('admin/index')
 }
@@ -37,7 +41,7 @@ const getNewProduct = (req, res) => {
     res.render('admin/new-product')
 }
 const postNewProduct = (req, res) => {
-    productHelpers.addProduct(req.body, (result) => {
+    productHelpers.addProduct(req, (result) => {
         res.render('admin/new-product')
     })
 }
@@ -63,17 +67,42 @@ const getUsers = (req, res) => {
         res.render('admin/users', { users })
     })
 }
-const getBlockUser = (req,res)=>{
-    userHelpers.doBlockUser(req.query.id).then((callback)=>{
+const getBlockUser = (req, res) => {
+    userHelpers.doBlockUser(req.query.id).then((callback) => {
         res.redirect('/admin/users')
     })
 }
 
-const getUnblockUser = (req,res)=>{
-    userHelpers.doUnblockUser(req.query.id).then((callback)=>{
+const getUnblockUser = (req, res) => {
+    userHelpers.doUnblockUser(req.query.id).then((callback) => {
         res.redirect('/admin/users')
     })
 }
+
+const getCategories = (req,res)=>{
+    productHelpers.getCategories().then((categories)=>{
+        res.render('admin/categories',{categories})
+    })
+}
+const postCategory = (req, res) => {
+    productHelpers.postAddCategory(req.body).then((response) => {
+        res.redirect('/admin/product-categories')
+    })
+}
+
+const deleteCategory = (req,res)=>{
+    let catId = req.query.id
+    productHelpers.deleteCategory(catId).then((response)=>{
+        res.redirect('/admin/product-categories')
+    })
+}
+
+const getEditCategory = async (req, res) => {
+    let catId = req.query.id
+    let categoryDetails = await productHelpers.editCategory(catId);
+    res.render("admin/edit-category", { categoryDetails });
+}
+
 
 module.exports = {
     getAdminLogin,
@@ -88,5 +117,9 @@ module.exports = {
     getDeleteProduct,
     getUsers,
     getBlockUser,
-    getUnblockUser
-}
+    getUnblockUser,
+    getCategories,
+    postCategory,
+    deleteCategory,
+    getEditCategory
+} 

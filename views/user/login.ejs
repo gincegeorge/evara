@@ -1,5 +1,5 @@
-{{>user-header}}
-
+<%- include('../partials/user-header') %> 
+ 
 <main class="main">
     <div class="page-header breadcrumb-wrap">
         <div class="container">
@@ -20,9 +20,9 @@
                                 <div class="padding_eight_all bg-white">
                                     <div class="heading_s1">
                                         <h3 class="mb-30">Login</h3>
-                                        {{#if userLoginError }}
-                                            <h5 class="p-2 mb-3 alert-danger">{{userLoginError}}</h5>
-                                        {{/if}}
+                                        <% if(userLoginError) { %> 
+                                            <h5 class="p-2 mb-3 alert-danger"><%= userLoginError %></h5>
+                                        <% } %> 
                                     </div>
                                     <form method="post">
                                         <div class="form-group">
@@ -58,4 +58,4 @@
     </section>
 </main>
 
-{{>user-footer}}
+<%- include('../partials/user-footer') %>

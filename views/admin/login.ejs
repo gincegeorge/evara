@@ -1,7 +1,5 @@
 <!DOCTYPE HTML>
 <html lang="en">
-
-
 <head>
     <meta charset="utf-8">
     <title>Evara Dashboard</title>
@@ -34,9 +32,9 @@
                                     <div class="padding_eight_all bg-white">
                                         <div class="heading_s1">
                                             <h3 class="mb-30">Login</h3>
-                                            {{#if adminLoginError }}
-                                                <h5 class="p-2 mb-3 alert-danger">{{adminLoginError}}</h5>
-                                            {{/if}}
+                                            <% if(adminLoginError) { %> 
+                                                <h5 class="p-2 mb-3 alert-danger"><% adminLoginError %> </h5>
+                                            <% } %> 
                                         </div>
                                         <form method="post" action="login">
                                             <div class="form-group">

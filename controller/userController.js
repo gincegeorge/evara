@@ -6,7 +6,7 @@ const getHomepage = function (req, res, next) {
 const getShoppage = (req, res, next) => {
     res.render('user/shop', { user })
 }
-const getLogin = (req, res) => {
+const getLogin = (req, res) => { 
     if (req.session.userLoginStatus) {
         res.redirect('/')
     } else {
@@ -14,7 +14,8 @@ const getLogin = (req, res) => {
         res.setHeader("Pragma", "no-cache");
         res.setHeader("Expires", "0");
         userLoginError = req.session.userLoginError
-        res.render('user/login', { userLoginError })
+        user = null
+        res.render('user/login', { user, userLoginError })
         req.session.userLoginError = false
     }
 }

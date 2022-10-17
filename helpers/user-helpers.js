@@ -17,7 +17,7 @@ const doSignup = (userData) => {
     })
 }
 
-const doLogin = (userData) => {
+const  doLogin = (userData) => {
     return new Promise(async (resolve, reject) => {
         let userloginStatus = false;
         let response = {}

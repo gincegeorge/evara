@@ -39,11 +39,11 @@
                     <div class="col-xl-3 col-lg-4">
                         <div class="header-info header-info-right">
                             <ul>
-                                {{#if user}}
-                                    <li><i class="fi-rs-user"></i><a href="logout">{{user.name}},Logout</a></li>
-                                {{else}}
+                                <% if(user) { %> 
+                                    <li><i class="fi-rs-user"></i><a href="logout"><%= user.name %> ,Logout</a></li>
+                                <% }else{ %>     
                                     <li><i class="fi-rs-user"></i><a href="login">Log In / Sign Up</a></li>
-                                {{/if}}
+                                <% } %>
                             </ul>
                         </div>
                     </div>
