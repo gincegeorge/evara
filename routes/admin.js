@@ -5,16 +5,7 @@ const store = require('./middlewares/multer')
 
 const adminController = require('../controller/adminController')
 const userController = require('../controller/userController')
-
-
-//Verify admin login status
-const verifyAdminLogin = (req, res, next) => {
-  if (req.session.adminData) {
-    next()
-  } else { 
-    res.redirect('/admin/login')
-  }
-}
+const adminMiddlewares = require('../routes/middlewares/admin-middlewares')
 
 //GET Admin login
 router.get("/login", adminController.getAdminLogin)
@@ -22,49 +13,75 @@ router.get("/login", adminController.getAdminLogin)
 //admin post login
 router.post('/login', adminController.postAdminLogin)
 
+
 //admin logout
 router.get('/logout', adminController.getLogout)
- 
+
+
 /* GET dashboard. */
-router.get('/', adminController.getAdminDashboard); 
+router.get('/', adminMiddlewares.verifyAdminLogin, adminController.getAdminDashboard);
 
+/************************************* */
+//             PRODUCTS
+/************************************* */
 //GET products page
-router.get('/products',  adminController.getProducts)
+router.get('/products', adminMiddlewares.verifyAdminLogin, adminController.getProducts)
 
-//GET add product
-router.get('/new-product', store.array('productImages', 6), adminController.getNewProduct)
+//New product page
+router.route('/products/new', adminMiddlewares.verifyAdminLogin)
 
-//POST new product
-router.post('/new-product', store.array('productImages', 6), adminController.postNewProduct)
+  .get(adminController.getNewProduct)
+
+  .post(store.array('productImages', 6), adminController.postNewProduct)
 
 //GET edit product
-router.get('/edit-product',  adminController.getEditProduct)
+router.route('/products/edit/:productSlug')
 
-//POST edit product
-router.post('/edit-product',  adminController.postEditProduct)
+  .get(adminController.getEditProduct)
+
+  .post(store.array('productImages', 6), adminController.postEditProduct)
 
 //GET delete product button
-router.get('/delete-product/', adminController.getDeleteProduct)
+router.get('/products/delete/:productSlug', adminMiddlewares.verifyAdminLogin, adminController.getDeleteProduct)
 
+
+/************************************* */
+//                USERS
+/************************************* */
 //GET Users 
-router.get('/users', adminController.getUsers)
+router.get('/users', adminMiddlewares.verifyAdminLogin, adminController.getUsers)
 
 //GET block user
-router.get('/block-user',adminController.getBlockUser)
+router.get('/users/block', adminMiddlewares.verifyAdminLogin, adminController.getBlockUser)
 
 //GET unblock user
-router.get('/unblock-user', adminController.getUnblockUser)
+router.get('/users/unblock', adminMiddlewares.verifyAdminLogin, adminController.getUnblockUser)
 
+
+/************************************* */
+//         PRODUCT CATEGORIES
+/************************************* */ 
 //GET Categories 
-router.get('/product-categories', adminController.getCategories)
+router.get('/product-categories', adminMiddlewares.verifyAdminLogin, adminController.getCategories)
 
 //POST Categories
-router.post('/add-category',adminController.postCategory)
+router.post('/product-categories/new', adminMiddlewares.verifyAdminLogin, adminController.postCategory)
 
 //Delete category 
-router.get('/delete-product-category', adminController.deleteCategory)
+router.get('/product-categories/delete',
+  adminMiddlewares.verifyAdminLogin, adminController.deleteCategory)
 
-//Get edit category
-router.get('/edit-product-category', adminController.getEditCategory)
+//Edit product category page 
+router.route('/product-categories/edit', adminMiddlewares.verifyAdminLogin)
 
-module.exports = router;  
+  .get(adminController.getEditCategory)
+
+  .post(adminController.putProductCategory)
+
+  
+/************************************* */
+//         EDIT PRODUCT
+/************************************* */ 
+router.get('/remove-product-image/:prodId/:imgName', adminMiddlewares.verifyAdminLogin, adminController.deleteProductImage)
+
+module.exports = router;

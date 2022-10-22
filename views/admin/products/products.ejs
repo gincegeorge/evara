@@ -1,4 +1,4 @@
-<%- include('../partials/admin-header') %>
+<%- include('../../partials/admin-header') %>
   <section class="content-main">
     <div class="content-header">
       <div>
@@ -7,7 +7,7 @@
       </div>
       <div>
         <a href="#" class="btn btn-light rounded font-md">Export</a>
-        <a href="/admin/new-product" class="btn btn-primary btn-sm rounded">Create new</a>
+        <a href="/admin/products/new" class="btn btn-primary btn-sm rounded">Create new</a>
       </div>
     </div>
     <div class="card mb-4">
@@ -53,15 +53,15 @@
                 <a class="itemside" href="#">
                   <div class="info">
                     <h6 class="mb-0">
-                      <%= element.name %>
+                      <a href="/admin/products/edit/<%= element.slug %>" style="color: #000 !important; ">
+                        <%= element.name %>
+                      </a>
                     </h6>
                   </div>
                 </a>
               </div>
               <div class="col-lg-2 col-sm-2 col-4 col-price">
-                <span>
-                  <%= element.regularPrice %>
-                </span>
+                <span>$<%= element.regularPrice %></span>
               </div>
               <div class="col-lg-2 col-sm-2 col-4 col-status">
                 <span class="badge rounded-pill alert-success">category</span>
@@ -70,10 +70,10 @@
                 <span>02.11.2021</span>
               </div>
               <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
-                <a href="/admin/edit-product?id=<%= element._id %>" class="btn btn-sm font-sm rounded btn-brand">
+                <a href="/admin/products/edit/<%= element.slug %>" class="btn btn-sm font-sm rounded btn-brand">
                   <i class="material-icons md-edit"></i> Edit
                 </a>
-                <a href="/admin/delete-product?id=<%= element._id %>" class="btn btn-sm font-sm btn-light rounded"
+                <a href="/admin/products/delete/<%= element.slug %>" class="btn btn-sm font-sm btn-light rounded"
                   onclick="return confirm('Do you want to delete <%= element.name %>')">
                   <i class="material-icons md-delete_forever"></i> Delete
                 </a>
@@ -103,4 +103,4 @@
     </div>
   </section>
   <!-- content-main end// -->
-  <%- include('../partials/admin-footer') %>
+  <%- include('../../partials/admin-footer') %>

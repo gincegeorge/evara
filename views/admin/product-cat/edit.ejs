@@ -1,11 +1,11 @@
-<%- include('../partials/admin-header') %>
+<%- include('../../partials/admin-header') %>
 
 
   <section class="content-main">
     <div class="content-header">
       <div>
         <h2 class="content-title card-title">Edit Category</h2>
-        <p>edit category</p>
+        <p>edit <%= categoryDetails.categoryName %></p>
       </div>
       <div>
         <input type="text" placeholder="Search Categories" class="form-control bg-white">
@@ -15,7 +15,8 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-12">
-            <form action="add-category" method="POST">
+            <form action="/admin/product-categories/edit?id=<%= categoryDetails._id %>" method="POST">
+              <input type="text" style="display: none;" value="<%= categoryDetails._id %>" name="catId">
               <div class="mb-4">
                 <label for="product_name" class="form-label">Name</label>
                 <input value="<%= categoryDetails.categoryName %>" name="categoryName" type="text"
@@ -41,4 +42,4 @@
     </div> <!-- card .// -->
   </section> <!-- content-main end// -->
 
-  <%- include('../partials/admin-footer') %>
+  <%- include('../../partials/admin-footer') %>

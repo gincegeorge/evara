@@ -2,37 +2,58 @@ var express = require('express');
 const { response } = require('../app');
 var router = express.Router();
 const userController = require('../controller/userController')
+const userMiddlewares = require('../routes/middlewares/user-middlewares')
 
-//verify user login
-const verifyUserLogin = (req,res,next)=>{
-  if(req.session.userLoginStatus){
-    user = req.session.userData
-    userLoginStatus = req.session.userLoginStatus
-    next()
-  }else{
-    res.redirect('/login')
-  }
-} 
 
 /* GET home page. */
-router.get('/',verifyUserLogin,userController.getHomepage)
+router.get('/', userMiddlewares.verifyUserLogin, userController.getHomepage)
 
 //GET shop page
-router.get('/shop',verifyUserLogin,userController.getShoppage)
+router.get('/shop', userMiddlewares.verifyUserLogin, userController.getShoppage)
 
-//GET login page
-router.get('/login',userController.getLogin)
+/************************************* */
+//             LOGIN
+/************************************* */
+//Login page 
+router.route('/login')
+  .get(userController.getLogin)
 
-//POST login page
-router.post('/login',userController.postLogin)
+  .post(userController.postLogin)
 
 //GET logout
-router.get('/logout',userController.getLogout)
+router.get('/logout', userController.getLogout)
 
-//GET signup page
-router.get('/signup',userController.getSignup)
+/************************************* */
+//             SIGNUP
+/************************************* */
+router.route('/signup')
+  //GET signup page
+  .get(userController.getSignup)
 
-//POST signup page
-router.post('/signup',userController.postSignup)
- 
+  //POST signup page
+  .post(userController.postSignup)
+
+/************************************* */
+//             OTP
+/************************************* */
+router.route('/otp-login')
+  .get(userController.getOtpLogin)
+
+  .post(userController.postOtpLogin)
+
+//Verify OTP page
+router.route('/verify-otp')
+  .get(userController.getVerifyOtp)
+
+  .post(userController.postVerifyOtp,);
+
+
+/************************************* */
+//             PRODUCT PAGE
+/************************************* */
+//GET single product page
+router.get('/product/:productSlug', userMiddlewares.verifyUserLogin, userController.getSingleProduct)
+
+
+
 module.exports = router
