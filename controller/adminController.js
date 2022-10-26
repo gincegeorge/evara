@@ -46,8 +46,8 @@ const getProducts = (req, res) => {
     })
 }
 const getNewProduct = (req, res) => {
-    productHelpers.addNewProduct().then((productCat) => {
-        res.render('admin/products/new', { productCat })
+    productHelpers.getAllCategories().then((productCats) => {
+        res.render('admin/products/new', { productCats })
     })
 }
 const postNewProduct = (req, res) => {
@@ -58,11 +58,11 @@ const postNewProduct = (req, res) => {
 const getEditProduct = async (req, res) => {
     let productSlug = req.params.productSlug
     let productDetails = await productHelpers.getProductDetails(productSlug);
-    console.log(productDetails);
-    res.render("admin/products/edit", { productDetails });
+    let productCats = await productHelpers.getAllCategories(productSlug)
+    res.render("admin/products/edit", { productDetails, productCats });
 }
 const postEditProduct = (req, res) => {
-    productHelpers.updateProduct(req.query.id, req)
+    productHelpers.updateProduct(req.params.id, req)
         .then(() => {
             res.redirect('/admin/products')
         })

@@ -22,8 +22,12 @@
                                         </div>
                                         <form method="post" action="otp-login">
                                             <div class="form-group mb-4">
-                                                <input type="number" value="7560990303" required name="phonenumber"
-                                                    placeholder="Mobile number">
+                                                <input id="phonenumber" type="number" value="7560990303" required
+                                                    name="phonenumber" placeholder="Mobile number"
+                                                    onchange="validPhoneumber()">
+                                                <span id="phonenumbers" class="mt-2 text-danger"
+                                                    style="font-size: 13px"></span>
+
                                             </div>
                                             <div class="form-group">
                                                 <button type="submit" class="btn btn-fill-out btn-block hover-up me-2"

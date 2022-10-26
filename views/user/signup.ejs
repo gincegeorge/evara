@@ -26,16 +26,20 @@
                                     </p>
                                     <form method="post" action="signup">
                                         <div class="form-group">
-                                            <input type="text" required="" name="name" placeholder="Full name">
+                                            <input id="Name" type="text" required name="name" placeholder="Full name" onchange="validateName()">
+                                            <span id="name" class="mt-2 text-danger" style="font-size: 13px"></span>
                                         </div>
                                         <div class="form-group">
-                                            <input type="email" required="" name="email" placeholder="Email">
+                                            <input id="Email" type="email" required name="email" placeholder="Email" onchange="validEmail()">
+                                            <span id="email" class="mt-2 text-danger" style="font-size: 13px"></span>
                                         </div>
                                         <div class="form-group">
-                                            <input type="number" required="" name="phonenumber" placeholder="Phone number">
+                                            <input id="phonenumber" type="number" required name="phonenumber" placeholder="Phone number" onchange="validPhoneumber()">
+                                            <span id="phonenumbers" class="mt-2 text-danger" style="font-size: 13px"></span>
                                         </div>
                                         <div class="form-group">
-                                            <input required="" type="password" name="password" placeholder="Password">
+                                            <input required type="password" name="password" placeholder="Password" id="password" onchange="validPassowrd()">
+                                            <span id="passwords" class="mt-2 text-danger" style="font-size: 13px"></span>
                                         </div>
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-fill-out btn-block hover-up">Submit &amp; Register</button>

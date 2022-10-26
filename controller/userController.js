@@ -1,9 +1,9 @@
 var userHelpers = require('../helpers/user-helpers')
 var productHelpers = require('../helpers/product-helpers')
 
-const getHomepage = function (req, res, next) {
+const getHomepage = async (req, res, next) => {
     productHelpers.getAllProducts().then((products) => {
-        res.render('user/index', { user, products })
+        res.render('user/index', { products })
     })
 }
 
@@ -31,9 +31,9 @@ const postLogin = (req, res) => {
         if (response.userLoginStatus) {
             req.session.userData = response.user
             req.session.userLoginStatus = response.userLoginStatus
- 
+
             if (req.session.UserUrlHistory) {
-                res.redirect( req.session.UserUrlHistory)
+                res.redirect(req.session.UserUrlHistory)
                 req.session.UserUrlHistory = null
             } else {
                 res.redirect('/')
@@ -96,10 +96,14 @@ const getVerifyOtp = (req, res) => {
 
 const postVerifyOtp = (req, res) => {
     userHelpers.doVerifyOtp(req).then((response) => {
-        if (response.user.userLoginStatus) {
+        if (response.userLoginStatus) {
+
+            req.session.userData = response.user
+            req.session.userLoginStatus = response.userLoginStatus
+
             res.redirect('/')
             req.session.userLoginError = false
-        }else{
+        } else {
             req.session.userLoginError = response.user.userLoginError
             res.redirect('/verify-otp')
         }
@@ -110,6 +114,22 @@ const getSingleProduct = async (req, res) => {
     let productSlug = req.params.productSlug
     let productDetails = await productHelpers.getProductDetails(productSlug);
     res.render('user/single-product', { productDetails })
+}
+
+const addToCart = (req, res) => {
+    productId = req.params.id
+    userId = user._id
+    userHelpers.doAddToCart(productId, userId).then(() => {
+        res.json({
+            success: true
+        })
+    })
+}
+
+const getCart = async (req, res) => {
+    let products = await userHelpers.getCartProducts(user._id)
+    console.log(products);
+    res.render('user/cart', { products })
 }
 
 module.exports = {
@@ -124,5 +144,7 @@ module.exports = {
     getVerifyOtp,
     postOtpLogin,
     postVerifyOtp,
-    getSingleProduct
+    getSingleProduct,
+    addToCart,
+    getCart
 }

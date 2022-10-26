@@ -2,8 +2,9 @@ var db = require('../config/connection')
 var collection = require('../config/collections')
 const bcrypt = require('bcrypt')
 const collections = require('../config/collections')
-const { render } = require('../app')
+const { render, response } = require('../app')
 const { ReturnDocument } = require('mongodb')
+const { CART_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, PRODUCTS_COLLECTION } = require('../config/collections')
 var objectId = require('mongodb').ObjectId
 const client = require("twilio")(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 
@@ -30,11 +31,9 @@ const doLogin = (userData) => {
             if (!user.isBlocked) {
                 bcrypt.compare(userData.password, user.password).then((userLoginStatus) => {
                     if (userLoginStatus) {
-                        console.log('login success') 
+                        console.log('login success')
                         response.user = user
                         response.userLoginStatus = true
-                        console.log(response);
-                        console.log('----------------------------------------------------------');
                         resolve(response)
                     } else {
                         response.userLoginError = 'Incorrect password'
@@ -134,10 +133,10 @@ const doVerifyOtp = (req) => {
                 if (data.status === "approved") {
 
                     response.user = req.session.user
-                    response.user.userLoginStatus = true
+                    response.userLoginStatus = true
 
                     console.log('User is Verified!!')
-                    
+
                     resolve(response)
                 } else {
                     response.user = req.session.user
@@ -151,6 +150,94 @@ const doVerifyOtp = (req) => {
 
 }
 
+const doAddToCart = (productId, userId) => {
+
+    let productObj = {
+        item: objectId(productId),
+        quantity: 1
+    }
+
+    return new Promise(async (resolve, reject) => {
+        let userCart = await db.get().collection(CART_COLLECTION).findOne({ user: objectId(userId) })
+        if (userCart) {
+
+            let productExists = userCart.products.findIndex(product => product.item == productId)
+
+            console.log(productExists);
+
+            if (productExists >= 0) {
+                db.get().collection(CART_COLLECTION)
+                    .updateOne(
+                        {
+                            'products.item': objectId(productId)
+                        },
+                        {
+                            $inc: { 'products.$.quantity': 1 }
+                        }).then(() => {
+                            resolve()
+                        })
+            } else {
+                let cartObj = {
+                    user: objectId(userId),
+                    products: [productObj]
+                }
+                db.get().collection(CART_COLLECTION).insertOne(cartObj)
+                    .then(() => {
+                        resolve()
+                    })
+            }
+        } else {
+            let cartObj = {
+                user: objectId(userId),
+                products: [productObj]
+            }
+            db.get().collection(CART_COLLECTION).insertOne(cartObj)
+                .then(() => {
+                    resolve()
+                })
+        }
+    })
+}
+
+const getCartProducts = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        let cartItems = await db.get().collection(CART_COLLECTION).aggregate([
+            {
+                $match: { user: objectId(userId) }
+            },
+            {
+                $unwind: '$products'
+            },
+            {
+                $project:{
+                    item:'$products.item',
+                    quantity:'$products.quantity'
+                }
+            },
+            {
+                $lookup:{
+                    from:PRODUCTS_COLLECTION,
+                    localField:'item',
+                    foreignField:'_id',
+                    as:'product'
+                }
+            }
+        ]).toArray()
+        resolve(cartItems)
+    })
+}
+
+const getCartCount = (userId) => {
+    return new Promise(async (resolve, reject) => {
+        let count = 0;
+        let cart = await db.get().collection(CART_COLLECTION).findOne({ user: objectId(userId) })
+        if (cart) {
+            count = cart.products.length
+        }
+        resolve(count)
+    })
+}
+
 module.exports = {
     doSignup,
     doLogin,
@@ -158,5 +245,8 @@ module.exports = {
     doBlockUser,
     doUnblockUser,
     doOtpLogin,
-    doVerifyOtp
+    doVerifyOtp,
+    doAddToCart,
+    getCartProducts,
+    getCartCount
 }

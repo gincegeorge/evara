@@ -22,7 +22,7 @@ const addProduct = (req, callback) => {
 
     if (req.body.slug === "") {
         req.body.slug = slugify(req.body.name)
-    }else{
+    } else {
         req.body.slug = slugify(req.body.slug)
     }
 
@@ -45,6 +45,9 @@ const getProductDetails = (productSlug) => {
                 resolve(productDetails)
             })
     })
+}
+
+const getAllCategories = (productSlug) => {
     return new Promise((resolve, reject) => {
         db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).find().toArray()
             .then((ProductCats) => {
@@ -56,6 +59,7 @@ const getProductDetails = (productSlug) => {
 const updateProduct = (productId, req) => {
     return new Promise(async (resolve, reject) => {
 
+        console.log(productId);
         if (!req.files.length == 0) {
 
             const files = req.files;
@@ -82,17 +86,18 @@ const updateProduct = (productId, req) => {
         let productDetails = req.body
 
         if (productDetails.slug === "") {
-            productDetails.slug = slugify(productDetails.name)
-        }else{
+            productDetails.slug = slugify(productDetails.name, { lower: true })
+        } else {
             productDetails.slug = slugify(productDetails.slug)
         }
-
+        console.log('------------------------------');
         db.get().collection(COLLECTION.PRODUCTS_COLLECTION).updateOne({ _id: objectId(productId) }, {
             $set: {
                 name: productDetails.name,
                 description: productDetails.description,
                 regularPrice: productDetails.regularPrice,
-                slug: productDetails.slug
+                slug: productDetails.slug,
+                productCategories: productDetails.productCategories
             }
         }).then((response) => {
             resolve()
@@ -102,7 +107,7 @@ const updateProduct = (productId, req) => {
 
 const deleteProduct = (productSlug) => {
     return new Promise((resolve, reject) => {
-        db.get().collection(COLLECTION.PRODUCTS_COLLECTION).deleteOne({slug: productSlug }).then((response) => {
+        db.get().collection(COLLECTION.PRODUCTS_COLLECTION).deleteOne({ slug: productSlug }).then((response) => {
             resolve(response)
         })
     })
@@ -116,17 +121,31 @@ const getCategories = () => {
 }
 
 const postAddCategory = (req, callback) => {
-    return new Promise((resolve, reject) => {
-        console.log(req);
+    return new Promise(async (resolve, reject) => {
+
         if (req.categorySlug === "") {
-            req.categorySlug = slugify(req.categoryName)
+            req.categorySlug = slugify(req.categoryName, { lower: true })
         } else {
-            req.categorySlug = slugify(req.categorySlug)
+            req.categorySlug = slugify(req.categorySlug, { lower: true })
         }
-        db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).insertOne(req)
-            .then((data) => {
-                resolve(data)
-            })
+
+        const existingCat = await db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).findOne({ categorySlug: req.categorySlug })
+
+
+        if (existingCat) {
+            req.categorySlug = `${req.categorySlug}-1`
+            db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).insertOne(req)
+                .then((data) => {
+                    resolve(data)
+                })
+        } else {
+            db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).insertOne(req)
+                .then((data) => {
+                    resolve(data)
+                })
+        }
+
+
     })
 }
 
@@ -172,7 +191,7 @@ const updateProductCategory = (catDetails) => {
 
 
 module.exports = {
-    addNewProduct,
+    // addNewProduct,
     addProduct,
     getAllProducts,
     getProductDetails,
@@ -182,5 +201,6 @@ module.exports = {
     postAddCategory,
     deleteCategory,
     editCategory,
-    updateProductCategory
+    updateProductCategory,
+    getAllCategories
 }

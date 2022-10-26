@@ -55,5 +55,20 @@ router.route('/verify-otp')
 router.get('/product/:productSlug', userMiddlewares.verifyUserLogin, userController.getSingleProduct)
 
 
+/************************************* */
+//                CART
+/************************************* */
+
+router.get('/add-to-cart/:id',userController.addToCart)
+
+
+
+router.get('/cart',userMiddlewares.verifyUserLogin,userController.getCart)
+
+router.get('/checkout',(req,res)=>{
+  res.render('user/checkout')
+})
+
+
 
 module.exports = router

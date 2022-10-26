@@ -35,11 +35,9 @@ router.route('/products/new', adminMiddlewares.verifyAdminLogin)
   .post(store.array('productImages', 6), adminController.postNewProduct)
 
 //GET edit product
-router.route('/products/edit/:productSlug')
+router.get('/products/edit/:productSlug',adminController.getEditProduct)
 
-  .get(adminController.getEditProduct)
-
-  .post(store.array('productImages', 6), adminController.postEditProduct)
+router.post('/products/edit/:id',store.array('productImages', 6), adminController.postEditProduct)
 
 //GET delete product button
 router.get('/products/delete/:productSlug', adminMiddlewares.verifyAdminLogin, adminController.getDeleteProduct)

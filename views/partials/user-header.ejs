@@ -15,7 +15,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="/user-assets/imgs/theme/favicon.svg">
     <!-- Template CSS -->
     <link rel="stylesheet" href="/user-assets/css/main.css">
-    <link rel="stylesheet" href="/custom.css">
+    <link rel="stylesheet" href="/custom/custom.css">
 
 </head>
 
@@ -39,11 +39,13 @@
                     <div class="col-xl-3 col-lg-4">
                         <div class="header-info header-info-right">
                             <ul>
-                                <% if(user) { %> 
-                                    <li><i class="fi-rs-user"></i><a href="logout"><%= user.name %> ,Logout</a></li>
-                                <% }else{ %>     
-                                    <li><i class="fi-rs-user"></i><a href="login">Log In / Sign Up</a></li>
-                                <% } %>
+                                <% if(locals.user) { %>
+                                    <li><i class="fi-rs-user"></i><a href="/logout">
+                                            <%= user.name %> ,Logout
+                                        </a></li>
+                                    <% }else{ %>
+                                        <li><i class="fi-rs-user"></i><a href="/login">Log In / Sign Up</a></li>
+                                        <% } %>
                             </ul>
                         </div>
                     </div>
@@ -85,9 +87,13 @@
                                     </a>
                                 </div>
                                 <div class="header-action-icon-2">
-                                    <a class="mini-cart-icon" href="shop-cart.html">
+                                    <a class="mini-cart-icon" href="/cart">
                                         <img alt="Evara" src="/user-assets/imgs/theme/icons/icon-cart.svg">
-                                        <span class="pro-count blue">2</span>
+                                        <% if(locals.user) { %>
+                                            <span id="cartCount" class="pro-count blue"><%= user.cartCount %></span>
+                                        <% }else{ %> 
+                                            <span class="pro-count blue">0</span>
+                                        <% } %> 
                                     </a>
                                     <div class="cart-dropdown-wrap cart-dropdown-hm2">
                                         <ul>
@@ -398,7 +404,7 @@
                                 <ul>
                                     <li><a class="active" href="/">Home</a>
                                     </li>
-                                    <li><a href="shop">Shop</a>
+                                    <li><a href="/shop">Shop</a>
                                     </li>
                                 </ul>
                             </nav>
@@ -420,7 +426,11 @@
                             <div class="header-action-icon-2">
                                 <a class="mini-cart-icon" href="shop-cart.html">
                                     <img alt="Evara" src="/user-assets/imgs/theme/icons/icon-cart.svg">
-                                    <span class="pro-count white">2</span>
+                                    <% if(locals.user) { %>
+                                        <span class="pro-count white"><%= user.cartCount %></span>
+                                    <% }else{ %> 
+                                        <span class="pro-count white">0</span>
+                                    <% } %> 
                                 </a>
                                 <div class="cart-dropdown-wrap cart-dropdown-hm2">
                                     <ul>

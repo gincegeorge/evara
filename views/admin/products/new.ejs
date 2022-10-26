@@ -56,23 +56,31 @@
                     </div> <!-- card end// -->
                 </div>
                 <div class="col-lg-10">
-                    <div class="card mb-10">
+                    <div class="card mb-4">
                         <div class="card-header">
                             <h4>Categories</h4>
                         </div>
                         <div class="card-body">
                             <div class="row gx-2">
                                 <div class="col-sm-6 mb-3">
-                                    <div>
-                                    <% productCat.forEach(element=> { %>
-                                        <div class="form-check">
-                                            <input name="productCategories" class="form-check-input" type="checkbox" value="<%= element._id %>"
-                                                id="flexCheckDefault">
-                                            <label class="form-check-label" for="flexCheckDefault"><%= element.categoryName %></label>
-                                        </div>
-                                    <% }) %>
-                                    </div>
+                                    <label class="form-label">Category</label>
+                                    <select name="productCategories" class="form-select">
+                                        <% productCats.forEach(element=> { %>
+                                            <option value="<%= element._id %>">
+                                                <%= element.categoryName %>
+                                            </option>
+                                            <% }) %>
+                                    </select>
                                 </div>
+                                <!-- <div class="col-sm-6 mb-3">
+                                    <label class="form-label">Sub-category</label>
+                                    <select class="form-select">
+                                        <option> Nissan </option>
+                                        <option> Honda </option>
+                                        <option> Mercedes </option>
+                                        <option> Chevrolet </option>
+                                    </select>
+                                </div> -->
                             </div> <!-- row.// -->
                         </div>
                     </div> <!-- card end// -->

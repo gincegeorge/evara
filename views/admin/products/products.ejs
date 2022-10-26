@@ -50,12 +50,13 @@
                 </div>
               </div>
               <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                <a class="itemside" href="#">
+                <a class="itemside" href="/admin/products/edit/<%= element.slug %>">
+                  <div class="left">
+                    <img src="/products-uploads/<%= element.productImages[0] %>" class="img-sm img-thumbnail" alt="Item">
+                  </div>
                   <div class="info">
                     <h6 class="mb-0">
-                      <a href="/admin/products/edit/<%= element.slug %>" style="color: #000 !important; ">
-                        <%= element.name %>
-                      </a>
+                      <%= element.name %>
                     </h6>
                   </div>
                 </a>
@@ -64,7 +65,9 @@
                 <span>$<%= element.regularPrice %></span>
               </div>
               <div class="col-lg-2 col-sm-2 col-4 col-status">
-                <span class="badge rounded-pill alert-success">category</span>
+                <span class="badge rounded-pill alert-success">
+                  <%= element.productCategories %>
+                </span>
               </div>
               <div class="col-lg-1 col-sm-2 col-4 col-date">
                 <span>02.11.2021</span>
