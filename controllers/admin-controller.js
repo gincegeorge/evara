@@ -1,6 +1,7 @@
 const adminHelpers = require('../helpers/admin-helpers')
 const productHelpers = require('../helpers/product-helpers')
 const userHelpers = require('../helpers/user-helpers')
+const categoryHelpers = require('../helpers/category-helpers')
 
 const getAdminLogin = (req, res) => {
     if (req.session.adminLoginStatus) {
@@ -66,7 +67,7 @@ const postEditProduct = (req, res) => {
         .then(() => {
             res.redirect('/admin/products')
         })
-} 
+}
 const getDeleteProduct = (req, res) => {
     let productSlug = req.params.productSlug
     productHelpers.deleteProduct(productSlug).then((response) => {
@@ -91,48 +92,64 @@ const getUnblockUser = (req, res) => {
 }
 
 const getCategories = (req, res) => {
-    productHelpers.getCategories().then((categories) => {
+    categoryHelpers.getCategories().then((categories) => {
         res.render('admin/product-cat/categories', { categories })
     })
 }
 const postCategory = (req, res) => {
-    productHelpers.postAddCategory(req.body).then((response) => {
+    categoryHelpers.postAddCategory(req.body).then((response) => {
         res.redirect('/admin/product-categories')
     })
 }
 
 const deleteCategory = (req, res) => {
     let catId = req.query.id
-    productHelpers.deleteCategory(catId).then((response) => {
+    categoryHelpers.deleteCategory(catId).then((response) => {
         res.redirect('/admin/product-categories')
     })
 }
 
 const getEditCategory = async (req, res) => {
     let catId = req.query.id
-    let categoryDetails = await productHelpers.editCategory(catId);
+    let categoryDetails = await categoryHelpers.editCategory(catId);
     res.render("admin/product-cat/edit", { categoryDetails });
 }
 
 const putProductCategory = (req, res) => {
-    productHelpers.updateProductCategory(req.body)
+    categoryHelpers.updateProductCategory(req.body)
         .then(() => {
             res.redirect('/admin/product-categories')
         })
 }
 
 const deleteProductImage = (req, res) => {
-
-
-    // console.log('-------------------');
-    // let catId = req.params.prodId
-    // console.log(catId);
-
-
-
-    res.send('helooo')
+    productHelpers.doDeleteProductImage(req.params).then((data) => {
+        if (data.modifiedCount) {
+            res.json({ status: true })
+        } else {
+            res.json({ status: false })
+        }
+    })
 }
 
+
+const getOrders = (req, res) => {
+    adminHelpers.getAllOrders().then((orderList) => {
+        res.render('admin/order/orders', { orderList })
+    })
+}
+
+const viewOrder = async (req, res) => {
+    orderId = req.params.id
+    console.log(orderId);
+    orderDetails = await adminHelpers.viewSingleOrder(orderId)
+    res.render('admin/order/single-order', { orderDetails })
+}
+
+const OrderStatus = async (req, res) => {
+    const newOrderStatus = await adminHelpers.changeOrderStatus(req.body)
+    res.json(newOrderStatus)
+}
 
 
 module.exports = {
@@ -154,5 +171,8 @@ module.exports = {
     deleteCategory,
     getEditCategory,
     putProductCategory,
-    deleteProductImage
+    deleteProductImage,
+    getOrders,
+    viewOrder,
+    OrderStatus
 } 

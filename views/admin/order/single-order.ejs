@@ -1,0 +1,148 @@
+<%- include('../../partials/admin-header') %>
+
+<section class="content-main">
+  <div class="content-header">
+    <div class="col-6">
+      <h2 class="content-title card-title">Order detail</h2>
+      <p>Details for Order ID: <%= orderDetails.orderId %></p>
+      <% const [day,month,date,year] = orderDetails.date.toString().split(' ') %>
+    </div>
+    <div class="col-6 text-end">
+      <a href="/admin/orders" class="btn btn-light rounded font-md">Back to orders</a>
+    </div>
+  </div>
+  <div class="card">
+    <header class="card-header">
+      <div class="row align-items-center">
+        <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+          <span>
+            <i class="material-icons md-calendar_today"></i> <b><%= `${day} ${date} ${month} ${year}` %></b>
+          </span> <br>
+          <small class="text-muted mt-1">Order ID: <%= orderDetails.orderId %></small>
+        </div>
+        <div class="col-lg-6 col-md-6 ms-auto text-md-end">
+          <select class="form-select d-inline-block mb-lg-0 mb-15 mw-200">
+            <option>Change status</option>
+            <option>Awaiting payment</option>
+            <option>Confirmed</option>
+            <option>Shipped</option>
+            <option>Delivered</option>
+          </select>
+          <a class="btn btn-primary" href="#">Save</a>
+        </div>
+      </div>
+    </header> <!-- card-header end// -->
+    <div class="card-body">
+      <div class="row mb-50 mt-20 order-info-wrap">
+        <div class="col-md-4">
+          <article class="icontext align-items-start">
+            <span class="icon icon-sm rounded-circle bg-primary-light">
+              <i class="text-primary material-icons md-person"></i>
+            </span>
+            <div class="text">
+              <h6 class="mb-1">Customer</h6>
+              <p class="mb-1">
+                <%= orderDetails.deliveryAddress.name %> <br> <a href="mailto:<%= orderDetails.deliveryAddress.email %>"><%= orderDetails.deliveryAddress.email %></a> <br> +91<%= orderDetails.deliveryAddress.phone %>
+              </p>
+            </div>
+          </article>
+        </div> <!-- col// -->
+        <div class="col-md-4">
+          <article class="icontext align-items-start">
+            <span class="icon icon-sm rounded-circle bg-primary-light">
+              <i class="text-primary material-icons md-local_shipping"></i>
+            </span>
+            <div class="text">
+              <h6 class="mb-1">Deliver to</h6>
+              <p class="mb-1">
+                Address: <%= orderDetails.deliveryAddress.addressLine %>, <br><%= orderDetails.deliveryAddress.city %><br>
+                <%= orderDetails.deliveryAddress.state %>, <br><%= orderDetails.deliveryAddress.zipCode %>
+            </div>
+          </article>
+        </div> <!-- col// -->
+      </div> <!-- row // -->
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="30%">Product</th>
+                  <th>Unit Price</th>
+                  <th>Quantity</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th class="text-end">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% orderDetails.products.forEach(element => { %>
+                <tr id="<%= element.product._id %>-tr">
+                  <td>
+                    <a class="itemside" href="#">
+                      <div class="left">
+                        <img src="/products-uploads/<%= element.product.productImages[0] %>" width="40" height="40" class="img-xs" alt="Item">
+                      </div>
+                      <div class="info"><%= element.product.name %></div>
+                    </a>
+                  </td>
+                  <td>₹<%= element.product.regularPrice %> </td>
+                  <td><%= element.quantity %></td>
+                  <td>₹<%= element.product.regularPrice * element.quantity %></td>
+                  <td>
+                    <% if(element.productOrderStatus === 'Processing'){ %>
+                    <span class="badge rounded-pill alert-warning"><%= element.productOrderStatus %></span>
+                    <% }else if (element.productOrderStatus === 'Canceled'){ %>
+                    <span class="badge rounded-pill alert-danger"><%= element.productOrderStatus %></span>
+                    <% }else if (element.productOrderStatus === 'Delivered'){ %>
+                    <span class="badge rounded-pill alert-success"><%= element.productOrderStatus %></span>
+                    <% }else if (element.productOrderStatus === 'Refunded'){ %>
+                    <span class="badge rounded-pill alert-secondary"><%= element.productOrderStatus %></span>
+                    <% }else if (element.productOrderStatus === 'Shipped'){ %>
+                    <span class="badge rounded-pill alert-warning"><%= element.productOrderStatus %></span>
+                    <% }  %>
+                  </td>
+                  <td class="text-end">
+                    <select id="<%= element.product._id %>-status" class="form-select d-inline-block mb-lg-0 mb-15 mw-200 changeOrderStatus" onchange="changeOrderStatus('<%= orderDetails._id %>','<%= element.product._id %>')">
+                      <option selected disabled><%= element.productOrderStatus %></option>
+                      <option>Processing</option>
+                      <option>Canceled</option>
+                      <option>Shipped</option>
+                      <option>Delivered</option>
+                    </select>
+                  </td>
+                </tr>
+                <% }) %>
+                <tr>
+                  <td colspan="12">
+                    <article class="float-end">
+                      <dl class="dlist">
+                        <dt>Subtotal:</dt>
+                        <dd>₹<%= orderDetails.cartTotal %></dd>
+                      </dl>
+                      <dl class="dlist">
+                        <dt>Shipping cost:</dt>
+                        <dd>₹00.00</dd>
+                      </dl>
+                      <dl class="dlist">
+                        <dt>Grand total:</dt>
+                        <dd> <b class="h5">₹<%= orderDetails.cartTotal %></b> </dd>
+                      </dl>
+                      <dl class="dlist">
+                        <dt class="text-muted">Status:</dt>
+                        <dd>
+                          <span class="badge rounded-pill alert-success text-success">Payment done</span>
+                        </dd>
+                      </dl>
+                    </article>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div> <!-- table-responsive// -->
+        </div> <!-- col// -->
+      </div>
+    </div> <!-- card-body end// -->
+  </div> <!-- card end// -->
+</section> <!-- content-main end// -->
+<%- include('../../partials/admin-footer') %>

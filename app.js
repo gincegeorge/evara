@@ -1,12 +1,13 @@
 require('dotenv').config();
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 const db = require('./config/connection')
 const session = require('express-session')
-var app = express();
+
+const app = express();
 
 /* -------------------------------------------------------------------------- */
 /*                             Database connection                            */
@@ -15,21 +16,22 @@ db.connect((err) => {
   if (err) {
     console.log('Database connection error' + err);
   } else {
-    console.log('Database connected successfully');
+    console.log('Database connected successfully on http://localhost:8080');
   }
 })
 /* -------------------------------------------------------------------------- */
 /*                             Routes                                         */
 /* -------------------------------------------------------------------------- */
-var adminRouter = require('./routes/admin');
-var userRouter = require('./routes/user');
+const adminRouter = require('./routes/admin');
+const userRouter = require('./routes/user');
 /* -------------------------------------------------------------------------- */
 /*                             Session creation                               */
 /* -------------------------------------------------------------------------- */
-app.use(session({
+app.use(session({ 
   secret: 'Key',
   cookie: { maxAge: 600000 },
   resave: true,
+
   saveUninitialized: true
 }));
 /* -------------------------------------------------------------------------- */
@@ -51,9 +53,9 @@ app.use('/admin', adminRouter);
 /* -------------------------------------------------------------------------- */
 /*                catch 404 and forward to error handler                      */
 /* -------------------------------------------------------------------------- */
-app.use(function (req, res, next) {
-  next(createError(404));
-});
+// app.use(function (req, res, next) {
+//   next(createError(404)); 
+// });
 /* -------------------------------------------------------------------------- */
 /*                      error handler middleware                              */
 /* -------------------------------------------------------------------------- */

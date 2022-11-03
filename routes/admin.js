@@ -1,11 +1,11 @@
 var express = require('express');
 var router = express.Router();
 const multer = require('multer')
-const store = require('./middlewares/multer')
+const store = require('../middlewares/multer')
 
-const adminController = require('../controller/adminController')
-const userController = require('../controller/userController')
-const adminMiddlewares = require('../routes/middlewares/admin-middlewares')
+const adminController = require('../controllers/admin-controller')
+const userController = require('../controllers/user-controller')
+const adminMiddlewares = require('../middlewares/admin-middlewares')
 
 //GET Admin login
 router.get("/login", adminController.getAdminLogin)
@@ -32,14 +32,19 @@ router.route('/products/new', adminMiddlewares.verifyAdminLogin)
 
   .get(adminController.getNewProduct)
 
-  .post(store.array('productImages', 6), adminController.postNewProduct)
+  //TODO product created date
+  .post(store.array('productImages', 5), adminController.postNewProduct)
 
 //GET edit product
-router.get('/products/edit/:productSlug',adminController.getEditProduct)
+router.get('/products/edit/:productSlug', adminController.getEditProduct)
 
-router.post('/products/edit/:id',store.array('productImages', 6), adminController.postEditProduct)
+router.get('/products/edit/remove-product-image/:prodId/:imgName', adminController.deleteProductImage)
+
+router.post('/products/edit/:id', store.array('productImages', 6), adminController.postEditProduct)
+
 
 //GET delete product button
+//FIXME DELETE PRODUCT FROM CART ASWELL
 router.get('/products/delete/:productSlug', adminMiddlewares.verifyAdminLogin, adminController.getDeleteProduct)
 
 
@@ -58,7 +63,7 @@ router.get('/users/unblock', adminMiddlewares.verifyAdminLogin, adminController.
 
 /************************************* */
 //         PRODUCT CATEGORIES
-/************************************* */ 
+/************************************* */
 //GET Categories 
 router.get('/product-categories', adminMiddlewares.verifyAdminLogin, adminController.getCategories)
 
@@ -76,10 +81,17 @@ router.route('/product-categories/edit', adminMiddlewares.verifyAdminLogin)
 
   .post(adminController.putProductCategory)
 
-  
+
 /************************************* */
-//         EDIT PRODUCT
-/************************************* */ 
-router.get('/remove-product-image/:prodId/:imgName', adminMiddlewares.verifyAdminLogin, adminController.deleteProductImage)
+//               ORDERS
+/************************************* */
+router.get('/orders',adminMiddlewares.verifyAdminLogin,adminController.getOrders)
+
+router.get('/order/:id', adminMiddlewares.verifyAdminLogin, adminController.viewOrder)
+
+router.patch('/order/change-status', adminMiddlewares.verifyAdminLogin, adminController.OrderStatus)
+
+
+
 
 module.exports = router;

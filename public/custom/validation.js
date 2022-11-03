@@ -3,6 +3,7 @@ var errorEmail = document.getElementById('email')
 var errorPassword = document.getElementById('passwords')
 var errorcPassword = document.getElementById('cpasswords')
 var errorPhonenumber = document.getElementById('phonenumbers')
+var errorPin = document.getElementById('pinError')
 function validateName() {
     const name = document.getElementById('Name').value;
     if (name == "") {
@@ -78,6 +79,20 @@ function validPhoneumber() {
         return false
     }
     errorPhonenumber.innerHTML = null
+    return true
+}
+
+function validZipcode() {
+    const pin = document.getElementById('pin').value
+    if (pin == "") {
+        errorPin.innerHTML = "Zipcode can't be empty"
+        return false
+    }
+    if (pin.length < 6 || !pin.match(/^\d*$/) || pin.length > 6) {
+        errorPin.innerHTML = "Phone number must be 6 digits"
+        return false
+    }
+    errorPin.innerHTML = null
     return true
 }
 

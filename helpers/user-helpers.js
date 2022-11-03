@@ -4,10 +4,21 @@ const bcrypt = require('bcrypt')
 const collections = require('../config/collections')
 const { render, response } = require('../app')
 const { ReturnDocument } = require('mongodb')
-const { CART_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, PRODUCTS_COLLECTION } = require('../config/collections')
+const { CART_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, PRODUCTS_COLLECTION, USERS_COLLECTION, ORDER_COLLECTION } = require('../config/collections')
 var objectId = require('mongodb').ObjectId
 const client = require("twilio")(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
+const crypto = require("crypto")
+const { resolve } = require('path')
+const Razorpay = require("razorpay");
 
+// RAZORPAY INSTANCE
+var instance = new Razorpay({
+    key_id: process.env.KEY_ID,
+    key_secret: process.env.KEY_SECRET
+    ,
+});
+
+//SIGNUP POST
 const doSignup = (userData) => {
     return new Promise(async (resolve, reject) => {
         userData.isBlocked = false
@@ -21,6 +32,7 @@ const doSignup = (userData) => {
     })
 }
 
+//LOGIN USER
 const doLogin = (userData) => {
     return new Promise(async (resolve, reject) => {
         let userLoginStatus = false
@@ -54,6 +66,7 @@ const doLogin = (userData) => {
     })
 }
 
+//USERS - GET
 const getUsers = () => {
     return new Promise((resolve, reject) => {
         let users = db.get().collection(collection.USERS_COLLECTION).find().toArray()
@@ -61,6 +74,7 @@ const getUsers = () => {
     })
 }
 
+//BLOCK USER
 const doBlockUser = (userId) => {
     return new Promise((resolve, reject) => {
         db.get().collection(collections.USERS_COLLECTION).updateOne({ _id: objectId(userId) }, {
@@ -73,6 +87,7 @@ const doBlockUser = (userId) => {
     })
 }
 
+//UNBLOCK USER
 const doUnblockUser = (userId) => {
     return new Promise((resolve, reject) => {
         db.get().collection(collections.USERS_COLLECTION).updateOne({ _id: objectId(userId) }, {
@@ -85,6 +100,7 @@ const doUnblockUser = (userId) => {
     })
 }
 
+//OTP LOGIN
 const doOtpLogin = (req) => {
     return new Promise(async (resolve, reject) => {
         let userloginStatus = false;
@@ -109,12 +125,13 @@ const doOtpLogin = (req) => {
 
             resolve(response)
         } else {
-            response.userLoginError = 'Incorrect email'
+            response.userLoginError = 'Phonenumber is not linked to any account'
             resolve(response)
         }
     })
 }
 
+//VERIFY OTP
 const doVerifyOtp = (req) => {
     return new Promise((resolve, reject) => {
         let response = {}
@@ -147,94 +164,120 @@ const doVerifyOtp = (req) => {
                 }
             });
     })
+}
+
+
+//ADD ADDRESS
+const addNewAddres = (formData, userId) => {
+
+    formData._id = objectId()
+
+    return new Promise(async (resolve, reject) => {
+        await db.get().collection(USERS_COLLECTION).updateOne(
+            { _id: objectId(userId) }, {
+            $addToSet: {
+                address: formData
+            }
+        }, { $upsert: true }
+        ).then((data) => {
+            resolve()
+        })
+    })
+}
+
+//ADDRESS - GET
+const getAddresses = (userId) => {
+    return new Promise((resolve, reject) => {
+        db.get().collection(USERS_COLLECTION)
+            .aggregate([
+                { $match: { _id: objectId(userId) } },
+                { $project: { address: 1, _id: 0 } },
+                { $unwind: '$address' }
+            ]).toArray()
+            .then((result) => {
+                resolve(result)
+            })
+    }).catch((err) => {
+        console.log(err);
+    })
+}
+
+// ADDRESSS - DELETE
+const doDeleteAddress = (data) => {
+
+    const { userId, addressId } = data
+
+    return new Promise((resolve, reject) => {
+        db.get().collection(USERS_COLLECTION).updateOne(
+            { _id: objectId(userId) },
+            { $pull: { address: { _id: objectId(addressId) } } }
+        )
+            .then((result) => {
+                resolve(result)
+            })
+    })
 
 }
 
-const doAddToCart = (productId, userId) => {
-
-    let productObj = {
-        item: objectId(productId),
-        quantity: 1
-    }
-
+//VIEW SINGLE ORDER
+const viewOrder = async (orderId) => {
     return new Promise(async (resolve, reject) => {
-        let userCart = await db.get().collection(CART_COLLECTION).findOne({ user: objectId(userId) })
-        if (userCart) {
+        await db.get().collection(ORDER_COLLECTION).findOne({ _id: objectId(orderId) })
+            .then((result) => {
+                resolve(result)
+            })
+    })
+}
 
-            let productExists = userCart.products.findIndex(product => product.item == productId)
+//RAZORPAY
+const generateRazorpay = (orderId, totalPrice, paymentOption) => {
 
-            console.log(productExists);
-
-            if (productExists >= 0) {
-                db.get().collection(CART_COLLECTION)
-                    .updateOne(
-                        {
-                            'products.item': objectId(productId)
-                        },
-                        {
-                            $inc: { 'products.$.quantity': 1 }
-                        }).then(() => {
-                            resolve()
-                        })
+    return new Promise((resolve, reject) => {
+        var options = {
+            amount: totalPrice * 100,
+            currency: "INR",
+            receipt: orderId + ""
+        };
+        instance.orders.create(options, function (err, order) {
+            if (err) {
+                console.log(err);
             } else {
-                let cartObj = {
-                    user: objectId(userId),
-                    products: [productObj]
-                }
-                db.get().collection(CART_COLLECTION).insertOne(cartObj)
-                    .then(() => {
-                        resolve()
-                    })
+                order.paymentOption = paymentOption
+                resolve(order)
             }
+        });
+    })
+}
+
+//VERIFY PAYMENT
+const verifyPayment = (paymentInfo) => {
+
+    return new Promise((resolve, reject) => {
+
+        let hmac = crypto.createHmac('sha256', process.env.KEY_SECRET)
+            .update(paymentInfo['payment[razorpay_order_id]'] + "|" + paymentInfo['payment[razorpay_payment_id]'])
+            .digest('hex')
+
+        if (hmac == paymentInfo['payment[razorpay_signature]']) {
+            resolve(paymentInfo['order[receipt]'])
         } else {
-            let cartObj = {
-                user: objectId(userId),
-                products: [productObj]
-            }
-            db.get().collection(CART_COLLECTION).insertOne(cartObj)
-                .then(() => {
-                    resolve()
-                })
+            reject()
         }
     })
 }
 
-const getCartProducts = (userId) => {
-    return new Promise(async (resolve, reject) => {
-        let cartItems = await db.get().collection(CART_COLLECTION).aggregate([
-            {
-                $match: { user: objectId(userId) }
-            },
-            {
-                $unwind: '$products'
-            },
-            {
-                $project:{
-                    item:'$products.item',
-                    quantity:'$products.quantity'
-                }
-            },
-            {
-                $lookup:{
-                    from:PRODUCTS_COLLECTION,
-                    localField:'item',
-                    foreignField:'_id',
-                    as:'product'
-                }
-            }
-        ]).toArray()
-        resolve(cartItems)
-    })
-}
+//CHANGE PAYMENT STATUS
+const changePaymentStatus = (orderId) => {
+    return new Promise(async(resolve, reject) => {
 
-const getCartCount = (userId) => {
-    return new Promise(async (resolve, reject) => {
-        let count = 0;
-        let cart = await db.get().collection(CART_COLLECTION).findOne({ user: objectId(userId) })
-        if (cart) {
-            count = cart.products.length
-        }
-        resolve(count)
+       await db.get().collection(ORDER_COLLECTION).updateOne(
+            { _id: objectId(orderId) },
+            { $set: { paymentStatus: 'success', orderStatus: 'Processing' } }
+        )
+
+        await db.get().collection(ORDER_COLLECTION).updateMany({ _id: objectId(orderId) }, { $set: { "products.$[].productOrderStatus": 'Processing' } })
+
+        resolve()
     })
 }
 
@@ -246,7 +289,12 @@ module.exports = {
     doUnblockUser,
     doOtpLogin,
     doVerifyOtp,
-    doAddToCart,
-    getCartProducts,
-    getCartCount
+    addNewAddres,
+    getAddresses,
+    doDeleteAddress,
+    //getMyAccount,
+    viewOrder,
+    generateRazorpay,
+    verifyPayment,
+    changePaymentStatus
 }

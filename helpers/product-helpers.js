@@ -1,17 +1,15 @@
-var db = require('../config/connection')
-var COLLECTION = require('../config/collections')
+const db = require('../config/connection')
+const COLLECTION = require('../config/collections')
 const { response } = require('express')
-var objectId = require('mongodb').ObjectId
-var slugify = require('slugify')
+const objectId = require('mongodb').ObjectId
+const slugify = require('slugify')
 
-const addNewProduct = () => {
-    return new Promise((resolve, reject) => {
-        db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).find().toArray()
-            .then((ProductCats) => {
-                resolve(ProductCats)
-            })
-    })
-}
+const path = require('path');
+
+const fs = require('fs')
+const { promisify } = require('util')
+const unlinkAsync = promisify(fs.unlink)
+
 
 const addProduct = (req, callback) => {
     const files = req.files;
@@ -59,7 +57,6 @@ const getAllCategories = (productSlug) => {
 const updateProduct = (productId, req) => {
     return new Promise(async (resolve, reject) => {
 
-        console.log(productId);
         if (!req.files.length == 0) {
 
             const files = req.files;
@@ -90,7 +87,6 @@ const updateProduct = (productId, req) => {
         } else {
             productDetails.slug = slugify(productDetails.slug)
         }
-        console.log('------------------------------');
         db.get().collection(COLLECTION.PRODUCTS_COLLECTION).updateOne({ _id: objectId(productId) }, {
             $set: {
                 name: productDetails.name,
@@ -113,94 +109,39 @@ const deleteProduct = (productSlug) => {
     })
 }
 
-const getCategories = () => {
-    return new Promise((resolve, reject) => {
-        let categories = db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).find().toArray()
-        resolve(categories)
-    })
-}
 
-const postAddCategory = (req, callback) => {
+const doDeleteProductImage = (data) => {
     return new Promise(async (resolve, reject) => {
 
-        if (req.categorySlug === "") {
-            req.categorySlug = slugify(req.categoryName, { lower: true })
-        } else {
-            req.categorySlug = slugify(req.categorySlug, { lower: true })
-        }
+        const { prodId, imgName } = data
 
-        const existingCat = await db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).findOne({ categorySlug: req.categorySlug })
-
-
-        if (existingCat) {
-            req.categorySlug = `${req.categorySlug}-1`
-            db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).insertOne(req)
-                .then((data) => {
-                    resolve(data)
-                })
-        } else {
-            db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).insertOne(req)
-                .then((data) => {
-                    resolve(data)
-                })
-        }
-
-
-    })
-}
-
-const deleteCategory = (catId) => {
-    return new Promise((resolve, reject) => {
-        db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).deleteOne({ _id: objectId(catId) }).then((response) => {
-            resolve(response)
-        })
-    })
-}
-
-//edit category
-const editCategory = (catId) => {
-    return new Promise((resolve, reject) => {
-        db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).findOne({ _id: objectId(catId) })
-            .then((categoryDetails) => {
-                resolve(categoryDetails)
-            })
-    })
-}
-
-const updateProductCategory = (catDetails) => {
-    catId = catDetails.catId
-    console.log(catId)
-    console.log(catDetails)
-    return new Promise((resolve, reject) => {
-        if (catDetails.categorySlug === "") {
-            catDetails.categorySlug = slugify(catDetails.categoryName)
-        } else {
-            catDetails.categorySlug = slugify(catDetails.categorySlug)
-        }
-        db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).updateOne({ _id: objectId(catId) }, {
-            $set: {
-                categoryName: catDetails.categoryName,
-                categorySlug: catDetails.categorySlug,
-                categoryDesc: catDetails.categoryDesc
+        const datafind = await db.get().collection(COLLECTION.PRODUCTS_COLLECTION).updateOne(
+            { _id: objectId(prodId) },
+            {
+                $pull: { productImages: imgName }
             }
-        }).then((response) => {
-            resolve()
-        })
+        )
+
+        
+        // Delete the file like normal
+        if (datafind.modifiedCount) {
+            imgPath = 'public/products-uploads/' + imgName
+            await unlinkAsync(imgPath)
+        }
+
+        resolve(datafind)
+    }).catch((err) => {
+        console.log("Databse error, Please buy Mangoooo" + err);
     })
 }
 
 
 module.exports = {
-    // addNewProduct,
     addProduct,
     getAllProducts,
     getProductDetails,
     updateProduct,
     deleteProduct,
-    getCategories,
-    postAddCategory,
-    deleteCategory,
-    editCategory,
-    updateProductCategory,
-    getAllCategories
+    getAllCategories,
+    doDeleteProductImage
 }

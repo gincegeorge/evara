@@ -1,4 +1,5 @@
-var userHelpers = require('../../helpers/user-helpers')
+const cartHelpers = require('../helpers/cart-helpers')
+const orderHelpers = require('../helpers/order-helpers')
 
 //verify user login
 const verifyUserLogin = async (req, res, next) => {
@@ -6,11 +7,15 @@ const verifyUserLogin = async (req, res, next) => {
 
         user = req.session.userData
 
-        let cartCount = await userHelpers.getCartCount(user._id)
+        let cart = {}
+
+        cart.products  = await cartHelpers.getCartProducts(user._id)
+        cart.count = await cartHelpers.getCartCount(user._id)
+        cart.total = await orderHelpers.getCheckoutData(user._id)
 
         user.userLoginStatus = req.session.userLoginStatus
 
-        user.cartCount = cartCount
+        user.cart = cart
 
         res.locals.user = user
 

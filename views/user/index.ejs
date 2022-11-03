@@ -36,12 +36,13 @@
                                         </div>
                                         <h2><a href="product/<%= element.slug %>""><%= element.name %></a></h2>
                                     <div class=" rating-result" title="90%">
-                                        <span><span>90%</span></span>
+                                                <span><span>90%</span></span>
                                     </div>
                                     <div class="product-price">
                                         <span>₹<%= element.regularPrice %></span>
                                         <!-- <span class="old-price">$245.8</span> -->
                                     </div>
+                                    <!-- TODO add go to cart button -->
                                     <div class="product-action-1 show">
                                         <button onclick="addToCart('<%= element._id %>')" aria-label="Add To Cart"
                                             class="action-btn hover-up"><i class="fi-rs-shopping-bag-add"></i></button>
