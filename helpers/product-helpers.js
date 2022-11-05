@@ -24,6 +24,9 @@ const addProduct = (req, callback) => {
         req.body.slug = slugify(req.body.slug)
     }
 
+
+    req.body.date = new Date()
+
     db.get().collection(COLLECTION.PRODUCTS_COLLECTION).insertOne(req.body).then((data) => {
         callback(data)
     })
@@ -31,7 +34,7 @@ const addProduct = (req, callback) => {
 
 const getAllProducts = () => {
     return new Promise((resolve, reject) => {
-        let products = db.get().collection(COLLECTION.PRODUCTS_COLLECTION).find().toArray()
+        let products = db.get().collection(COLLECTION.PRODUCTS_COLLECTION).find().sort({'date':-1}).toArray()
         resolve(products)
     })
 }

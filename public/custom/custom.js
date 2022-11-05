@@ -116,8 +116,11 @@ function placeOrder() {
                 location.href = '/order-placed'
             } else if (response.paymentOption == 'razorPay') {
                 razorPayment(response)
+            } else {
+                location.href = response.redirectLink
+                //razorPayment(response)
             }
-        }
+        } 
     })
 }
 
@@ -133,9 +136,6 @@ function razorPayment(order) {
         "order_id": order.id,
         //"callback_url": "https://eneqd3r9zrjok.x.pipedream.net/",
         "handler": function (response) {
-            // alert(response.razorpay_payment_id);
-            // alert(response.razorpay_order_id);
-            // alert(response.razorpay_signature)
             verifyPayment(response, order)
         },
         "prefill": {
@@ -229,16 +229,17 @@ function deleteAddress(userId, addressId) {
 function editAddress() {
     Swal.fire({
         title: 'Nope',
-        text: 'we don\'t do that here, please delete it',
+        text: 'Please delete it',
         iconHtml: null
     })
 }
 /*--------------------------------------------------------------*/
-//                        CANCEL ORDER
+//             CANCEL ORDER - ONLINE PAYMENT
 /*--------------------------------------------------------------*/
-function changeOrderStatus(orderId, productId) {
+function cancelOrder(orderId, productId) {
 
-    const newOrderStatus = $('#' + productId).attr("orderstatus")
+    const newOrderStatus = 'Canceled'
+    const paymentStatus =  'Refunded'
 
     Swal.fire({
         title: 'Cancel order',
@@ -251,7 +252,7 @@ function changeOrderStatus(orderId, productId) {
             $.ajax({
                 url: '/my-account/order/cancel',
                 data: {
-                    orderId, productId, newOrderStatus
+                    orderId, productId, newOrderStatus, paymentStatus
                 },
                 method: 'patch',
                 success: (response) => {
@@ -269,3 +270,118 @@ function changeOrderStatus(orderId, productId) {
         }
     })
 }
+
+/*--------------------------------------------------------------*/
+//               RETURN ORDER - ONLINE PAYMENT
+/*--------------------------------------------------------------*/
+function returnOrder(orderId, productId) {
+
+    const newOrderStatus = 'Returned'
+    const paymentStatus =  'Refunded'
+
+    Swal.fire({
+        title: 'Return order',
+        text: 'Are you sure you want to return this product?',
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        iconHtml: null
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/my-account/order/return',
+                data: {
+                    orderId, productId, newOrderStatus, paymentStatus
+                },
+                method: 'patch',
+                success: (response) => {
+                    console.log(response);
+                    if (response.modifiedCount) {
+                        window.location.reload()
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            timer: 1500
+                        })
+                    }
+                }
+            })
+        }
+    })
+}
+
+/*--------------------------------------------------------------*/
+//             CANCEL ORDER - COD
+/*--------------------------------------------------------------*/
+function cancelCodOrder(orderId, productId) {
+
+    const newOrderStatus = 'Canceled'
+    const paymentStatus =  'Canceled'
+
+    Swal.fire({
+        title: 'Cancel order',
+        text: 'Are you sure you want to cancel this product?',
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        iconHtml: null
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/my-account/order/cancel-cod',
+                data: {
+                    orderId, productId, newOrderStatus, paymentStatus
+                },
+                method: 'patch',
+                success: (response) => {
+                    console.log(response);
+                    if (response.modifiedCount) {
+                        window.location.reload()
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            timer: 1500
+                        })
+                    }
+                }
+            })
+        }
+    })
+}
+
+/*--------------------------------------------------------------*/
+//               RETURN ORDER - COD
+/*--------------------------------------------------------------*/
+function returnCodOrder(orderId, productId) {
+
+    const newOrderStatus = 'Returned'
+    const paymentStatus =  'Refunded'
+
+    Swal.fire({
+        title: 'Return order',
+        text: 'Are you sure you want to return this product?',
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        iconHtml: null
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/my-account/order/return-cod',
+                data: {
+                    orderId, productId, newOrderStatus, paymentStatus
+                },
+                method: 'patch',
+                success: (response) => {
+                    console.log(response);
+                    if (response.modifiedCount) {
+                        window.location.reload()
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            timer: 1500
+                        })
+                    }
+                }
+            })
+        }
+    })
+}
+

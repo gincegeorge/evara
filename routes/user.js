@@ -1,8 +1,13 @@
 var express = require('express');
-const { response } = require('../app');
-var router = express.Router();
+const router = express.Router();
 const userController = require('../controllers/user-controller')
 const userMiddlewares = require('../middlewares/user-middlewares')
+
+
+//const paypal_o = require('../helpers/paypal')
+
+
+
 
 /* GET home page. */
 router.get('/', userMiddlewares.verifyUserLogin, userController.getHomepage)
@@ -47,7 +52,7 @@ router.route('/verify-otp')
 /************************************* */
 //            SHOP PAGES
 /************************************* */
-router.get('/shop', userMiddlewares.verifyUserLogin, userController.getShoppage) 
+router.get('/shop', userMiddlewares.verifyUserLogin, userController.getShoppage)
 
 router.get('/product/:productSlug', userMiddlewares.verifyUserLogin, userController.getSingleProduct)
 
@@ -71,13 +76,17 @@ router.get('/checkout', userMiddlewares.verifyUserLogin, userController.getCheck
 //FIXME ORDER CAN BE PLACED WITH 0 ITEMS
 router.post('/place-order', userMiddlewares.verifyUserLogin, userController.getPlaceOrder)
 
-router.post('/verify-payment',userMiddlewares.verifyUserLogin, userController.verifyPayment)
+//RAZORPAY VERIFICATION
+router.post('/verify-payment', userMiddlewares.verifyUserLogin, userController.verifyPayment)
 
 router.get('/order-placed', userMiddlewares.verifyUserLogin, userController.orderPlaced)
 
+//PAYPAL VERIFICATION
+router.get('/success', userController.verifyPaypal);
+
 
 /************************************* */
-//            MY ACCOUNT
+//              MY ACCOUNT
 /************************************* */
 
 router.get('/my-account', userMiddlewares.verifyUserLogin, userController.myAccount)
@@ -88,10 +97,29 @@ router.post('/my-account/address/new', userMiddlewares.verifyUserLogin, userCont
 
 router.delete('/my-account/address/delete', userMiddlewares.verifyUserLogin, userController.deleteAddress)
 
+
+/************************************* */
+//              MY ORDERS
+/************************************* */
 router.get('/my-account/orders', userMiddlewares.verifyUserLogin, userController.myOrders)
 
 router.get('/my-account/order/:id', userMiddlewares.verifyUserLogin, userController.viewOrder)
 
-router.patch('/my-account/order/cancel', userMiddlewares.verifyUserLogin, userController.changeOrderStatus)
+
+router.patch('/my-account/order/cancel', userMiddlewares.verifyUserLogin, userController.cancelOrder)
+
+router.patch('/my-account/order/return', userMiddlewares.verifyUserLogin, userController.returnOrder)
+
+ 
+//COD
+router.patch('/my-account/order/cancel-cod', userMiddlewares.verifyUserLogin, userController.cancelCodOrder)
+
+router.patch('/my-account/order/return-cod', userMiddlewares.verifyUserLogin, userController.returnCodOrder)
+
+
+// paypal
+// router.post('/pay', async(req,res)=>{
+//   await paypal_o.paypal_helper("kkkk", "kkkkkk", "kkkk", res, router)
+// });
 
 module.exports = router

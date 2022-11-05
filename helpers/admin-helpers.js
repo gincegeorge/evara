@@ -32,7 +32,7 @@ const doAdminLogin = (adminData) => {
 
 const getAllOrders = () => {
     return new Promise((resolve, reject) => {
-        db.get().collection(ORDER_COLLECTION).find().toArray().then((result) => {
+        db.get().collection(ORDER_COLLECTION).find().sort({ 'date': -1 }).toArray().then((result) => {
             resolve(result)
         })
     })
@@ -74,9 +74,67 @@ const changeOrderStatus = (orderDetails) => {
     })
 }
 
+
+//CANCEL ORDER - ONLINE PAYMENT
+const cancelOrder = (orderDetails) => {
+
+    const { orderId, productId, newOrderStatus, paymentStatus } = orderDetails
+
+    return new Promise(async (resolve, reject) => {
+
+        await db.get().collection(ORDER_COLLECTION)
+
+            .updateOne(
+                {
+                    _id: objectId(orderId),
+                    'products.item': objectId(productId)
+                },
+                {
+                    $set: { 'products.$.productOrderStatus': newOrderStatus, 'products.$.productpaymentStatus': paymentStatus }
+                })
+
+            .then((result) => {
+                resolve(result)
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    })
+}
+
+//CANCEL ORDER - COD
+const cancelCodOrder = (orderDetails) => {
+
+    const { orderId, productId, newOrderStatus } = orderDetails
+
+    return new Promise(async (resolve, reject) => {
+
+        await db.get().collection(ORDER_COLLECTION)
+
+            .updateOne(
+                {
+                    _id: objectId(orderId),
+                    'products.item': objectId(productId)
+                },
+                {
+                    $set: { 'products.$.productOrderStatus': newOrderStatus}
+                })
+
+            .then((result) => {
+                resolve(result)
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    })
+}
+
+
 module.exports = {
     doAdminLogin,
     getAllOrders,
     viewSingleOrder,
-    changeOrderStatus
+    changeOrderStatus,
+    cancelOrder,
+    cancelCodOrder
 }

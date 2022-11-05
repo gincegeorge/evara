@@ -53,7 +53,7 @@ const getNewProduct = (req, res) => {
 }
 const postNewProduct = (req, res) => {
     productHelpers.addProduct(req, (result) => {
-        res.redirect('/admin/products/new')
+        res.redirect('/admin/products')
     })
 }
 const getEditProduct = async (req, res) => {
@@ -151,6 +151,19 @@ const OrderStatus = async (req, res) => {
     res.json(newOrderStatus)
 }
 
+//CANCEL ORDER- ONLINE PAYMENT
+const cancelOrder = async(req,res)=>{
+    const newOrderStatus = await adminHelpers.cancelOrder(req.body)
+    res.json(newOrderStatus)
+}
+
+//CANCEL ORDER- COD
+const cancelCodOrder = async(req,res)=>{
+    const newOrderStatus = await adminHelpers.cancelCodOrder(req.body)
+    res.json(newOrderStatus)
+}
+
+
 
 module.exports = {
     getAdminLogin,
@@ -174,5 +187,9 @@ module.exports = {
     deleteProductImage,
     getOrders,
     viewOrder,
-    OrderStatus
+
+    OrderStatus,
+
+    cancelOrder,
+    cancelCodOrder
 } 

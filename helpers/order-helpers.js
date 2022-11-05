@@ -118,6 +118,7 @@ const newOrder = async (orderDetails) => {
 
     for (let i in products) {
         products[i].productOrderStatus = orderStatus
+        products[i].productpaymentStatus = paymentStatus
     }
 
     let orderObj = {
@@ -136,25 +137,10 @@ const newOrder = async (orderDetails) => {
         db.get().collection(collections.ORDER_COLLECTION).insertOne(orderObj)
             .then((result) => {
 
-                //clearing cart
-                db.get().collection(CART_COLLECTION).deleteOne({ user: objectId(userId) })
-
                 result.paymentOption = paymentOption
                 result.cartTotal = cartTotal
 
                 resolve(result)
-
-                // if (paymentOption === 'COD') {
-                //     result.orderStatus = orderStatus
-                //     resolve(result)
-                // } else if (paymentOption === 'razorPay') {
-                //     result.orderStatus = orderStatus
-                //     userHelpers.generateRazorpay(result.insertedId, cartTotal).then((response) => {
-                //         console.log(response);
-                //         resolve(response)
-                //     })
-                // }
-
 
             })
     })
@@ -170,12 +156,10 @@ const getAllOrders = (userId) => {
 }
 
 
-//CHANGE ORDER STATUS
-const changeOrderStatus = (orderDetails) => {
+//CANCEL ORDER - ONLINE PAYMENT
+const cancelOrder = (orderDetails) => {
 
-    console.log(orderDetails);
-
-    const { orderId, productId, newOrderStatus } = orderDetails
+    const { orderId, productId, newOrderStatus, paymentStatus } = orderDetails
 
     return new Promise(async (resolve, reject) => {
 
@@ -187,7 +171,7 @@ const changeOrderStatus = (orderDetails) => {
                     'products.item': objectId(productId)
                 },
                 {
-                    $set: { 'products.$.productOrderStatus': newOrderStatus }
+                    $set: { 'products.$.productOrderStatus': newOrderStatus, 'products.$.productpaymentStatus': paymentStatus }
                 })
 
             .then((result) => {
@@ -196,11 +180,98 @@ const changeOrderStatus = (orderDetails) => {
             .catch((err) => {
                 console.log(err);
             })
-
-
     })
 
 }
+
+
+//RETURN ORDER - ONLINE PAYMENT
+const returnOrder = (orderDetails) => {
+
+    const { orderId, productId, newOrderStatus, paymentStatus } = orderDetails
+
+    return new Promise(async (resolve, reject) => {
+
+        await db.get().collection(ORDER_COLLECTION)
+
+            .updateOne(
+                {
+                    _id: objectId(orderId),
+                    'products.item': objectId(productId)
+                },
+                {
+                    $set: { 'products.$.productOrderStatus': newOrderStatus, 'products.$.productpaymentStatus': paymentStatus }
+                })
+
+            .then((result) => {
+                resolve(result)
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    })
+
+}
+
+//CANCEL ORDER - COD
+const cancelCodOrder = (orderDetails) => {
+
+    const { orderId, productId, newOrderStatus, paymentStatus } = orderDetails
+
+    return new Promise(async (resolve, reject) => {
+
+        await db.get().collection(ORDER_COLLECTION)
+
+            .updateOne(
+                {
+                    _id: objectId(orderId),
+                    'products.item': objectId(productId)
+                },
+                {
+                    $set: { 'products.$.productOrderStatus': newOrderStatus, 'products.$.productpaymentStatus': paymentStatus }
+                })
+
+            .then((result) => {
+                resolve(result)
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    })
+
+}
+
+//RETURN ORDER - COD
+const returnCodOrder = (orderDetails) => {
+
+    console.log(orderDetails);
+
+    const { orderId, productId, newOrderStatus, paymentStatus } = orderDetails
+
+    return new Promise(async (resolve, reject) => {
+
+        await db.get().collection(ORDER_COLLECTION)
+
+            .updateOne(
+                {
+                    _id: objectId(orderId),
+                    'products.item': objectId(productId)
+                },
+                {
+                    $set: { 'products.$.productOrderStatus': newOrderStatus, 'products.$.productpaymentStatus': paymentStatus }
+                })
+
+            .then((result) => {
+                resolve(result)
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    })
+
+}
+
+
 //TODO ask about naming convension of controller and helpers 
 
 
@@ -209,5 +280,8 @@ module.exports = {
     getDeliveryAddress,
     newOrder,
     getAllOrders,
-    changeOrderStatus
+    cancelOrder,
+    returnOrder,
+    cancelCodOrder,
+    returnCodOrder
 }

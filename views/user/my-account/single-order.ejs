@@ -99,6 +99,7 @@
                   <th scope="col">Quantity</th>
                   <th scope="col">Price</th>
                   <th scope="col">Order Status</th>
+                  <th scope="col">Payment Status</th>
                   <th scope="col">Action</th>
                 </tr>
               </thead>
@@ -127,13 +128,17 @@
                       <% }else if (element.productOrderStatus === 'Canceled'){ %>
                       <span class="badge rounded-pill alert-danger"><%= element.productOrderStatus %></span>
 
+                      <!-- SHIPPED -->
+                      <% }else if (element.productOrderStatus === 'Shipped'){ %>
+                      <span class="badge rounded-pill alert-warning"><%= element.productOrderStatus %></span>
+
                       <!-- DELIVERED -->
                       <% }else if (element.productOrderStatus === 'Delivered'){ %>
                       <span class="badge rounded-pill alert-success"><%= element.productOrderStatus %></span>
 
-                      <!-- REFUNDED -->
-                      <% }else if (element.productOrderStatus === 'Refunded'){ %>
-                      <span class="badge rounded-pill alert-secondary"><%= element.productOrderStatus %></span>
+                      <!-- RETURNED -->
+                      <% }else if (element.productOrderStatus === 'Returned'){ %>
+                      <span class="badge rounded-pill alert-danger"><%= element.productOrderStatus %></span>
 
                       <!-- RETURN REQUESTED -->
                       <% }else if (element.productOrderStatus === 'Return Requested'){ %>
@@ -141,36 +146,56 @@
                       <% } %>
 
 
-
                     </span>
 
                   </td>
-                  <td class="text-right" data-title="Cart">
 
-                    <!-- CANCEL -ONLINE PAYMENT -->
-                    <%  if ( element.productOrderStatus === 'Processing' && orderDetails.paymentOption != 'COD' ) { %>
+                  <td class="text-right" data-title="">
+                    <%= element.productpaymentStatus %>
+                  </td>
+                  <td>
 
-                    <button id="<%= element.product._id %>" orderStatus="Refunded" class="btn btn-sm btn-secondary" onclick="changeOrderStatus('<%= orderDetails._id %>','<%= element.product._id %>')">
-                      <i class="fi-rs-shopping-bag mr-5"></i>Cancel
+                    <!-- ------------------------------------ -->
+                    <!-- ONLINE PAYMENT -->
+                    <!-- ------------------------------------ -->
+                    <% if(orderDetails.paymentOption != 'COD' ) { %>
+
+                    <!-- CANCEL -->
+                    <%  if ((element.productOrderStatus === 'Processing') || (element.productOrderStatus ==='Shipped')) { %>
+
+                    <button id="<%= element.product._id %>" class="btn btn-sm btn-secondary" onclick="cancelOrder('<%= orderDetails._id %>','<%= element.product._id %>')">
+                      <i class="fi-rs-shopping-bag mr-5"></i>Cancel order
                     </button>
 
-                    <!-- CANCEL -COD -->
-                    <% } else if(element.productOrderStatus === 'Processing' && orderDetails.paymentOption === 'COD') { %>
+                    <!--RETURN -->
+                    <% } else if (element.productOrderStatus === 'Delivered') { %>
 
-                    <button id="<%= element.product._id %>" orderStatus="Canceled" class="btn btn-sm btn-secondary" onclick="changeOrderStatus('<%= orderDetails._id %>','<%= element.product._id %>')">
-                      <i class="fi-rs-shopping-bag mr-5"></i>Cancel
-                    </button>
-
-
-                    <!-- RETURN ORDER -->
-                    <% } else if(element.productOrderStatus === 'Delivered') { %>
-
-                    <button id="<%= element.product._id %>" orderStatus="Return Requested" class="btn btn-sm" onclick="changeOrderStatus('<%= orderDetails._id %>','<%= element.product._id %>')">
-                      <i class="fi-rs-shopping-bag mr-5"></i>Return
+                    <button id="<%= element.product._id %>" orderStatus="Return Requested" class="btn btn-sm" onclick="returnOrder('<%= orderDetails._id %>','<%= element.product._id %>')">
+                      <i class="fi-rs-shopping-bag mr-5"></i>Return order
                     </button>
 
                     <% } %>
 
+                    <!-- ------------------------------------ -->
+                    <!-- COD -->
+                    <!-- ------------------------------------ -->
+                    <% } else { %>
+
+                    <!-- CANCEL -->
+                    <%  if ((element.productOrderStatus === 'Processing') || (element.productOrderStatus ==='Shipped')) { %>
+                    <button id="<%= element.product._id %>" class="btn btn-sm btn-secondary" onclick="cancelCodOrder('<%= orderDetails._id %>','<%= element.product._id %>')">
+                      <i class="fi-rs-shopping-bag mr-5"></i>Cancel order
+                    </button>
+
+                    <!-- RETURN -->
+                    <% } else if (element.productOrderStatus === 'Delivered') { %>
+
+                    <button id="<%= element.product._id %>" orderStatus="Return Requested" class="btn btn-sm" onclick="returnCodOrder('<%= orderDetails._id %>','<%= element.product._id %>')">
+                      <i class="fi-rs-shopping-bag mr-5"></i>Return order
+                    </button>
+
+                    <% } %>
+                    <% } %>
                   </td>
                 </tr>
                 <% }) %>

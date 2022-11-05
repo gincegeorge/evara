@@ -42,7 +42,7 @@
               <th scope="col">Name</th>
               <th scope="col">Items</th>
               <th scope="col">Total</th>
-              <th scope="col">Payment status</th>
+              <th scope="col">Payment method</th>
               <th scope="col">Date</th>
               <th scope="col" class="text-end"> Action </th>
             </tr>
@@ -57,7 +57,7 @@
               <td><a href="/admin/order/<%= order._id %>"><b><%= order.deliveryAddress.name  %></b></a></td>
               <td><%= order.products.length %> items</td>
               <td>₹<%= order.cartTotal %></td>
-              <td><span class="badge rounded-pill alert-secondary"><%= order.paymentStatus  %></span></td>
+              <td><%= order.paymentOption %></td>
               <td><%= `${date}-${month}-${year}` %></td>
               <td class="text-end">
                 <a href="/admin/order/<%= order._id %>" class="btn btn-md rounded font-sm">View order</a>

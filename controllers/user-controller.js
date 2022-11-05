@@ -4,6 +4,15 @@ const cartHelpers = require('../helpers/cart-helpers')
 const orderHelpers = require('../helpers/order-helpers')
 const { response } = require('../app')
 
+const paypal = require('paypal-rest-sdk')
+
+//PAYPAL PAYMENT
+paypal.configure({
+    'mode': 'sandbox',
+    'client_id': process.env.CLIENT_ID,
+    'client_secret': process.env.CLIENT_SECRET
+})
+
 //HOMEPAGE
 const getHomepage = async (req, res, next) => {
     productHelpers.getAllProducts().then((products) => {
@@ -135,10 +144,6 @@ const getSingleProduct = async (req, res) => {
 //ADD TO CART
 const addToCart = (req, res) => {
     //FIXME ADD TO CART WHEN LOGGED OUT
-    // console.log('-------------------------');
-    // if(user){
-    //     console.log('++++++++++++++++++++++');
-    // }
     productId = req.params.id
     userId = user._id
     //console.log(productId,userId);
@@ -189,29 +194,68 @@ const addNewAddres = (req, res) => {
 
 //NEW ORDER
 const getPlaceOrder = async (req, res) => {
+
     let orderInfo = await orderHelpers.newOrder(req.body)
 
     const { insertedId, cartTotal, paymentOption } = orderInfo
 
-    userHelpers.generateRazorpay(insertedId, cartTotal, paymentOption).then((result) => {
-        res.json(result)
-    })
+    if (paymentOption === 'razorPay') {
+        userHelpers.generateRazorpay(insertedId, cartTotal, paymentOption).then((result) => {
+            res.json(result)
+        })
+    } else if (paymentOption === 'Paypal') {
+        await userHelpers.payWithPaypal(insertedId, cartTotal, paymentOption)
+            .then((result) => {
+
+                req.session.paypalOrderId = result.orderId
+                
+                res.json(result)
+            })
+    }
+
 }
 
 //RAZORPAY VERIFY PAYMENT 
 const verifyPayment = (req, res) => {
 
+    userId = req.session.userData._id
+
     userHelpers.verifyPayment(req.body).then((orderId) => {
-
-        userHelpers.changePaymentStatus(orderId).then(()=>{
-            res.json({status:true})
+        userHelpers.changePaymentStatus(orderId,userId).then(() => {
+            res.json({ status: true })
         })
-
     }).catch((err) => {
-
         res.json({ status: false })
-
     })
+}
+
+
+//VERIFY PAYPAL
+const verifyPaypal = (req, res) => {
+    console.log('--------------payment success--------------');
+    const payerId = req.query.PayerID;
+    const paymentId = req.query.paymentId;
+
+    const execute_payment_json = {
+        "payer_id": payerId
+    };
+
+    // Obtains the transaction details from paypal
+    paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
+        if (error) {
+            console.log(error.response);
+            throw error;
+        } else {
+            console.log(JSON.stringify(payment));
+
+            orderId = req.session.paypalOrderId
+            userId = req.session.userData._id
+
+            userHelpers.changePaymentStatus(orderId, userId).then(() => {
+                res.redirect('/order-placed')
+            })
+        }
+    });
 }
 
 //ORDER PLACED
@@ -254,8 +298,27 @@ const viewOrder = async (req, res) => {
 }
 
 //CANCEL ORDER
-const changeOrderStatus = async (req, res) => {
-    const orderStatus = await orderHelpers.changeOrderStatus(req.body)
+const cancelOrder = async (req, res) => {
+    const orderStatus = await orderHelpers.cancelOrder(req.body)
+    res.json(orderStatus)
+}
+
+//RETURN ORDER
+const returnOrder = async (req, res) => {
+    const orderStatus = await orderHelpers.returnOrder(req.body)
+    res.json(orderStatus)
+}
+
+
+//CANCEL ORDER - COD
+const cancelCodOrder = async (req, res) => {
+    const orderStatus = await orderHelpers.cancelCodOrder(req.body)
+    res.json(orderStatus)
+}
+
+//RETURN ORDER - COD
+const returnCodOrder = async (req, res) => {
+    const orderStatus = await orderHelpers.returnCodOrder(req.body)
     res.json(orderStatus)
 }
 
@@ -285,6 +348,10 @@ module.exports = {
     myOrders,
     deleteAddress,
     viewOrder,
-    changeOrderStatus,
-    verifyPayment
+    cancelOrder,
+    verifyPayment,
+    returnOrder,
+    cancelCodOrder,
+    returnCodOrder,
+    verifyPaypal
 }

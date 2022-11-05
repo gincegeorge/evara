@@ -177,3 +177,15 @@ span.badge.rounded-pill.badge-secondary {
   background: #f4f5f9;
   color: #4f5d77;
 }
+
+/* CHECKOUT PAGE */
+.checkoutBtn {
+  padding-right: 40px;
+  position: relative;
+}
+.checkoutBtn .spinner-border.text-light {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  right: 10px;
+}

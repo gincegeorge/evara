@@ -92,6 +92,11 @@ router.get('/order/:id', adminMiddlewares.verifyAdminLogin, adminController.view
 router.patch('/order/change-status', adminMiddlewares.verifyAdminLogin, adminController.OrderStatus)
 
 
+router.patch('/order/cancel', adminMiddlewares.verifyAdminLogin, adminController.cancelOrder)
+
+router.patch('/order/cancel-cod', adminMiddlewares.verifyAdminLogin, adminController.cancelCodOrder)
+
+
 
 
 module.exports = router;

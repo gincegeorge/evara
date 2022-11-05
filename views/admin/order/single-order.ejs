@@ -8,7 +8,7 @@
       <% const [day,month,date,year] = orderDetails.date.toString().split(' ') %>
     </div>
     <div class="col-6 text-end">
-      <a href="/admin/orders" class="btn btn-light rounded font-md">Back to orders</a>
+      <a href="/admin/orders" class="btn btn-primary rounded font-md">Back to orders</a>
     </div>
   </div>
   <div class="card">
@@ -21,14 +21,6 @@
           <small class="text-muted mt-1">Order ID: <%= orderDetails.orderId %></small>
         </div>
         <div class="col-lg-6 col-md-6 ms-auto text-md-end">
-          <select class="form-select d-inline-block mb-lg-0 mb-15 mw-200">
-            <option>Change status</option>
-            <option>Awaiting payment</option>
-            <option>Confirmed</option>
-            <option>Shipped</option>
-            <option>Delivered</option>
-          </select>
-          <a class="btn btn-primary" href="#">Save</a>
         </div>
       </div>
     </header> <!-- card-header end// -->
@@ -60,6 +52,17 @@
             </div>
           </article>
         </div> <!-- col// -->
+        <div class="col-md-4">
+          <article class="icontext align-items-start">
+            <span class="icon icon-sm rounded-circle bg-primary-light">
+              <i class="text-primary material-icons md-local_shipping"></i>
+            </span>
+            <div class="text">
+              <h6 class="mb-1">Payment details:</h6>
+              <p class="mb-1"> <%= orderDetails.paymentOption %>
+            </div>
+          </article>
+        </div> <!-- col// -->
       </div> <!-- row // -->
       <div class="row">
         <div class="col-lg-12">
@@ -71,7 +74,8 @@
                   <th>Unit Price</th>
                   <th>Quantity</th>
                   <th>Total</th>
-                  <th>Status</th>
+                  <th>Order Status</th>
+                  <th>Payment Status</th>
                   <th class="text-end">Action</th>
                 </tr>
               </thead>
@@ -100,16 +104,108 @@
                     <span class="badge rounded-pill alert-secondary"><%= element.productOrderStatus %></span>
                     <% }else if (element.productOrderStatus === 'Shipped'){ %>
                     <span class="badge rounded-pill alert-warning"><%= element.productOrderStatus %></span>
+                    <% }else if (element.productOrderStatus === 'Returned'){ %>
+                    <span class="badge rounded-pill alert-secondary"><%= element.productOrderStatus %></span>
                     <% }  %>
                   </td>
-                  <td class="text-end">
-                    <select id="<%= element.product._id %>-status" class="form-select d-inline-block mb-lg-0 mb-15 mw-200 changeOrderStatus" onchange="changeOrderStatus('<%= orderDetails._id %>','<%= element.product._id %>')">
-                      <option selected disabled><%= element.productOrderStatus %></option>
-                      <option>Processing</option>
-                      <option>Canceled</option>
-                      <option>Shipped</option>
-                      <option>Delivered</option>
-                    </select>
+                  <td>
+                    <%  if (element.productpaymentStatus === 'Success'){ %>
+                    <span class="badge rounded-pill alert-success">
+                      <%= element.productpaymentStatus %>
+                    </span>
+                    <% } else if (element.productpaymentStatus === 'Pending'){ %>
+                    <span class="badge rounded-pill alert-warning">
+                      <%= element.productpaymentStatus %>
+                    </span>
+                    <% } else if (element.productpaymentStatus === 'Refunded'){ %>
+                    <span class="badge rounded-pill alert-secondary">
+                      <%= element.productpaymentStatus %>
+                    </span>
+                    <% } %>
+                  </td>
+                  <td class="text-end" width="25%">
+
+                    <% if(orderDetails.paymentOption !== 'COD'){ %>
+
+                    <% if (element.productOrderStatus === 'Processing') { %>
+                    <div class="row">
+                      <div class="col-6">
+                        <select id="<%= element.product._id %>-status" class="form-select d-inline-block mb-lg-0 mb-15 mw-200 changeOrderStatus" onchange="changeOrderStatus('<%= orderDetails._id %>','<%= element.product._id %>')">
+                          <option selected disabled><%= element.productOrderStatus %></option>
+                          <option>Shipped</option>
+                          <option>Delivered</option>
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <button id="<%= element.product._id %>" class="btn btn-sm btn-secondary" onclick="cancelOrder('<%= orderDetails._id %>','<%= element.product._id %>')">
+                          <i class="fi-rs-shopping-bag mr-5"></i>Cancel
+                        </button>
+                      </div>
+                    </div>
+                    <% } else if (element.productOrderStatus === 'Shipped') { %>
+                    <div class="row">
+                      <div class="col-6">
+                        <select id="<%= element.product._id %>-status" class="form-select d-inline-block mb-lg-0 mb-15 mw-200 changeOrderStatus" onchange="changeOrderStatus('<%= orderDetails._id %>','<%= element.product._id %>')">
+                          <option selected disabled><%= element.productOrderStatus %></option>
+                          <option>Delivered</option>
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <button id="<%= element.product._id %>" class="btn btn-sm btn-secondary" onclick="cancelOrder('<%= orderDetails._id %>','<%= element.product._id %>')">
+                          <i class="fi-rs-shopping-bag mr-5"></i>Cancel
+                        </button>
+                      </div>
+                    </div>
+                    <% } else if (element.productOrderStatus === 'Delivered') { %>
+                    <div class="row">
+                      <div class="col-6">
+                        <select disabled id="<%= element.product._id %>-status" class="form-select d-inline-block mb-lg-0 mb-15 mw-200 changeOrderStatus" onchange="changeOrderStatus('<%= orderDetails._id %>','<%= element.product._id %>')">
+                          <option selected disabled><%= element.productOrderStatus %></option>
+                          <option>Delivered</option>
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <button disabled id="<%= element.product._id %>" class="btn btn-sm btn-secondary" onclick="cancelOrder('<%= orderDetails._id %>','<%= element.product._id %>')">
+                          <i class="fi-rs-shopping-bag mr-5"></i>Cancel
+                        </button>
+                      </div>
+                    </div>
+                    <% } %>
+
+                    <% } else { %>
+                    <% if (element.productOrderStatus === 'Processing') { %>
+                    <div class="row">
+                      <div class="col-6">
+                        <select id="<%= element.product._id %>-status" class="form-select d-inline-block mb-lg-0 mb-15 mw-200 changeOrderStatus" onchange="changeOrderStatus('<%= orderDetails._id %>','<%= element.product._id %>')">
+                          <option selected disabled><%= element.productOrderStatus %></option>
+                          <option>Shipped</option>
+                          <option>Delivered</option>
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <button id="<%= element.product._id %>" class="btn btn-sm btn-secondary" onclick="cancelCodOrder('<%= orderDetails._id %>','<%= element.product._id %>')">
+                          <i class="fi-rs-shopping-bag mr-5"></i>Cancel
+                        </button>
+                      </div>
+                      <% } else if (element.productOrderStatus === 'Shipped') { %>
+                      <div class="row">
+                        <div class="col-6">
+                          <select id="<%= element.product._id %>-status" class="form-select d-inline-block mb-lg-0 mb-15 mw-200 changeOrderStatus" onchange="changeOrderStatus('<%= orderDetails._id %>','<%= element.product._id %>')">
+                            <option selected disabled><%= element.productOrderStatus %></option>
+                            <option>Delivered</option>
+                          </select>
+                        </div>
+                        <div class="col-6">
+                          <button id="<%= element.product._id %>" class="btn btn-sm btn-secondary" onclick="cancelCodOrder('<%= orderDetails._id %>','<%= element.product._id %>')">
+                            <i class="fi-rs-shopping-bag mr-5"></i>Cancel
+                          </button>
+                        </div>
+                      </div>
+
+
+                      <% } %>
+                      <% } %>
+
                   </td>
                 </tr>
                 <% }) %>

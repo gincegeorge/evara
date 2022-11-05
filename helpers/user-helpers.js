@@ -11,7 +11,18 @@ const crypto = require("crypto")
 const { resolve } = require('path')
 const Razorpay = require("razorpay");
 
-// RAZORPAY INSTANCE
+const CC = require('currency-converter-lt')
+let currencyConverter = new CC()
+const paypal = require('paypal-rest-sdk')
+
+//PAYPAL PAYMENT
+paypal.configure({
+    'mode': 'sandbox',
+    'client_id': process.env.CLIENT_ID,
+    'client_secret': process.env.CLIENT_SECRET
+})
+
+// RAZORPAY INSTANCE 
 var instance = new Razorpay({
     key_id: process.env.KEY_ID,
     key_secret: process.env.KEY_SECRET
@@ -267,19 +278,85 @@ const verifyPayment = (paymentInfo) => {
 }
 
 //CHANGE PAYMENT STATUS
-const changePaymentStatus = (orderId) => {
-    return new Promise(async(resolve, reject) => {
+const changePaymentStatus = (orderId, userId) => {
 
-       await db.get().collection(ORDER_COLLECTION).updateOne(
+    console.log(orderId, userId);
+
+    return new Promise(async (resolve, reject) => {
+
+        //update order status 
+        await db.get().collection(ORDER_COLLECTION).updateOne(
             { _id: objectId(orderId) },
             { $set: { paymentStatus: 'success', orderStatus: 'Processing' } }
         )
 
-        await db.get().collection(ORDER_COLLECTION).updateMany({ _id: objectId(orderId) }, { $set: { "products.$[].productOrderStatus": 'Processing' } })
+        //update payment status of products
+        await db.get()
+            .collection(ORDER_COLLECTION)
+            .updateMany(
+                { _id: objectId(orderId) },
+                { $set: { "products.$[].productOrderStatus": 'Processing', "products.$[].productpaymentStatus": 'Success' } }
+            )
+
+
+
+        //clearing cart
+        db.get().collection(CART_COLLECTION).deleteOne({ user: objectId(userId) })
 
         resolve()
     })
 }
+
+
+const payWithPaypal = async(orderId, cartTotal, paymentOption) => {
+
+    console.log(orderId, cartTotal, paymentOption);
+
+    let priceInUSD = await currencyConverter.from("INR").to("USD").amount(cartTotal).convert()
+
+
+    let result = {}
+
+    const create_payment_json = {
+        "intent": "sale",
+        "payer": {
+            "payment_method": "paypal"
+        },
+        "redirect_urls": {
+            "return_url": "http://localhost:8080/success",
+            "cancel_url": "http://localhost:8080/cancel"
+        },
+        "transactions": [{
+            "amount": {
+                "currency": "USD",
+                "total": priceInUSD.toFixed(2)
+            }
+        }]
+    };
+
+    return new Promise((resolve, reject) => {
+        paypal.payment.create(create_payment_json, function (error, payment) {
+            if (error) {
+                throw error;
+            } else {
+                for (let i = 0; i < payment.links.length; i++) {
+                    if (payment.links[i].rel === 'approval_url') {
+
+                        result.paymentOption = paymentOption
+                        result.redirectLink = payment.links[i].href
+                        result.orderId = orderId
+
+                        resolve(result)
+                        // res.redirect(payment.links[i].href);
+                    }
+                }
+            }
+        });
+    })
+
+
+}
+
 
 module.exports = {
     doSignup,
@@ -296,5 +373,6 @@ module.exports = {
     viewOrder,
     generateRazorpay,
     verifyPayment,
-    changePaymentStatus
+    changePaymentStatus,
+    payWithPaypal
 }

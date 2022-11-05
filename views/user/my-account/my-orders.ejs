@@ -53,6 +53,7 @@
                               <th>Order ID</th>
                               <th>Date</th>
                               <th>Total</th>
+                              <th>Items</th>
                               <th>Actions</th>
                             </tr>
                           </thead>
@@ -61,9 +62,9 @@
                             const [day,month,date,year] = order.date.toString().split(' ')
                           %>
                             <tr>
-                              <td><%= order.orderId %></td>
+                              <td><a href="/my-account/order/<%= order._id %>"><%= order.orderId %></a></td>
                               <td><%= `${date}-${month}-${year}` %></td>
-                              <td><%= order.orderStatus %></td>
+                              <td>₹<%= order.cartTotal %></td>
                               <td><%= order.products.length %> items</td>
                               <td><a href="/my-account/order/<%= order._id %>" class="btn-small d-block">View</a></td>
                             </tr>

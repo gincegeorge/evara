@@ -148,16 +148,22 @@
               </div>
               <div id="payment_option">
                 <div class="custome-radio">
+                  <input value="razorPay" class="form-check-input payment_option" type="radio" name="flexRadioDefault" id="razorPay">
+                  <label class="form-check-label" for="razorPay">Razorpay</label>
+                </div>
+                <div class="custome-radio">
+                  <input value="Paypal" class="form-check-input payment_option" type="radio" name="flexRadioDefault" id="Paypal" checked>
+                  <label class="form-check-label" for="Paypal">Paypal</label>
+                </div>
+                <div class="custome-radio">
                   <input value="COD" class="form-check-input payment_option" type="radio" name="flexRadioDefault" id="COD">
                   <label class="form-check-label" for="COD">Cash on delivery</label>
                 </div>
-                <div class="custome-radio">
-                  <input value="razorPay" class="form-check-input payment_option" type="radio" name="flexRadioDefault" id="razorPay" checked>
-                  <label class="form-check-label" for="razorPay">Razorpay</label>
-                </div>
               </div>
             </div>
-            <button onclick="placeOrder()" class="btn btn-fill-out btn-block mt-30">Place order</button>
+            <button onclick="placeOrder()" class="btn btn-fill-out btn-block mt-30 checkoutBtn">
+              Place order<div class="spinner-border text-light" role="status"></div>
+            </button>
           </div>
         </div>
       </div>

@@ -6,9 +6,11 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const db = require('./config/connection')
 const session = require('express-session')
+const paypal = require('paypal-rest-sdk')
+
+//const debug = require('debug')('app:startup')
 
 const app = express();
-
 /* -------------------------------------------------------------------------- */
 /*                             Database connection                            */
 /* -------------------------------------------------------------------------- */
@@ -27,11 +29,10 @@ const userRouter = require('./routes/user');
 /* -------------------------------------------------------------------------- */
 /*                             Session creation                               */
 /* -------------------------------------------------------------------------- */
-app.use(session({ 
+app.use(session({
   secret: 'Key',
   cookie: { maxAge: 600000 },
   resave: true,
-
   saveUninitialized: true
 }));
 /* -------------------------------------------------------------------------- */
@@ -50,6 +51,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
+
+
+
 /* -------------------------------------------------------------------------- */
 /*                catch 404 and forward to error handler                      */
 /* -------------------------------------------------------------------------- */
