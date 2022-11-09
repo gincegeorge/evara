@@ -9,7 +9,7 @@ const verifyUserLogin = async (req, res, next) => {
 
         let cart = {}
 
-        cart.products  = await cartHelpers.getCartProducts(user._id)
+        cart.products = await cartHelpers.getCartProducts(user._id)
         cart.count = await cartHelpers.getCartCount(user._id)
         cart.total = await orderHelpers.getCheckoutData(user._id)
 
@@ -26,6 +26,30 @@ const verifyUserLogin = async (req, res, next) => {
     }
 }
 
+const getUserData = async (req, res, next) => {
+    if (req.session.userLoginStatus) {
+
+        user = req.session.userData
+
+        let cart = {}
+
+        cart.products = await cartHelpers.getCartProducts(user._id)
+        cart.count = await cartHelpers.getCartCount(user._id)
+        cart.total = await orderHelpers.getCheckoutData(user._id)
+
+        user.userLoginStatus = req.session.userLoginStatus
+
+        user.cart = cart
+
+        res.locals.user = user
+
+        next()
+    }else{
+        next()
+    }
+}
+
 module.exports = {
-    verifyUserLogin
+    verifyUserLogin,
+    getUserData
 }  

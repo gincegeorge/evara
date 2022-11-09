@@ -1,10 +1,8 @@
 var express = require('express');
 var router = express.Router();
-const multer = require('multer')
 const store = require('../middlewares/multer')
 
 const adminController = require('../controllers/admin-controller')
-const userController = require('../controllers/user-controller')
 const adminMiddlewares = require('../middlewares/admin-middlewares')
 
 //GET Admin login
@@ -22,25 +20,25 @@ router.get('/logout', adminController.getLogout)
 router.get('/', adminMiddlewares.verifyAdminLogin, adminController.getAdminDashboard);
 
 /************************************* */
-//             PRODUCTS
+//               PRODUCTS
 /************************************* */
 //GET products page
 router.get('/products', adminMiddlewares.verifyAdminLogin, adminController.getProducts)
 
 //New product page
-router.route('/products/new', adminMiddlewares.verifyAdminLogin)
+router.route('/products/new')
 
-  .get(adminController.getNewProduct)
+  .get(adminMiddlewares.verifyAdminLogin, adminController.getNewProduct)
 
   //TODO product created date
-  .post(store.array('productImages', 5), adminController.postNewProduct)
+  .post(adminMiddlewares.verifyAdminLogin, store.array('productImages', 5), adminController.postNewProduct)
 
 //GET edit product
-router.get('/products/edit/:productSlug', adminController.getEditProduct)
+router.get('/products/edit/:productSlug', adminMiddlewares.verifyAdminLogin, adminController.getEditProduct)
 
-router.get('/products/edit/remove-product-image/:prodId/:imgName', adminController.deleteProductImage)
+router.get('/products/edit/remove-product-image/:prodId/:imgName', adminMiddlewares.verifyAdminLogin, adminController.deleteProductImage)
 
-router.post('/products/edit/:id', store.array('productImages', 6), adminController.postEditProduct)
+router.post('/products/edit/:id', store.array('productImages', 6), adminMiddlewares.verifyAdminLogin, adminController.postEditProduct)
 
 
 //GET delete product button
@@ -49,7 +47,7 @@ router.get('/products/delete/:productSlug', adminMiddlewares.verifyAdminLogin, a
 
 
 /************************************* */
-//                USERS
+//               USERS
 /************************************* */
 //GET Users 
 router.get('/users', adminMiddlewares.verifyAdminLogin, adminController.getUsers)
@@ -75,28 +73,48 @@ router.get('/product-categories/delete',
   adminMiddlewares.verifyAdminLogin, adminController.deleteCategory)
 
 //Edit product category page 
-router.route('/product-categories/edit', adminMiddlewares.verifyAdminLogin)
+router.route('/product-categories/edit')
 
-  .get(adminController.getEditCategory)
+  .get(adminMiddlewares.verifyAdminLogin, adminController.getEditCategory)
 
-  .post(adminController.putProductCategory)
+  .post(adminMiddlewares.verifyAdminLogin, adminController.putProductCategory)
 
 
 /************************************* */
-//               ORDERS
+//                ORDERS
 /************************************* */
-router.get('/orders',adminMiddlewares.verifyAdminLogin,adminController.getOrders)
+router.get('/orders', adminMiddlewares.verifyAdminLogin, adminController.getOrders)
 
 router.get('/order/:id', adminMiddlewares.verifyAdminLogin, adminController.viewOrder)
 
 router.patch('/order/change-status', adminMiddlewares.verifyAdminLogin, adminController.OrderStatus)
-
 
 router.patch('/order/cancel', adminMiddlewares.verifyAdminLogin, adminController.cancelOrder)
 
 router.patch('/order/cancel-cod', adminMiddlewares.verifyAdminLogin, adminController.cancelCodOrder)
 
 
+/************************************* */
+//               SALES
+/************************************* */
+router.get('/sales-report/new', adminMiddlewares.verifyAdminLogin, adminController.generateReport)
 
+router.post('/sales-report/daily', adminMiddlewares.verifyAdminLogin, adminController.dailyReport)
+
+router.post('/sales-report/monthly', adminMiddlewares.verifyAdminLogin, adminController.monthlyReport)
+
+router.post('/sales-report/yearly', adminMiddlewares.verifyAdminLogin, adminController.yearlyReport)
+
+
+/************************************* */
+//              COUPONS
+/************************************* */
+router.get('/coupons', adminMiddlewares.verifyAdminLogin, adminController.getCoupons)
+
+router.route('/coupons/new')
+
+  .get(adminMiddlewares.verifyAdminLogin, adminController.newCoupon)
+  
+  .post(adminMiddlewares.verifyAdminLogin,  adminController.postNewCoupon)
 
 module.exports = router;

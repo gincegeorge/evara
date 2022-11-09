@@ -47,12 +47,13 @@
                     <div class="card-body">
                       <div class="table-responsive">
                         <% if (orderList) { %>
-                        <table class="table">
+                        <table class="table" id="myDataTable">
                           <thead>
                             <tr>
                               <th>Order ID</th>
                               <th>Date</th>
                               <th>Total</th>
+                              <th>Order Status</th>
                               <th>Items</th>
                               <th>Actions</th>
                             </tr>
@@ -65,6 +66,13 @@
                               <td><a href="/my-account/order/<%= order._id %>"><%= order.orderId %></a></td>
                               <td><%= `${date}-${month}-${year}` %></td>
                               <td>₹<%= order.cartTotal %></td>
+                              <td>
+                                <% if(order.orderStatus=='Processing') { %>
+                                <span class="badge rounded-pill alert-success">Success</span>
+                                <% }else{ %>
+                                <span class="badge rounded-pill alert-danger">Failed</span>
+                                <% } %>
+                              </td>
                               <td><%= order.products.length %> items</td>
                               <td><a href="/my-account/order/<%= order._id %>" class="btn-small d-block">View</a></td>
                             </tr>

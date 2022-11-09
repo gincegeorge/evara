@@ -7,9 +7,6 @@
         <h2 class="content-title card-title">Categories </h2>
         <p>Add, edit or delete a category</p>
       </div>
-      <div>
-        <input type="text" placeholder="Search Categories" class="form-control bg-white">
-      </div>
     </div>
     <div class="card">
       <div class="card-body">
@@ -25,6 +22,11 @@
                 <label for="product_slug" class="form-label">Slug</label>
                 <input name="categorySlug" type="text" placeholder="Type here" class="form-control"
                   id="product_slug" />
+              </div>
+              <div class="mb-4">
+                <label for="cat_discount" class="form-label">Discount</label>
+                <input name="categoryDiscount" type="number" placeholder="%" class="form-control"
+                  id="cat_discount"/>
               </div>
               <div class="mb-4">
                 <label class="form-label">Description</label>
@@ -59,7 +61,7 @@
                           <input class="form-check-input" type="checkbox" value="" />
                         </div>
                       </td>
-                      <td><b><%= element.categoryName %></b></td>
+                      <td> <a class="dropdown-item" href="product-categories/edit?id=<%= element._id %>"><b><%= element.categoryName %></b></a></td>
                       <td><%= element.categoryDesc %></td>
                       <td>/<%= element.categorySlug %></td>
                       <td class="text-end">

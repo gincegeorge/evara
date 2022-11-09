@@ -8,8 +8,6 @@ const db = require('./config/connection')
 const session = require('express-session')
 const paypal = require('paypal-rest-sdk')
 
-//const debug = require('debug')('app:startup')
-
 const app = express();
 /* -------------------------------------------------------------------------- */
 /*                             Database connection                            */

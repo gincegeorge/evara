@@ -1,4 +1,6 @@
-//Delete product images
+/*--------------------------------------------------------------*/
+//                   DELETE PRODUCT IMAGES
+/*--------------------------------------------------------------*/
 function deleteProductImage(prodId, imgName) {
     $.ajax({
         url: 'remove-product-image/' + prodId + '/' + imgName,
@@ -61,7 +63,7 @@ function changeOrderStatus(orderId, productId) {
 function cancelOrder(orderId, productId) {
 
     const newOrderStatus = 'Canceled'
-    const paymentStatus =  'Refunded'
+    const paymentStatus = 'Refunded'
 
     Swal.fire({
         title: 'Cancel order',
@@ -96,7 +98,7 @@ function cancelOrder(orderId, productId) {
 /*--------------------------------------------------------------*/
 //                 CANCEL ORDER - COD
 /*--------------------------------------------------------------*/
-function cancelCodOrder (orderId, productId) {
+function cancelCodOrder(orderId, productId) {
 
     const newOrderStatus = 'Canceled'
 
@@ -129,12 +131,63 @@ function cancelCodOrder (orderId, productId) {
         }
     })
 }
+/*--------------------------------------------------------------*/
+//                         DATA TABLES
+/*--------------------------------------------------------------*/
+$(document).ready(function () {
+    $('#myDataTable').DataTable({
+        language: {
+            'paginate': {
+                'previous': '<i class="material-icons md-chevron_left"></i>',
+                'next': '<i class="material-icons md-chevron_right"></i>'
+            }
+        },
+        searching: true,
+        info: false,
+        bFilter: false,
+        bInfo: false,
+        bLengthChange: false,
+        "oLanguage": { "sSearch": "" }
+    });
+    $('.dataTables_filter input').addClass('form-control').attr("placeholder", "Search...");
+});
+
 
 /*--------------------------------------------------------------*/
-//                            DATA TABLES
+//             DISABLE FUTURE DATES-SALES REPORT
 /*--------------------------------------------------------------*/
+$(function () {
+    var dtToday = new Date();
 
-$(document).ready( function () {
-    alert('sdf')
-    $('#myDataTable').DataTable();
-} );
+    var month = dtToday.getMonth() + 1;
+    var day = dtToday.getDate();
+    var year = dtToday.getFullYear();
+
+    if (month < 10)
+        month = '0' + month.toString();
+    if (day < 10)
+        day = '0' + day.toString();
+
+    var maxDate = year + '-' + month + '-' + day;
+    $('#date').attr('max', maxDate);
+
+    var maxMonth = year + '-' + month
+    $('#month').attr('max', maxMonth);
+});
+
+/*--------------------------------------------------------------*/
+//                     SALES REPORT TABLE
+/*--------------------------------------------------------------*/
+$('#reportTable1').DataTable({
+    bPaginate: false,
+    searching: false,
+    info: false,
+    bFilter: false,
+    bInfo: false,
+    bLengthChange: false,
+    dom: 'Bfrtip',
+    buttons: [
+        'csvHtml5',
+        'pdfHtml5'
+    ]
+});

@@ -4,6 +4,7 @@ const collections = require('../config/collections')
 const { render, response } = require('../app')
 const { ReturnDocument } = require('mongodb')
 const { CART_COLLECTION, PRODUCTS_COLLECTION } = require('../config/collections')
+const { adminDebug } = require('./debug')
 var objectId = require('mongodb').ObjectId
 
 const doAddToCart = (productId, userId) => {
@@ -21,17 +22,18 @@ const doAddToCart = (productId, userId) => {
             console.log(productExists);
 
             if (productExists >= 0) {
-                db.get().collection(CART_COLLECTION)
-                    .updateOne(
-                        {
-                            user: objectId(userId),
-                            'products.item': objectId(productId)
-                        },
-                        {
-                            $inc: { 'products.$.quantity': 1 }
-                        }).then(() => {
-                            resolve()
-                        })
+                adminDebug('product exists')
+                // db.get().collection(CART_COLLECTION)
+                //     .updateOne(
+                //         {
+                //             user: objectId(userId),
+                //             'products.item': objectId(productId)
+                //         },
+                //         {
+                //             $inc: { 'products.$.quantity': 1 }
+                //         }).then(() => {
+                //             resolve()
+                //         })
             } else {
                 db.get().collection(CART_COLLECTION).updateOne(
                     { user: objectId(userId) },
@@ -47,9 +49,15 @@ const doAddToCart = (productId, userId) => {
             }
             db.get().collection(CART_COLLECTION).insertOne(cartObj)
                 .then((response) => {
-                    resolve(response)
+                    if (response) {
+                        resolve(response)
+                    } else {
+                        reject()
+                    }
                 })
         }
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -80,9 +88,22 @@ const getCartProducts = (userId) => {
                 $project: {
                     item: 1, quantity: 1, product: { $arrayElemAt: ['$product', 0] }
                 }
+            },
+            {
+                $addFields: {
+                    total: {
+                        $multiply: ["$quantity", { $toInt: "$product.regularPrice" }],
+                    }
+                }
             }
         ]).toArray()
-        resolve(cartItems)
+        if (cartItems) {
+            resolve(cartItems)
+        } else {
+            reject()
+        }
+    }).catch((err) => {
+        resolve(response)
     })
 }
 
@@ -93,7 +114,13 @@ const getCartCount = (userId) => {
         if (cart) {
             count = cart.products.length
         }
-        resolve(count)
+        if (count) {
+            resolve(count)
+        } else {
+            reject()
+        }
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -112,9 +139,15 @@ const doChangeProductQuantity = (data) => {
                 })
             .then(() => {
                 response.status = true
-                resolve(response)
+                if (response) {
+                    resolve(response)
+                } else {
+                    reject()
+                }
             })
-    }) 
+    }).catch((err) => {
+        console.log(err);
+    })
 }
 
 const doDeleteProductFromCart = (data) => {
@@ -123,8 +156,14 @@ const doDeleteProductFromCart = (data) => {
             { _id: objectId(data.cart) },
             { $pull: { products: { item: objectId(data.product) } } }
         ).then((response) => {
-            resolve({ productRemoved: true })
+            if (response) {
+                resolve({ productRemoved: true })
+            } else {
+                reject()
+            }
         })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 

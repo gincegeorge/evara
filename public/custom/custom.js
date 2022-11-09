@@ -93,6 +93,10 @@ function removeProductFromCart(cartId, productId, productName) {
 /*--------------------------------------------------------------*/
 function placeOrder() {
 
+    //disable checkout button
+    $('.checkoutBtn').addClass('disabled')
+
+    //get chosen address
     const addressList = document.getElementsByClassName('deliveryAddress');
     for (let i = 0; i < addressList.length; i++) {
         if (addressList[i].type === 'radio' && addressList[i].checked) {
@@ -100,6 +104,7 @@ function placeOrder() {
         }
     }
 
+    //get payment method
     const paymentOptions = document.getElementsByClassName('payment_option');
     for (let i = 0; i < paymentOptions.length; i++) {
         if (paymentOptions[i].type === 'radio' && paymentOptions[i].checked) {
@@ -112,19 +117,21 @@ function placeOrder() {
         method: 'post',
         data: { address, paymentOption },
         success: (response) => {
-            if (response.paymentOption == 'COD') {
-                location.href = '/order-placed'
+
+            if (response.paymentOption == 'Paypal') {
+                location.href = response.redirectLink
             } else if (response.paymentOption == 'razorPay') {
                 razorPayment(response)
-            } else {
-                location.href = response.redirectLink
-                //razorPayment(response)
+            } else if (response.paymentOption == 'COD') {
+                location.href = '/order-placed'
             }
-        } 
+        }
     })
 }
 
-
+/*--------------------------------------------------------------*/
+//                          RAZORPAY
+/*--------------------------------------------------------------*/
 function razorPayment(order) {
     var options = {
         "key": 'rzp_test_9scI0suJFqsoH3',
@@ -139,12 +146,12 @@ function razorPayment(order) {
             verifyPayment(response, order)
         },
         "prefill": {
-            "name": "Gaurav Kumar",
-            "email": "gaurav.kumar@example.com",
-            "contact": "9999999999"
+            "name": "Gince George",
+            "email": "gincegeorge@example.com",
+            "contact": "7560990303"
         },
         "notes": {
-            "address": "Razorpay Corporate Office"
+            "address": "Evara Fasion Ltd"
         },
         "theme": {
             "color": "#3399cc"
@@ -164,7 +171,7 @@ function verifyPayment(payment, order) {
             order
         },
         success: (response) => {
-           location.href = '/order-placed'
+            location.href = '/order-placed'
         }
     })
 }
@@ -239,7 +246,7 @@ function editAddress() {
 function cancelOrder(orderId, productId) {
 
     const newOrderStatus = 'Canceled'
-    const paymentStatus =  'Refunded'
+    const paymentStatus = 'Refunded'
 
     Swal.fire({
         title: 'Cancel order',
@@ -277,7 +284,7 @@ function cancelOrder(orderId, productId) {
 function returnOrder(orderId, productId) {
 
     const newOrderStatus = 'Returned'
-    const paymentStatus =  'Refunded'
+    const paymentStatus = 'Refunded'
 
     Swal.fire({
         title: 'Return order',
@@ -315,7 +322,7 @@ function returnOrder(orderId, productId) {
 function cancelCodOrder(orderId, productId) {
 
     const newOrderStatus = 'Canceled'
-    const paymentStatus =  'Canceled'
+    const paymentStatus = 'Canceled'
 
     Swal.fire({
         title: 'Cancel order',
@@ -353,7 +360,7 @@ function cancelCodOrder(orderId, productId) {
 function returnCodOrder(orderId, productId) {
 
     const newOrderStatus = 'Returned'
-    const paymentStatus =  'Refunded'
+    const paymentStatus = 'Refunded'
 
     Swal.fire({
         title: 'Return order',
@@ -385,3 +392,22 @@ function returnCodOrder(orderId, productId) {
     })
 }
 
+
+/*--------------------------------------------------------------*/
+//                         DATA TABLES
+/*--------------------------------------------------------------*/
+$(document).ready(function () {
+    $('#myDataTable').DataTable({
+        language: {
+            'paginate': {
+                'previous': '<',
+                'next': '>'
+            }
+        },
+        searching: false,
+        info: false,
+        bFilter: false,
+        bInfo: false,
+        bLengthChange: false
+    });
+});

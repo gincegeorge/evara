@@ -2,10 +2,10 @@ const adminHelpers = require('../helpers/admin-helpers')
 const productHelpers = require('../helpers/product-helpers')
 const userHelpers = require('../helpers/user-helpers')
 const categoryHelpers = require('../helpers/category-helpers')
+const { adminDebug, userDebug, debugDb } = require('../helpers/debug')
 
 const getAdminLogin = (req, res) => {
     if (req.session.adminLoginStatus) {
-
         res.redirect('/admin')
     } else {
         adminLoginError = req.session.adminLoginError
@@ -23,7 +23,7 @@ const postAdminLogin = (req, res) => {
 
             if (req.session.urlHistory) {
                 res.redirect('/admin' + req.session.urlHistory)
-                req.session.urlHistory = null
+
             } else {
                 res.redirect('/admin')
             }
@@ -38,9 +38,21 @@ const getLogout = (req, res) => {
     req.session.adminData = null
     res.redirect('/admin/login')
 }
-const getAdminDashboard = function (req, res, next) {
-    res.render('admin/index')
+const getAdminDashboard = async function (req, res, next) {
+
+    const productsCount = await adminHelpers.getProductsCount()
+    const CategoriesCount = await adminHelpers.getCategoriesCount()
+    const totalRevenue = await adminHelpers.getTotalRevenue()
+    const ordersCount = await adminHelpers.getTotalOrders()
+    const revenueByPaymentOption = await adminHelpers.revenueByPaymentOption()
+    const monthlyRevenue = await adminHelpers.monthlyRevenue()
+    let monthlyData = await adminHelpers.monthlyData()
+    monthlyData.reverse()
+
+    adminDebug(monthlyData)
+    res.render('admin/index', { productsCount, CategoriesCount, totalRevenue, ordersCount, revenueByPaymentOption, monthlyRevenue, monthlyData })
 }
+
 const getProducts = (req, res) => {
     productHelpers.getAllProducts().then((products) => {
         res.render('admin/products/products', { products })
@@ -152,44 +164,107 @@ const OrderStatus = async (req, res) => {
 }
 
 //CANCEL ORDER- ONLINE PAYMENT
-const cancelOrder = async(req,res)=>{
+const cancelOrder = async (req, res) => {
     const newOrderStatus = await adminHelpers.cancelOrder(req.body)
     res.json(newOrderStatus)
 }
 
 //CANCEL ORDER- COD
-const cancelCodOrder = async(req,res)=>{
+const cancelCodOrder = async (req, res) => {
     const newOrderStatus = await adminHelpers.cancelCodOrder(req.body)
     res.json(newOrderStatus)
 }
 
+//GENERATE REPORT 
+const generateReport = (req, res) => {
+    res.render('admin/sales/generate-report.ejs')
+}
 
+//DAILY REPORT
+const dailyReport = (req, res) => {
+    date = req.body
+    adminHelpers.getDailyReport(date).then((productsInfo) => {
+        res.render('admin/sales/sales-report', { date, productsInfo })
+    })
+}
+
+//MONTLY REPORT
+const monthlyReport = (req, res) => {
+    debugDb(req.body.month)
+    date = req.body.month
+    adminHelpers.getMonthlyReport(date).then((productsInfo) => {
+        res.render('admin/sales/monthly-report', { date, productsInfo })
+    })
+}
+
+//YEARLY REPORT
+const yearlyReport = (req, res) => {
+    date = req.body.year
+    adminHelpers.getYearlyReport(date).then((productsInfo) => {
+        res.render('admin/sales/monthly-report', { date, productsInfo })
+    })
+}
+
+//COUPONS
+const getCoupons = (req, res) => {
+    res.render('admin/coupon/coupons')
+}
+
+//NEW COUPON
+const newCoupon = (req, res) => {
+    res.render('admin/coupon/new')
+}
+
+//POST NEW COUPON
+const postNewCoupon = (req,res)=>{
+    res.redirect('/admin/coupons')
+}
 
 module.exports = {
+    //LOGIN
     getAdminLogin,
     postAdminLogin,
     getLogout,
+
+    //DASHBOARD
     getAdminDashboard,
+
+    //PRODUCTS
     getProducts,
     getNewProduct,
     postNewProduct,
     getEditProduct,
     postEditProduct,
     getDeleteProduct,
+    deleteProductImage,
+
+    //USERS
     getUsers,
     getBlockUser,
     getUnblockUser,
+
+    //CATEGORIES
     getCategories,
     postCategory,
     deleteCategory,
     getEditCategory,
     putProductCategory,
-    deleteProductImage,
+
+    //ORDERS
     getOrders,
     viewOrder,
-
     OrderStatus,
-
     cancelOrder,
-    cancelCodOrder
+    cancelCodOrder,
+
+    //SALES REPORT
+    generateReport,
+    dailyReport,
+    monthlyReport,
+    yearlyReport,
+
+    //COUPONS
+    getCoupons,
+    newCoupon,
+    postNewCoupon,
 } 

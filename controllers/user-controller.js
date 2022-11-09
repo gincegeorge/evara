@@ -2,9 +2,10 @@ const userHelpers = require('../helpers/user-helpers')
 const productHelpers = require('../helpers/product-helpers')
 const cartHelpers = require('../helpers/cart-helpers')
 const orderHelpers = require('../helpers/order-helpers')
-const { response } = require('../app')
-
+// const { response } = require('../app')
 const paypal = require('paypal-rest-sdk')
+const { userDebug } = require('../helpers/debug')
+
 
 //PAYPAL PAYMENT
 paypal.configure({
@@ -23,7 +24,7 @@ const getHomepage = async (req, res, next) => {
 //SHOP PAGE
 const getShoppage = (req, res, next) => {
     productHelpers.getAllProducts().then((products) => {
-        res.render('user/shop', { user, products })
+        res.render('user/shop/shop', { products })
     })
 }
 
@@ -37,7 +38,7 @@ const getLogin = (req, res) => {
         res.setHeader("Expires", "0");
         userLoginError = req.session.userLoginError
         user = null
-        res.render('user/login', { user, userLoginError })
+        res.render('user/login/login', { user, userLoginError })
         req.session.userLoginError = false
     }
 }
@@ -74,7 +75,7 @@ const getSignup = (req, res) => {
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
-    res.render('user/signup', { user: false })
+    res.render('user/login/signup', { user: false })
 }
 
 //SIGNUP PAGE - POST 
@@ -91,7 +92,7 @@ const getOtpLogin = (req, res) => {
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
 
-    res.render('user/otp-login', { user: false })
+    res.render('user/login/otp-login', { user: false })
 }
 
 //OTP PAGE - POST
@@ -114,7 +115,7 @@ const getVerifyOtp = (req, res) => {
     res.setHeader("Expires", "0");
     guestUser = req.session.userData
     userLoginError = req.session.userLoginError
-    res.render('user/verify-otp', { guestUser, user: false, userLoginError })
+    res.render('user/login/verify-otp', { guestUser, user: false, userLoginError })
 }
 
 //POST VERIFY OTP
@@ -138,7 +139,14 @@ const postVerifyOtp = (req, res) => {
 const getSingleProduct = async (req, res) => {
     let productSlug = req.params.productSlug
     let productDetails = await productHelpers.getProductDetails(productSlug);
-    res.render('user/single-product', { productDetails })
+
+    discountAmount = (productDetails.regularPrice * productDetails.Discount) / 100
+
+    let finalPrice = productDetails.regularPrice - discountAmount
+
+    productDetails.finalPrice = finalPrice
+
+    res.render('user/shop/single-product', { productDetails })
 }
 
 //ADD TO CART
@@ -157,6 +165,10 @@ const addToCart = (req, res) => {
 //GET - CART
 const getCart = async (req, res) => {
     let products = await cartHelpers.getCartProducts(user._id)
+
+    userDebug(products)
+
+
     res.render('user/cart/cart', { products })
 }
 
@@ -195,6 +207,7 @@ const addNewAddres = (req, res) => {
 //NEW ORDER
 const getPlaceOrder = async (req, res) => {
 
+    //create new order
     let orderInfo = await orderHelpers.newOrder(req.body)
 
     const { insertedId, cartTotal, paymentOption } = orderInfo
@@ -208,9 +221,15 @@ const getPlaceOrder = async (req, res) => {
             .then((result) => {
 
                 req.session.paypalOrderId = result.orderId
-                
+                //FIXME GET ORDER ID FROM PAYPAL
+
                 res.json(result)
             })
+    } else {
+        let result = {
+            paymentOption: 'COD'
+        }
+        res.json(result)
     }
 
 }
@@ -221,7 +240,7 @@ const verifyPayment = (req, res) => {
     userId = req.session.userData._id
 
     userHelpers.verifyPayment(req.body).then((orderId) => {
-        userHelpers.changePaymentStatus(orderId,userId).then(() => {
+        userHelpers.changePaymentStatus(orderId, userId).then(() => {
             res.json({ status: true })
         })
     }).catch((err) => {
@@ -246,9 +265,8 @@ const verifyPaypal = (req, res) => {
             console.log(error.response);
             throw error;
         } else {
-            console.log(JSON.stringify(payment));
-
-            orderId = req.session.paypalOrderId
+            //console.log(JSON.stringify(payment));
+            orderId = payment.transactions[0].description
             userId = req.session.userData._id
 
             userHelpers.changePaymentStatus(orderId, userId).then(() => {

@@ -7,8 +7,16 @@ const slugify = require('slugify')
 
 const getCategories = () => {
     return new Promise((resolve, reject) => {
-        let categories = db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).find().toArray()
-        resolve(categories)
+        db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).find().toArray()
+            .then((categories) => {
+                if (categories) {
+                    resolve(categories)
+                } else {
+                    reject(err)
+                }
+            })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -28,24 +36,38 @@ const postAddCategory = (req, callback) => {
             req.categorySlug = `${req.categorySlug}-1`
             db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).insertOne(req)
                 .then((data) => {
-                    resolve(data)
+                    if (data) {
+                        resolve(data)
+                    } else {
+                        reject()
+                    }
                 })
         } else {
             db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).insertOne(req)
                 .then((data) => {
-                    resolve(data)
+                    if (data) {
+                        resolve(data)
+                    } else {
+                        reject()
+                    }
                 })
         }
-
-
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
 const deleteCategory = (catId) => {
     return new Promise((resolve, reject) => {
         db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).deleteOne({ _id: objectId(catId) }).then((response) => {
-            resolve(response)
+            if (response) {
+                resolve(response)
+            } else {
+                reject()
+            }
         })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -54,8 +76,14 @@ const editCategory = (catId) => {
     return new Promise((resolve, reject) => {
         db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).findOne({ _id: objectId(catId) })
             .then((categoryDetails) => {
-                resolve(categoryDetails)
+                if (categoryDetails) {
+                    resolve(categoryDetails)
+                } else {
+                    reject()
+                }
             })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 //post edit category
@@ -76,8 +104,14 @@ const updateProductCategory = (catDetails) => {
                 categoryDesc: catDetails.categoryDesc
             }
         }).then((response) => {
-            resolve()
+            if (response) {
+                resolve()
+            } else {
+                reject()
+            }
         })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 

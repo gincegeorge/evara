@@ -19,9 +19,9 @@ const addProduct = (req, callback) => {
     req.body.productImages = getFileNames
 
     if (req.body.slug === "") {
-        req.body.slug = slugify(req.body.name)
+        req.body.slug = slugify(req.body.name, { lower: true })
     } else {
-        req.body.slug = slugify(req.body.slug)
+        req.body.slug = slugify(req.body.slug, { lower: true })
     }
 
 
@@ -34,8 +34,14 @@ const addProduct = (req, callback) => {
 
 const getAllProducts = () => {
     return new Promise((resolve, reject) => {
-        let products = db.get().collection(COLLECTION.PRODUCTS_COLLECTION).find().sort({'date':-1}).toArray()
-        resolve(products)
+        let products = db.get().collection(COLLECTION.PRODUCTS_COLLECTION).find().sort({ 'date': -1 }).toArray()
+        if (products) {
+            resolve(products)
+        } else {
+            reject()
+        }
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -43,8 +49,14 @@ const getProductDetails = (productSlug) => {
     return new Promise((resolve, reject) => {
         db.get().collection(COLLECTION.PRODUCTS_COLLECTION).findOne({ slug: productSlug })
             .then((productDetails) => {
-                resolve(productDetails)
+                if (productDetails) {
+                    resolve(productDetails)
+                } else {
+                    reject()
+                }
             })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -52,8 +64,14 @@ const getAllCategories = (productSlug) => {
     return new Promise((resolve, reject) => {
         db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).find().toArray()
             .then((ProductCats) => {
-                resolve(ProductCats)
+                if (ProductCats) {
+                    resolve(ProductCats)
+                } else {
+                    reject()
+                }
             })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -88,7 +106,7 @@ const updateProduct = (productId, req) => {
         if (productDetails.slug === "") {
             productDetails.slug = slugify(productDetails.name, { lower: true })
         } else {
-            productDetails.slug = slugify(productDetails.slug)
+            productDetails.slug = slugify(productDetails.slug, { lower: true })
         }
         db.get().collection(COLLECTION.PRODUCTS_COLLECTION).updateOne({ _id: objectId(productId) }, {
             $set: {
@@ -99,16 +117,29 @@ const updateProduct = (productId, req) => {
                 productCategories: productDetails.productCategories
             }
         }).then((response) => {
-            resolve()
+            if (response) {
+                resolve()
+            }
+            else {
+                reject()
+            }
         })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
 const deleteProduct = (productSlug) => {
     return new Promise((resolve, reject) => {
         db.get().collection(COLLECTION.PRODUCTS_COLLECTION).deleteOne({ slug: productSlug }).then((response) => {
-            resolve(response)
+            if (response) {
+                resolve(response)
+            } else {
+                reject()
+            }
         })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -125,16 +156,20 @@ const doDeleteProductImage = (data) => {
             }
         )
 
-        
         // Delete the file like normal
         if (datafind.modifiedCount) {
             imgPath = 'public/products-uploads/' + imgName
             await unlinkAsync(imgPath)
         }
 
-        resolve(datafind)
+        if (datafind) {
+            resolve(datafind)
+        } else {
+            reject()
+        }
+
     }).catch((err) => {
-        console.log("Databse error, Please buy Mangoooo" + err);
+        console.log(err);
     })
 }
 

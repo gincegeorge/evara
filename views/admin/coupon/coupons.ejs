@@ -1,0 +1,60 @@
+<%- include('../../partials/admin-header') %>
+
+<section class="content-main">
+  <div class="content-header">
+    <div class="col-6">
+      <h2 class="content-title card-title">Coupons</h2>
+      <p>View and manage coupons</p>
+    </div>
+    <div class="col-6 text-end">
+      <a href="/admin/coupons/new" class="btn btn-primary btn-sm rounded">Add new</a>
+    </div>
+  </div>
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover" id="myDataTable">
+          <thead>
+            <tr>
+              <th scope="col">Coupon code</th>
+              <th scope="col">Discount(%)</th>
+              <th scope="col">Created on</th>
+              <th scope="col">Expires on</th>
+              <th scope="col">Status</th>
+              <th scope="col" class="text-end"> Action </th>
+            </tr>
+          </thead>
+          <tbody>
+            <% //orderList.forEach(order => {
+                ///const [day,month,date,year] = order.date.toString().split(' ')
+              %>
+            <tr>
+              <td>EVARA50<%= //order.products.length %></td>
+              <td>50<%= //order.cartTotal %>%</td>
+              <td><%= //`${date}-${month}-${year}` %>12-12-22</td>
+              <td><%= //`${date}-${month}-${year}` %>12-12-23</td>
+              <td>
+                <% //if(order.orderPlaced) { %>
+                <span class="badge rounded-pill alert-success">Active</span>
+                <% //}else{ %>
+                <span class="badge rounded-pill alert-danger">Expired</span>
+                <%//// } %>
+              </td>
+              <td class="text-end">
+                <div class="dropdown">
+                  <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="product-categories/edit?id=634ce2052bea450e4c74e586">Edit info</a>
+                    <a class="dropdown-item text-danger" href="product-categories/delete?id=634ce2052bea450e4c74e586" onclick="return confirm('Do you want to delete Mens clothing')">Delete</a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <% //}) %>
+          </tbody>
+        </table>
+      </div> <!-- table-responsive //end -->
+    </div> <!-- card-body end// -->
+  </div> <!-- card end// -->
+</section> <!-- content-main end// -->
+<%- include('../../partials/admin-footer') %>

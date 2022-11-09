@@ -1,0 +1,69 @@
+<%- include('../../partials/admin-header') %>
+<section class="content-main">
+  <div class="content-header">
+    <div>
+      <h2 class="content-title card-title">Generate sales report</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-4">
+      <div class="card mb-4">
+        <!-- card-header end// -->
+        <div class="card-body">
+          <h4 class="mb-20">Day-wise</h4>
+          <form action="/admin/sales-report/daily" method="POST">
+            <div class="row">
+              <div class="col-7">
+                <input required class="form-control mb-3" type="date" id="date" name="date">
+              </div>
+              <div class="col-5">
+                <button class="btn btn-primary btn-md rounded font-md">Get report</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <!-- card-body end// -->
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="card mb-4">
+        <!-- card-header end// -->
+        <div class="card-body">
+          <h4 class="mb-3">Month-wise</h4>
+          <form action="/admin/sales-report/monthly" method="POST">
+            <div class="row">
+              <div class="col-7">
+                <input required class="form-control mb-3" type="month" id="month" name="month">
+              </div>
+              <div class="col-5">
+                <button class="btn btn-primary btn-md rounded font-md">Get report</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <!-- card-body end// -->
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="card mb-4">
+        <!-- card-header end// -->
+        <div class="card-body">
+          <h4 class="mb-3">Year-wise</h4>
+          <form action="/admin/sales-report/yearly" method="POST">
+            <div class="row">
+              <div class="col-7">
+                <input required name="year" class="form-control" type="number" placeholder="YYYY" min="2019" max="2022" value="2022">
+              </div>
+              <div class="col-5">
+                <button class="btn btn-primary btn-md rounded font-md">Get report</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <!-- card-body end// -->
+      </div>
+    </div>
+  </div>
+</section>
+<!-- content-main end// -->
+<%- include('../../partials/admin-footer') %>

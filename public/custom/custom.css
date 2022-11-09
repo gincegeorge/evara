@@ -170,12 +170,17 @@ body b {
 }
 
 /* My order page */
-.row.order-wrap{
+.row.order-wrap {
   max-width: 1000px;
 }
+
 span.badge.rounded-pill.badge-secondary {
   background: #f4f5f9;
   color: #4f5d77;
+}
+
+td.button-td {
+  min-width: 150px;
 }
 
 /* CHECKOUT PAGE */
@@ -183,9 +188,73 @@ span.badge.rounded-pill.badge-secondary {
   padding-right: 40px;
   position: relative;
 }
+
 .checkoutBtn .spinner-border.text-light {
+  display: none;
   position: absolute;
   width: 20px;
   height: 20px;
   right: 10px;
+}
+
+.checkoutBtn.disabled .spinner-border.text-light {
+  display: inline-block;
+}
+
+/* DATATABLES */
+.table-responsive {
+  overflow-x: hidden;
+}
+
+.ui.stackable.pagination.menu {
+  margin-top: 20px;
+}
+
+.paginate_button.item {
+  border: 0;
+  padding: 0 10px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  outline: 0;
+  width: 34px;
+  height: 34px;
+  display: block;
+  border-radius: 4px;
+  background: #e9ecee;
+  line-height: 34px;
+  text-align: center;
+  font-size: 13px;
+  color: #383e50;
+  margin: 0 5px;
+}
+
+a.paginate_button.item.active {
+  color: #fff;
+  background: #088178;
+}
+
+.paginate_button.item.disabled {
+  opacity: .4;
+}
+
+
+/* Search */
+#myDataTable_filter {
+  padding: 0 0 1.3rem;
+}
+
+#myDataTable_filter label {
+  width: 30%;
+}
+
+.dataTable td {
+  vertical-align: middle;
+}
+
+/* DATATABLES SALES REPORT */
+div.dt-buttons {
+  margin-bottom: 15px;
+}
+.table > tfoot {
+  background: #f7f8f9;
 }

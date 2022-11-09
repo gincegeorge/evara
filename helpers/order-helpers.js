@@ -69,7 +69,8 @@ const getCheckoutData = (userId) => {
         } else {
             resolve('0')
         }
-
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -97,8 +98,15 @@ const getDeliveryAddress = (addressId, userId) => {
             .toArray()
 
             .then((result) => {
-                resolve(result[0].address)
+                if (result.length) {
+                    resolve(result[0].address)
+                } else {
+                    reject()
+                }
+
             })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -113,8 +121,10 @@ const newOrder = async (orderDetails) => {
     const deliveryAddress = await getDeliveryAddress(orderDetails.address, user._id)
     const paymentOption = orderDetails.paymentOption
 
+    //TODO remove orderStatus its not being used
     const orderStatus = orderDetails.paymentOption === 'COD' ? 'Processing' : 'Pending'
     const paymentStatus = orderDetails.paymentOption === 'COD' ? 'Pending' : 'on-hold'
+    const orderPlaced = orderDetails.paymentOption === 'COD' ? true : false
 
     for (let i in products) {
         products[i].productOrderStatus = orderStatus
@@ -127,7 +137,7 @@ const newOrder = async (orderDetails) => {
         cartTotal,
         deliveryAddress,
         paymentOption,
-        paymentStatus,
+        orderPlaced,
         orderStatus,
         date: new Date(),
         orderId: 'EVARA' + uuidv4().toString().substring(0, 5)
@@ -140,9 +150,18 @@ const newOrder = async (orderDetails) => {
                 result.paymentOption = paymentOption
                 result.cartTotal = cartTotal
 
-                resolve(result)
-
+                if (paymentOption === 'COD') {
+                    //clearing cart
+                    db.get().collection(CART_COLLECTION).deleteOne({ user: objectId(userId) })
+                }
+                if (result) {
+                    resolve(result)
+                } else {
+                    reject()
+                }
             })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -150,8 +169,14 @@ const getAllOrders = (userId) => {
     return new Promise((resolve, reject) => {
         db.get().collection(ORDER_COLLECTION).find({ userId: objectId(userId) }, {}).sort({ 'date': -1 }).toArray()
             .then((result) => {
-                resolve(result)
+                if (result) {
+                    resolve(result)
+                } else {
+                    reject()
+                }
             })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -175,11 +200,15 @@ const cancelOrder = (orderDetails) => {
                 })
 
             .then((result) => {
-                resolve(result)
+                if (result) {
+                    resolve(result)
+                } else {
+                    reject()
+                }
             })
-            .catch((err) => {
-                console.log(err);
-            })
+
+    }).catch((err) => {
+        console.log(err);
     })
 
 }
@@ -204,11 +233,15 @@ const returnOrder = (orderDetails) => {
                 })
 
             .then((result) => {
-                resolve(result)
+                if (result) {
+                    resolve(result)
+                } else {
+                    reject()
+                }
             })
-            .catch((err) => {
-                console.log(err);
-            })
+
+    }).catch((err) => {
+        console.log(err);
     })
 
 }
@@ -232,11 +265,15 @@ const cancelCodOrder = (orderDetails) => {
                 })
 
             .then((result) => {
-                resolve(result)
+                if (result) {
+                    resolve(result)
+                } else {
+                    reject()
+                }
             })
-            .catch((err) => {
-                console.log(err);
-            })
+
+    }).catch((err) => {
+        console.log(err);
     })
 
 }
@@ -262,18 +299,17 @@ const returnCodOrder = (orderDetails) => {
                 })
 
             .then((result) => {
-                resolve(result)
+                if (result) {
+                    resolve(result)
+                } else {
+                    reject()
+                }
             })
-            .catch((err) => {
-                console.log(err);
-            })
+    }).catch((err) => {
+        console.log(err);
     })
 
 }
-
-
-//TODO ask about naming convension of controller and helpers 
-
 
 module.exports = {
     getCheckoutData,

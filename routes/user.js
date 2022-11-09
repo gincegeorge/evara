@@ -1,13 +1,7 @@
 var express = require('express');
 const router = express.Router();
-const userController = require('../controllers/user-controller')
+const userController = require('../controllers/user-controller');
 const userMiddlewares = require('../middlewares/user-middlewares')
-
-
-//const paypal_o = require('../helpers/paypal')
-
-
-
 
 /* GET home page. */
 router.get('/', userMiddlewares.verifyUserLogin, userController.getHomepage)
@@ -67,22 +61,23 @@ router.post('/change-product-quantity', userMiddlewares.verifyUserLogin, userCon
 
 router.post('/delete-product-from-cart', userMiddlewares.verifyUserLogin, userController.deleteProductFromCart)
 
-
 /************************************* */
 //              CHECKOUT
 /************************************* */
 router.get('/checkout', userMiddlewares.verifyUserLogin, userController.getCheckout)
 
-//FIXME ORDER CAN BE PLACED WITH 0 ITEMS
+//PLACE ORDER
 router.post('/place-order', userMiddlewares.verifyUserLogin, userController.getPlaceOrder)
 
 //RAZORPAY VERIFICATION
 router.post('/verify-payment', userMiddlewares.verifyUserLogin, userController.verifyPayment)
 
-router.get('/order-placed', userMiddlewares.verifyUserLogin, userController.orderPlaced)
-
-//PAYPAL VERIFICATION
+//PAYPAL
 router.get('/success', userController.verifyPaypal);
+router.get('/cancel', (req, res) => res.redirect('/checkout'));
+
+//ORDER PLACED PAGE
+router.get('/order-placed', userMiddlewares.verifyUserLogin, userController.orderPlaced)
 
 
 /************************************* */

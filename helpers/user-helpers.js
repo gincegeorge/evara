@@ -2,18 +2,19 @@ var db = require('../config/connection')
 var collection = require('../config/collections')
 const bcrypt = require('bcrypt')
 const collections = require('../config/collections')
-const { render, response } = require('../app')
-const { ReturnDocument } = require('mongodb')
+// const { render, response } = require('../app')
+// const { ReturnDocument } = require('mongodb')
 const { CART_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, PRODUCTS_COLLECTION, USERS_COLLECTION, ORDER_COLLECTION } = require('../config/collections')
 var objectId = require('mongodb').ObjectId
 const client = require("twilio")(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 const crypto = require("crypto")
-const { resolve } = require('path')
+// const { resolve } = require('path')
 const Razorpay = require("razorpay");
-
 const CC = require('currency-converter-lt')
 let currencyConverter = new CC()
 const paypal = require('paypal-rest-sdk')
+
+
 
 //PAYPAL PAYMENT
 paypal.configure({
@@ -38,8 +39,14 @@ const doSignup = (userData) => {
             .collection(collection.USERS_COLLECTION)
             .insertOne(userData)
             .then((data) => {
-                resolve(userData)
+                if (data) {
+                    resolve(userData)
+                } else {
+                    reject()
+                }
             })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -50,38 +57,62 @@ const doLogin = (userData) => {
         let response = {}
         let user = await db.get().collection(collection.USERS_COLLECTION).findOne({ email: userData.email })
         if (user) {
-
             if (!user.isBlocked) {
                 bcrypt.compare(userData.password, user.password).then((userLoginStatus) => {
                     if (userLoginStatus) {
                         console.log('login success')
                         response.user = user
                         response.userLoginStatus = true
-                        resolve(response)
+                        if (response) {
+                            resolve(response)
+                        } else {
+                            reject()
+                        }
                     } else {
                         response.userLoginError = 'Incorrect password'
-                        resolve(response)
                         console.log('Incorrect password');
+                        if (response) {
+                            resolve(response)
+                        } else {
+                            reject()
+                        }
                     }
                 })
             } else {
                 response.userLoginError = 'Account blocked'
-                resolve(response)
                 console.log('Account blocked')
+                if (response) {
+                    resolve(response)
+                } else {
+                    reject()
+                }
             }
         } else {
             response.userLoginError = 'Incorrect email'
-            resolve(response)
             console.log('Incorrect email')
+            if (response) {
+                resolve(response)
+            } else {
+                reject()
+            }
         }
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
 //USERS - GET
 const getUsers = () => {
     return new Promise((resolve, reject) => {
-        let users = db.get().collection(collection.USERS_COLLECTION).find().toArray()
-        resolve(users)
+        db.get().collection(collection.USERS_COLLECTION).find().toArray().then((users) => {
+            if (users) {
+                resolve(users)
+            } else {
+                reject()
+            }
+        })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -93,8 +124,14 @@ const doBlockUser = (userId) => {
                 isBlocked: true
             }
         }).then((userData) => {
-            resolve()
+            if (userData) {
+                resolve()
+            } else {
+                reject()
+            }
         })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -106,8 +143,14 @@ const doUnblockUser = (userId) => {
                 isBlocked: false
             }
         }).then((userData) => {
-            resolve()
+            if (userData) {
+                resolve()
+            } else {
+                reject()
+            }
         })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -131,14 +174,28 @@ const doOtpLogin = (req) => {
                     channel: "sms",
                 })
                 .then((data) => {
-                    resolve(data)
+                    if (data) {
+                        resolve(data)
+                    } else {
+                        reject()
+                    }
                 });
 
-            resolve(response)
+            if (response) {
+                resolve(response)
+            } else {
+                reject()
+            }
         } else {
             response.userLoginError = 'Phonenumber is not linked to any account'
-            resolve(response)
+            if (response) {
+                resolve(response)
+            } else {
+                reject()
+            }
         }
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -165,15 +222,25 @@ const doVerifyOtp = (req) => {
 
                     console.log('User is Verified!!')
 
-                    resolve(response)
+                    if (response) {
+                        resolve(response)
+                    } else {
+                        reject()
+                    }
                 } else {
                     response.user = req.session.user
                     response.user.userLoginStatus = false
                     response.user.userLoginError = 'Incorrect OTP'
                     console.log('failed')
-                    resolve(response)
+                    if (response) {
+                        resolve(response)
+                    } else {
+                        reject()
+                    }
                 }
             });
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -191,8 +258,14 @@ const addNewAddres = (formData, userId) => {
             }
         }, { $upsert: true }
         ).then((data) => {
-            resolve()
+            if (data) {
+                resolve()
+            } else {
+                reject()
+            }
         })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -206,7 +279,11 @@ const getAddresses = (userId) => {
                 { $unwind: '$address' }
             ]).toArray()
             .then((result) => {
-                resolve(result)
+                if (result) {
+                    resolve(result)
+                } else {
+                    reject()
+                }
             })
     }).catch((err) => {
         console.log(err);
@@ -224,8 +301,14 @@ const doDeleteAddress = (data) => {
             { $pull: { address: { _id: objectId(addressId) } } }
         )
             .then((result) => {
-                resolve(result)
+                if (result) {
+                    resolve(result)
+                } else {
+                    reject()
+                }
             })
+    }).catch((err) => {
+        console.log(err);
     })
 
 }
@@ -235,8 +318,14 @@ const viewOrder = async (orderId) => {
     return new Promise(async (resolve, reject) => {
         await db.get().collection(ORDER_COLLECTION).findOne({ _id: objectId(orderId) })
             .then((result) => {
-                resolve(result)
+                if (result) {
+                    resolve(result)
+                } else {
+                    reject()
+                }
             })
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -254,9 +343,15 @@ const generateRazorpay = (orderId, totalPrice, paymentOption) => {
                 console.log(err);
             } else {
                 order.paymentOption = paymentOption
-                resolve(order)
+                if (order) {
+                    resolve(order)
+                } else {
+                    reject()
+                }
             }
         });
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -274,6 +369,8 @@ const verifyPayment = (paymentInfo) => {
         } else {
             reject()
         }
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
@@ -287,7 +384,7 @@ const changePaymentStatus = (orderId, userId) => {
         //update order status 
         await db.get().collection(ORDER_COLLECTION).updateOne(
             { _id: objectId(orderId) },
-            { $set: { paymentStatus: 'success', orderStatus: 'Processing' } }
+            { $set: { orderPlaced: true, orderStatus: 'Processing' } }
         )
 
         //update payment status of products
@@ -298,17 +395,17 @@ const changePaymentStatus = (orderId, userId) => {
                 { $set: { "products.$[].productOrderStatus": 'Processing', "products.$[].productpaymentStatus": 'Success' } }
             )
 
-
-
         //clearing cart
-        db.get().collection(CART_COLLECTION).deleteOne({ user: objectId(userId) })
+        await db.get().collection(CART_COLLECTION).deleteOne({ user: objectId(userId) })
 
         resolve()
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
 
-const payWithPaypal = async(orderId, cartTotal, paymentOption) => {
+const payWithPaypal = async (orderId, cartTotal, paymentOption) => {
 
     console.log(orderId, cartTotal, paymentOption);
 
@@ -330,8 +427,10 @@ const payWithPaypal = async(orderId, cartTotal, paymentOption) => {
             "amount": {
                 "currency": "USD",
                 "total": priceInUSD.toFixed(2)
-            }
-        }]
+            },
+            'description': orderId
+        }
+        ]
     };
 
     return new Promise((resolve, reject) => {
@@ -346,12 +445,18 @@ const payWithPaypal = async(orderId, cartTotal, paymentOption) => {
                         result.redirectLink = payment.links[i].href
                         result.orderId = orderId
 
-                        resolve(result)
+                        if (result) {
+                            resolve(result)
+                        } else {
+                            reject()
+                        }
                         // res.redirect(payment.links[i].href);
                     }
                 }
             }
         });
+    }).catch((err) => {
+        console.log(err);
     })
 
 

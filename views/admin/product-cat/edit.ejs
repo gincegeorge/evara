@@ -3,12 +3,12 @@
 
   <section class="content-main">
     <div class="content-header">
-      <div>
+      <div class="col-6">
         <h2 class="content-title card-title">Edit Category</h2>
-        <p>edit <%= categoryDetails.categoryName %></p>
+        <p><%= categoryDetails.categoryName %></p>
       </div>
-      <div>
-        <input type="text" placeholder="Search Categories" class="form-control bg-white">
+      <div class="col-6 text-end">
+        <a href="/admin/product-categories" class="btn btn-secondary rounded font-md">Back to Categories</a>
       </div>
     </div>
     <div class="card">
@@ -28,11 +28,16 @@
                   placeholder="Type here" class="form-control" id="product_slug" />
               </div>
               <div class="mb-4">
+                <label for="cat_discount" class="form-label">Discount</label>
+                <input value="<%= categoryDetails.categoryDiscount %>" name="categoryDiscount" type="text"
+                  placeholder="%" class="form-control" id="cat_discount" />
+              </div>
+              <div class="mb-4">
                 <label class="form-label">Description</label>
                 <textarea name="categoryDesc" placeholder="Type here"
                   class="form-control"><%= categoryDetails.categoryDesc %></textarea>
               </div>
-              <div class="d-grid">
+              <div class="">
                 <button class="btn btn-primary">Update category</button>
               </div>
             </form>

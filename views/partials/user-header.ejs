@@ -40,7 +40,7 @@
             <div class="header-info header-info-right">
               <ul>
                 <% if(locals.user) { %>
-                <li><i class="fi-rs-user"></i><a href="/my-account">Hi, 
+                <li><i class="fi-rs-user"></i><a href="/my-account">Hi,
                     <%= user.name %>
                   </a>
                 </li>
@@ -90,9 +90,13 @@
                   <a class="mini-cart-icon" href="/cart">
                     <img alt="Evara" src="/user-assets/imgs/theme/icons/icon-cart.svg">
                     <% if(locals.user) { %>
-                    <span id="cartCount" class="pro-count blue"><%= user.cart.count %></span>
-                    <% } else { %>
-                    <span class="pro-count blue">0</span>
+                    <span id="cartCount" class="pro-count blue">
+                      <% if (user.cart.count) { %>
+                      <%= user.cart.count %>
+                      <% } else{ %>
+                      0
+                      <% } %>
+                    </span>
                     <% } %>
                   </a>
                 </div>
