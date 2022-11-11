@@ -3,11 +3,12 @@ var collection = require('../config/collections')
 const collections = require('../config/collections')
 const { render, response } = require('../app')
 const { ReturnDocument } = require('mongodb')
-const { CART_COLLECTION, PRODUCTS_COLLECTION, USERS_COLLECTION, ORDER_COLLECTION } = require('../config/collections')
+const { CART_COLLECTION, PRODUCTS_COLLECTION, USERS_COLLECTION, ORDER_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION } = require('../config/collections')
 var objectId = require('mongodb').ObjectId
 const cartHelpers = require('../helpers/cart-helpers')
 const userHelpers = require('../helpers/user-helpers')
 const { v4: uuidv4 } = require('uuid')
+const { userDebug } = require('./debug')
 
 
 
@@ -19,7 +20,6 @@ const getCheckoutData = (userId) => {
         let cartTotal = await db.get().collection(CART_COLLECTION).aggregate([
             {
                 $match: { user: objectId(userId) }
-                // matched cart from database using user id
             },
             {
                 $unwind: '$products'
@@ -28,7 +28,6 @@ const getCheckoutData = (userId) => {
                 $project: {
                     item: '$products.item',
                     quantity: '$products.quantity'
-                    // projected item and qty as per user cart
                 }
             },
             {
@@ -37,35 +36,95 @@ const getCheckoutData = (userId) => {
                     localField: 'item',
                     foreignField: '_id',
                     as: 'product'
-                    // brings up product details from product collection
                 }
             },
             {
                 $project: {
-                    item: 1,
-                    quantity: 1,
-                    product: {
-                        $arrayElemAt: ['$product', 0]
-                    }
-                    // projected the product details
+                    item: 1, quantity: 1, product: { $arrayElemAt: ['$product', 0] }
                 }
             },
             {
-                $group: {
-                    _id: null,
-                    total: {
-                        $sum: {
-                            $multiply: [
-                                { $toInt: "$quantity" },
-                                { $toInt: "$product.regularPrice" },
-                            ],
-                        },
+                $lookup: {
+                    from: PRODUCTS_CATEGORIES_COLLECTION,
+                    localField: 'product.productCategories',
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
+            {
+                $unwind: '$category'
+            },
+            {
+                $project: {
+                    item: 1, quantity: 1, product: 1, category: 1,
+                    biggerDiscount:
+                    {
+                        $cond:
+                        {
+                            if:
+                            {
+                                $gt: [
+                                    { $toInt: "$product.Discount" },
+                                    { $toInt: '$category.categoryDiscount' }
+                                ]
+                            }, then: "$product.Discount", else: '$category.categoryDiscount'
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    discountedAmount:
+                    {
+                        $round:
+                        {
+                            $divide: [
+                                {
+                                    $multiply: [
+                                        { $toInt: "$product.regularPrice" },
+                                        { $toInt: "$biggerDiscount" }
+                                    ]
+                                }, 100]
+                        }
                     },
-                },
+                }
+            },
+            {
+                $addFields: {
+                    finalPrice:
+                    {
+                        $round:
+                        {
+                            $subtract: [
+                                { $toInt: "$product.regularPrice" },
+                                { $toInt: "$discountedAmount" }]
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    total: {
+                        $multiply: ["$quantity", { $toInt: "$finalPrice" }],
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 1, total: 1
+                }
+            },
+            {
+                "$group": {
+                    "_id": "$_id",
+                    "cartTotal": {
+                        "$sum": "$total"
+                    }
+                }
             }
         ]).toArray()
         if (cartTotal.length !== 0) {
-            resolve(cartTotal[0].total)
+            resolve(cartTotal[0].cartTotal)
         } else {
             resolve('0')
         }

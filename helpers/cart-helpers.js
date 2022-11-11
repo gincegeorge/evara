@@ -3,7 +3,7 @@ var collection = require('../config/collections')
 const collections = require('../config/collections')
 const { render, response } = require('../app')
 const { ReturnDocument } = require('mongodb')
-const { CART_COLLECTION, PRODUCTS_COLLECTION } = require('../config/collections')
+const { CART_COLLECTION, PRODUCTS_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION } = require('../config/collections')
 const { adminDebug } = require('./debug')
 var objectId = require('mongodb').ObjectId
 
@@ -90,9 +90,68 @@ const getCartProducts = (userId) => {
                 }
             },
             {
+                $lookup: {
+                    from: PRODUCTS_CATEGORIES_COLLECTION,
+                    localField: 'product.productCategories',
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
+            {
+                $unwind: '$category'
+            },
+            {
+                $project: {
+                    item: 1, quantity: 1, product: 1, category: 1,
+                    biggerDiscount:
+                    {
+                        $cond:
+                        {
+                            if:
+                            {
+                                $gt: [
+                                    { $toInt: "$product.Discount" },
+                                    { $toInt: '$category.categoryDiscount' }
+                                ]
+                            }, then: "$product.Discount", else: '$category.categoryDiscount'
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    discountedAmount:
+                    {
+                        $round:
+                        {
+                            $divide: [
+                                {
+                                    $multiply: [
+                                        { $toInt: "$product.regularPrice" },
+                                        { $toInt: "$biggerDiscount" }
+                                    ]
+                                }, 100]
+                        }
+                    },
+                }
+            },
+            {
+                $addFields: {
+                    finalPrice:
+                    {
+                        $round:
+                        {
+                            $subtract: [
+                                { $toInt: "$product.regularPrice" },
+                                { $toInt: "$discountedAmount" }]
+                        }
+                    }
+                }
+            },
+            {
                 $addFields: {
                     total: {
-                        $multiply: ["$quantity", { $toInt: "$product.regularPrice" }],
+                        $multiply: ["$quantity", { $toInt: "$finalPrice" }],
                     }
                 }
             }
@@ -103,7 +162,7 @@ const getCartProducts = (userId) => {
             reject()
         }
     }).catch((err) => {
-        resolve(response)
+        console.log(err);
     })
 }
 

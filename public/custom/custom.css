@@ -247,6 +247,10 @@ a.paginate_button.item.active {
   width: 30%;
 }
 
+.row.dt-table {
+  margin-top: 20px;
+}
+
 .dataTable td {
   vertical-align: middle;
 }

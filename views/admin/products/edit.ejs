@@ -8,7 +8,7 @@
         </div>
       </div>
       <div class="col-6 text-end">
-        <a href="/admin/products" class="btn btn-secondary rounded font-md">Back to products</a>
+        <a href="/admin/products" class="btn btn-light rounded font-md ms-1">Back to products</a>
       </div>
     </div>
 
@@ -44,7 +44,7 @@
                 <div class="mb-4">
                   <label class="form-label">Discount(%)</label>
                   <div class="row gx-2">
-                    <input name="Discount" placeholder="10%" type="number" class="form-control" value="<%= productDetails.Discount %>">
+                    <input name="Discount" placeholder="10%" type="number" class="form-control" value="<%= productDetails.Discount %>" max="100">
                   </div>
                 </div>
               </div>
@@ -93,8 +93,9 @@
                 <div class="col-sm-6 mb-3">
                   <label class="form-label">Category</label>
                   <select name="productCategories" class="form-select">
+                    <!-- FIXME current category is not selected -->
                     <% productCats.forEach(element=> { %>
-                    <option value="<%= element._id %>" <% if(productDetails.productCategories == element._id) { %> selected <% } %>>
+                    <option value="<%= element._id %>" <% if(productDetails.productCategories === element._id) { %> selected <% } %>>
                       <%= element.categoryName %>
                     </option>
                     <% }) %>

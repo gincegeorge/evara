@@ -4,7 +4,7 @@ const cartHelpers = require('../helpers/cart-helpers')
 const orderHelpers = require('../helpers/order-helpers')
 // const { response } = require('../app')
 const paypal = require('paypal-rest-sdk')
-const { userDebug } = require('../helpers/debug')
+const { userDebug, adminDebug } = require('../helpers/debug')
 
 
 //PAYPAL PAYMENT
@@ -21,13 +21,6 @@ const getHomepage = async (req, res, next) => {
     })
 }
 
-//SHOP PAGE
-const getShoppage = (req, res, next) => {
-    productHelpers.getAllProducts().then((products) => {
-        res.render('user/shop/shop', { products })
-    })
-}
-
 //LOGIN PAGE
 const getLogin = (req, res) => {
     if (req.session.userLoginStatus) {
@@ -38,8 +31,8 @@ const getLogin = (req, res) => {
         res.setHeader("Expires", "0");
         userLoginError = req.session.userLoginError
         user = null
-        res.render('user/login/login', { user, userLoginError })
         req.session.userLoginError = false
+        res.render('user/login/login', { user, userLoginError })
     }
 }
 
@@ -103,7 +96,7 @@ const postOtpLogin = (req, res) => {
             req.session.userLoginStatus = response.user.userLoginStatus
             res.redirect('/verify-otp')
         } else {
-            res.render('user/otp-login', { user: false })
+            res.render('user/login/otp-login', { user: false })
         }
     })
 }
@@ -135,14 +128,24 @@ const postVerifyOtp = (req, res) => {
     })
 }
 
+//SHOP PAGE
+const getShoppage = (req, res, next) => {
+    productHelpers.getAllProducts().then((products) => {
+        userDebug(products)
+        res.render('user/shop/shop', { products })
+    })
+}
+
 //GET SINGLE PRODUCT
 const getSingleProduct = async (req, res) => {
+
     let productSlug = req.params.productSlug
+
     let productDetails = await productHelpers.getProductDetails(productSlug);
 
     discountAmount = (productDetails.regularPrice * productDetails.Discount) / 100
 
-    let finalPrice = productDetails.regularPrice - discountAmount
+    let finalPrice = Math.round(productDetails.regularPrice - discountAmount)
 
     productDetails.finalPrice = finalPrice
 
@@ -165,10 +168,7 @@ const addToCart = (req, res) => {
 //GET - CART
 const getCart = async (req, res) => {
     let products = await cartHelpers.getCartProducts(user._id)
-
     userDebug(products)
-
-
     res.render('user/cart/cart', { products })
 }
 
@@ -197,12 +197,19 @@ const getCheckout = async (req, res) => {
     res.render('user/cart/checkout', { cartTotal, products, addressList })
 }
 
+//APPLY COUPON
+const applyCoupon = async(req,res)=>{
+    couponCode = 'EVARA50'
+    userDebug(couponCode)
+    res.redirect('/checkout')
+}
+
 //ADD NEW ADDRESS
 const addNewAddres = (req, res) => {
     userHelpers.addNewAddres(req.body, user._id).then(() => {
         res.send('address added')
     })
-}
+} 
 
 //NEW ORDER
 const getPlaceOrder = async (req, res) => {
@@ -219,10 +226,8 @@ const getPlaceOrder = async (req, res) => {
     } else if (paymentOption === 'Paypal') {
         await userHelpers.payWithPaypal(insertedId, cartTotal, paymentOption)
             .then((result) => {
-
                 req.session.paypalOrderId = result.orderId
                 //FIXME GET ORDER ID FROM PAYPAL
-
                 res.json(result)
             })
     } else {
@@ -342,7 +347,7 @@ const returnCodOrder = async (req, res) => {
 
 module.exports = {
     getHomepage,
-    getShoppage,
+
     getLogin,
     postLogin,
     getLogout,
@@ -352,24 +357,32 @@ module.exports = {
     getVerifyOtp,
     postOtpLogin,
     postVerifyOtp,
+
+    getShoppage,
     getSingleProduct,
+
     addToCart,
     getCart,
     changeProductQuantity,
     deleteProductFromCart,
+
     getCheckout,
+    applyCoupon,
     getPlaceOrder,
-    addNewAddres,
     orderPlaced,
+
     myAccount,
     myAddress,
-    myOrders,
+    addNewAddres,
     deleteAddress,
+
+    myOrders,
     viewOrder,
     cancelOrder,
-    verifyPayment,
     returnOrder,
     cancelCodOrder,
     returnCodOrder,
+
+    verifyPayment,
     verifyPaypal
 }

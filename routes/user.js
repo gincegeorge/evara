@@ -66,6 +66,9 @@ router.post('/delete-product-from-cart', userMiddlewares.verifyUserLogin, userCo
 /************************************* */
 router.get('/checkout', userMiddlewares.verifyUserLogin, userController.getCheckout)
 
+//APPLY COUPON
+router.get('/checkout/apply-coupon', userMiddlewares.verifyUserLogin, userController.applyCoupon)
+
 //PLACE ORDER
 router.post('/place-order', userMiddlewares.verifyUserLogin, userController.getPlaceOrder)
 
@@ -79,11 +82,9 @@ router.get('/cancel', (req, res) => res.redirect('/checkout'));
 //ORDER PLACED PAGE
 router.get('/order-placed', userMiddlewares.verifyUserLogin, userController.orderPlaced)
 
-
 /************************************* */
 //              MY ACCOUNT
 /************************************* */
-
 router.get('/my-account', userMiddlewares.verifyUserLogin, userController.myAccount)
 
 router.get('/my-account/address', userMiddlewares.verifyUserLogin, userController.myAddress)
@@ -105,16 +106,11 @@ router.patch('/my-account/order/cancel', userMiddlewares.verifyUserLogin, userCo
 
 router.patch('/my-account/order/return', userMiddlewares.verifyUserLogin, userController.returnOrder)
 
- 
+
 //COD
 router.patch('/my-account/order/cancel-cod', userMiddlewares.verifyUserLogin, userController.cancelCodOrder)
 
 router.patch('/my-account/order/return-cod', userMiddlewares.verifyUserLogin, userController.returnCodOrder)
 
-
-// paypal
-// router.post('/pay', async(req,res)=>{
-//   await paypal_o.paypal_helper("kkkk", "kkkkkk", "kkkk", res, router)
-// });
 
 module.exports = router

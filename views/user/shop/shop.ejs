@@ -20,21 +20,27 @@
                   <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
                   <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
                 </div>
+                <% if(element.finalPrice < element.regularPrice ){ %>
                 <div class="product-badges product-badges-position product-badges-mrg">
-                  <span class="hot">Hot</span>
+                  <span class="hot">-<%= element.biggerDiscount %>%</span>
                 </div>
+                <% } %>
               </div>
               <div class="product-content-wrap">
                 <div class="product-category">
                   <a href="shop-grid-right.html">Clothing</a>
                 </div>
                 <h2><a href="product/<%= element.slug %>""><%= element.name %></a></h2>
-                                <div class=" rating-result" title="90%">
-                    <span><span>90%</span></span>
+                <div class=" rating-result" title="90%">
+                    <span><span></span></span>
               </div>
               <div class="product-price">
+                <% if(element.finalPrice < element.regularPrice ){ %>
+                <span>₹<%= element.finalPrice %></span>
+                <span class="old-price">₹<%= element.regularPrice %></span>
+                <% } else{ %>
                 <span>₹<%= element.regularPrice %></span>
-                <!-- <span class="old-price">$245.8</span> -->
+                <% } %>
               </div>
               <div class="product-action-1 show">
                 <button onclick="addToCart('<%= element._id %>')" aria-label="Add To Cart" class="action-btn hover-up"><i class="fi-rs-shopping-bag-add"></i></button>

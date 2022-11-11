@@ -23,6 +23,7 @@ const getCategories = () => {
 const postAddCategory = (req, callback) => {
     return new Promise(async (resolve, reject) => {
 
+        //create slug
         if (req.categorySlug === "") {
             req.categorySlug = slugify(req.categoryName, { lower: true })
         } else {
@@ -31,27 +32,17 @@ const postAddCategory = (req, callback) => {
 
         const existingCat = await db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).findOne({ categorySlug: req.categorySlug })
 
-
         if (existingCat) {
             req.categorySlug = `${req.categorySlug}-1`
-            db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).insertOne(req)
-                .then((data) => {
-                    if (data) {
-                        resolve(data)
-                    } else {
-                        reject()
-                    }
-                })
-        } else {
-            db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).insertOne(req)
-                .then((data) => {
-                    if (data) {
-                        resolve(data)
-                    } else {
-                        reject()
-                    }
-                })
         }
+        db.get().collection(COLLECTION.PRODUCTS_CATEGORIES_COLLECTION).insertOne(req)
+            .then((data) => {
+                if (data) {
+                    resolve(data)
+                } else {
+                    reject()
+                }
+            })
     }).catch((err) => {
         console.log(err);
     })
@@ -101,6 +92,7 @@ const updateProductCategory = (catDetails) => {
             $set: {
                 categoryName: catDetails.categoryName,
                 categorySlug: catDetails.categorySlug,
+                categoryDiscount: catDetails.categoryDiscount,
                 categoryDesc: catDetails.categoryDesc
             }
         }).then((response) => {

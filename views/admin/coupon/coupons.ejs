@@ -13,7 +13,7 @@
   <div class="card mb-4">
     <div class="card-body">
       <div class="table-responsive">
-        <table class="table table-hover" id="myDataTable">
+        <table class="table table-hover" id="couponsTable">
           <thead>
             <tr>
               <th scope="col">Coupon code</th>
@@ -25,32 +25,35 @@
             </tr>
           </thead>
           <tbody>
-            <% //orderList.forEach(order => {
-                ///const [day,month,date,year] = order.date.toString().split(' ')
-              %>
+            <% coupons.forEach(coupon => {
+
+                const [day,month,date,year] = coupon.date.toString().split(' ')
+                const [currentDate,currentMonth,currentYear] = new Date().toLocaleDateString().split('/')
+                const dateNow = currentYear+'-'+currentMonth+'-'+currentDate
+            %>
             <tr>
-              <td>EVARA50<%= //order.products.length %></td>
-              <td>50<%= //order.cartTotal %>%</td>
-              <td><%= //`${date}-${month}-${year}` %>12-12-22</td>
-              <td><%= //`${date}-${month}-${year}` %>12-12-23</td>
+              <td><%= coupon.couponCode %></td>
+              <td><%= coupon.couponDiscount %>%</td>
+              <td><%= `${date}-${month}-${year}` %></td>
+              <td><%= coupon.expiryDate %></td>
               <td>
-                <% //if(order.orderPlaced) { %>
+                <% if (dateNow < coupon.expiryDate){ %>
                 <span class="badge rounded-pill alert-success">Active</span>
-                <% //}else{ %>
+                <% }else { %>
                 <span class="badge rounded-pill alert-danger">Expired</span>
-                <%//// } %>
+                <% } %>
               </td>
               <td class="text-end">
                 <div class="dropdown">
                   <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
                   <div class="dropdown-menu">
-                    <a class="dropdown-item" href="product-categories/edit?id=634ce2052bea450e4c74e586">Edit info</a>
-                    <a class="dropdown-item text-danger" href="product-categories/delete?id=634ce2052bea450e4c74e586" onclick="return confirm('Do you want to delete Mens clothing')">Delete</a>
+                    <a class="dropdown-item" href="coupons/edit?id=<%= coupon._id %>">Edit coupon</a>
+                    <a class="dropdown-item text-danger" href="coupons/delete?id=<%= coupon._id %>" onclick="return confirm('Do you want to delete <%= coupon.couponCode %>')">Delete</a>
                   </div>
                 </div>
               </td>
             </tr>
-            <% //}) %>
+            <% }) %>
           </tbody>
         </table>
       </div> <!-- table-responsive //end -->

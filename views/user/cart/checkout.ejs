@@ -99,7 +99,7 @@
                       </span>
                     </td>
                     <td>₹<span>
-                        <%= element.product.regularPrice*element.quantity %>
+                        <%= element.finalPrice*element.quantity %>
                       </span></td>
                   </tr>
                   <% } %>
@@ -131,12 +131,12 @@
                 <div class="panel-body">
                   <p class="mb-30 font-sm">If you have a coupon code, please apply it below.
                   </p>
-                  <form method="post">
+                  <form method="post" action="/checkout/apply-coupon">
                     <div class="form-group">
-                      <input type="text" placeholder="Enter Coupon Code...">
+                      <input type="text" required placeholder="Enter Coupon Code..." value="EVARA50">
                     </div>
                     <div class="form-group">
-                      <button class="btn  btn-md" name="login">Apply Coupon</button>
+                      <button class="btn btn-md btn-secondary" name="login">Apply Coupon</button>
                     </div>
                   </form>
                 </div>

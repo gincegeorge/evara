@@ -43,20 +43,42 @@
                         <%= element.product.name %>
                     </h5>
                   </td>
-                  <td class="price" data-title="Price"><span>₹<%=
-                                                            element.product.regularPrice %></span></td>
+                  <td class="price" data-title="Price">
+                    <span>₹<%= element.finalPrice %></span>
+                  </td>
                   <td class="text-center" data-title="Stock">
                     <div class="detail-qty border radius  m-auto">
+
+                      <% if(element.finalPrice < element.product.regularPrice ){ %>
+
+                      <a class="qty-down <% if (element.quantity ==1) { %>disabled<% } %>" onclick="changeQuantity('<%= element._id %>','<%= element.product._id %>',-1,'<%= element.finalPrice %>')"><i class="fi-rs-angle-small-down"></i></a>
+
+                      <% }else{ %>
+
                       <a class="qty-down <% if (element.quantity ==1) { %>disabled<% } %>" onclick="changeQuantity('<%= element._id %>','<%= element.product._id %>',-1,'<%= element.product.regularPrice %>')"><i class="fi-rs-angle-small-down"></i></a>
+
+                      <% } %>
+
                       <span id="<%= element.product._id %>" class="qty-val">
                         <%= element.quantity %>
                       </span>
+
+                      <% if(element.finalPrice < element.product.regularPrice ){ %>
+
+                      <a class="qty-up" onclick="changeQuantity('<%= element._id %>','<%= element.product._id %>',1,'<%= element.finalPrice %>')"><i class="fi-rs-angle-small-up"></i></a>
+
+                      <% }else{ %>
+
                       <a class="qty-up" onclick="changeQuantity('<%= element._id %>','<%= element.product._id %>',1,'<%= element.product.regularPrice %>')"><i class="fi-rs-angle-small-up"></i></a>
+
+                      <% } %>
+
+
                     </div>
                   </td>
                   <td class="text-right" data-title="Cart">
                     ₹<span id="<%= element.product._id %>-totalPrice">
-                      <%= element.product.regularPrice*element.quantity %>
+                      <%= element.total %>
                     </span>
                   </td>
                   <td class="d" data-title="Remove">
@@ -64,7 +86,6 @@
                       <i class="fi-rs-trash"></i>
                     </a>
                   </td>
-
                 </tr>
                 <% } %>
                 <% }) %>
