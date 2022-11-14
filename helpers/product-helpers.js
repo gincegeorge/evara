@@ -3,38 +3,145 @@ const COLLECTION = require('../config/collections')
 const { response } = require('express')
 const objectId = require('mongodb').ObjectId
 const slugify = require('slugify')
-
 const path = require('path');
-
 const fs = require('fs')
 const { promisify } = require('util')
+const { resolve } = require('path')
+const { adminDebug, debugDb } = require('./debug')
+const { PRODUCTS_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION } = require('../config/collections')
 const unlinkAsync = promisify(fs.unlink)
 
 
-const addProduct = (req, callback) => {
-    const files = req.files;
-    let getFileNames = files.map(function (element) {
-        return `${element.filename}`;
+const addProduct = (req) => {
+
+    return new Promise(async (resolve, reject) => {
+
+        //changing file names
+        const files = req.files;
+        let getFileNames = files.map(function (element) {
+            return `${element.filename}`;
+        })
+        req.body.productImages = getFileNames
+
+        //slug creation
+        if (req.body.slug === "") {
+            req.body.slug = slugify(req.body.name, { lower: true })
+        } else {
+            req.body.slug = slugify(req.body.slug, { lower: true })
+        }
+
+        //product created date
+        req.body.date = new Date()
+        req.body.productCategories = objectId(req.body.productCategories)
+
+        //calculating sale price
+        let discountAmount = (req.body.regularPrice * req.body.Discount) / 100
+        let salePrice = Math.round(req.body.regularPrice - discountAmount)
+        req.body.salePrice = salePrice
+
+        db.get().collection(COLLECTION.PRODUCTS_COLLECTION).insertOne(req.body).then((data) => {
+            if (data) {
+                resolve(data)
+            } else {
+                reject()
+            }
+
+        })
+    }).catch((err) => {
+        console.log(err);
     })
-    req.body.productImages = getFileNames
 
-    if (req.body.slug === "") {
-        req.body.slug = slugify(req.body.name, { lower: true })
-    } else {
-        req.body.slug = slugify(req.body.slug, { lower: true })
-    }
+}
 
+const getAllProductsAdmin = () => {
+    return new Promise(async (resolve, reject) => {
+        let products = db.get().collection(COLLECTION.PRODUCTS_COLLECTION).find().sort({ 'date': -1 }).toArray()
 
-    req.body.date = new Date()
+        adminDebug(products)
 
-    db.get().collection(COLLECTION.PRODUCTS_COLLECTION).insertOne(req.body).then((data) => {
-        callback(data)
+        if (products) {
+            resolve(products)
+        } else {
+            reject()
+        }
+    }).catch((err) => {
+        console.log(err);
     })
 }
 
 const getAllProducts = () => {
-    return new Promise((resolve, reject) => {
-        let products = db.get().collection(COLLECTION.PRODUCTS_COLLECTION).find().sort({ 'date': -1 }).toArray()
+    return new Promise(async (resolve, reject) => {
+        //let products = db.get().collection(COLLECTION.PRODUCTS_COLLECTION).find().sort({ 'date': -1 }).toArray()
+
+
+        let products = await db.get().collection(PRODUCTS_COLLECTION).aggregate([
+            {
+                $lookup: {
+                    from: PRODUCTS_CATEGORIES_COLLECTION,
+                    localField: 'productCategories',
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
+            {
+                $unwind: '$category'
+            },
+            {
+                $project: {
+                    _id: 1, name: 1, slug: 1, regularPrice: 1, Stock: 1, Discount: 1, salePrice: 1, productImages: 1, category: 1, date: 1,
+                    biggerDiscount:
+                    {
+                        $cond:
+                        {
+                            if:
+                            {
+                                $gt: [
+                                    { $toInt: "$Discount" },
+                                    { $toInt: '$category.categoryDiscount' }
+                                ]
+                            }, then: "$Discount", else: '$category.categoryDiscount'
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    discountedAmount:
+                    {
+                        $round:
+                        {
+                            $divide: [
+                                {
+                                    $multiply: [
+                                        { $toInt: "$regularPrice" },
+                                        { $toInt: "$biggerDiscount" }
+                                    ]
+                                }, 100]
+                        }
+                    },
+                }
+            },
+            {
+                $addFields: {
+                    finalPrice:
+                    {
+                        $round:
+                        {
+                            $subtract: [
+                                { $toInt: "$regularPrice" },
+                                { $toInt: "$discountedAmount" }]
+                        }
+                    }
+                }
+            }, {
+                $sort: {
+                    date: -1
+                }
+            }
+        ]).toArray()
+
+        //adminDebug(products)
+
         if (products) {
             resolve(products)
         } else {
@@ -80,8 +187,8 @@ const updateProduct = (productId, req) => {
 
         if (!req.files.length == 0) {
 
+            //changing file names
             const files = req.files;
-
             let getFileNames = files.map(function (element) {
                 return `${element.filename}`;
             })
@@ -103,18 +210,27 @@ const updateProduct = (productId, req) => {
         }
         let productDetails = req.body
 
+        //creating slug
         if (productDetails.slug === "") {
             productDetails.slug = slugify(productDetails.name, { lower: true })
         } else {
             productDetails.slug = slugify(productDetails.slug, { lower: true })
         }
+
+        //calculating sale price
+        let discountAmount = (productDetails.regularPrice * productDetails.Discount) / 100
+        productDetails.salePrice = Math.round(productDetails.regularPrice - discountAmount)
+
         db.get().collection(COLLECTION.PRODUCTS_COLLECTION).updateOne({ _id: objectId(productId) }, {
             $set: {
                 name: productDetails.name,
                 description: productDetails.description,
                 regularPrice: productDetails.regularPrice,
+                Discount: productDetails.Discount,
                 slug: productDetails.slug,
-                productCategories: productDetails.productCategories
+                productCategories: objectId(productDetails.productCategories),
+                salePrice: productDetails.salePrice,
+                Stock: productDetails.Stock
             }
         }).then((response) => {
             if (response) {
@@ -177,6 +293,7 @@ const doDeleteProductImage = (data) => {
 module.exports = {
     addProduct,
     getAllProducts,
+    getAllProductsAdmin,
     getProductDetails,
     updateProduct,
     deleteProduct,

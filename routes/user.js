@@ -62,9 +62,26 @@ router.post('/change-product-quantity', userMiddlewares.verifyUserLogin, userCon
 router.post('/delete-product-from-cart', userMiddlewares.verifyUserLogin, userController.deleteProductFromCart)
 
 /************************************* */
+//                WISHLIST
+/************************************* */
+router.get('/wishlist/add-product/:id', userMiddlewares.verifyUserLogin, userController.addToWishlist)
+
+router.get('/wishlist', userMiddlewares.verifyUserLogin, userController.getWishlist)
+
+router.delete('/wishlist/remove-product', userMiddlewares.verifyUserLogin, userController.deleteProductFromWishlist)
+
+router.patch('/wishlist/addtocart', userMiddlewares.verifyUserLogin, userController.addToCartFromWishlist)
+
+/************************************* */
 //              CHECKOUT
 /************************************* */
 router.get('/checkout', userMiddlewares.verifyUserLogin, userController.getCheckout)
+
+//APPLY COUPON
+router.post('/checkout/apply-coupon', userMiddlewares.verifyUserLogin, userController.applyCoupon)
+
+//REMOVE COUPON
+router.get('/checkout/remove-coupon/:id', userMiddlewares.verifyUserLogin, userController.removeCoupon)
 
 //PLACE ORDER
 router.post('/place-order', userMiddlewares.verifyUserLogin, userController.getPlaceOrder)
@@ -79,11 +96,9 @@ router.get('/cancel', (req, res) => res.redirect('/checkout'));
 //ORDER PLACED PAGE
 router.get('/order-placed', userMiddlewares.verifyUserLogin, userController.orderPlaced)
 
-
 /************************************* */
 //              MY ACCOUNT
 /************************************* */
-
 router.get('/my-account', userMiddlewares.verifyUserLogin, userController.myAccount)
 
 router.get('/my-account/address', userMiddlewares.verifyUserLogin, userController.myAddress)
@@ -91,7 +106,6 @@ router.get('/my-account/address', userMiddlewares.verifyUserLogin, userControlle
 router.post('/my-account/address/new', userMiddlewares.verifyUserLogin, userController.addNewAddres)
 
 router.delete('/my-account/address/delete', userMiddlewares.verifyUserLogin, userController.deleteAddress)
-
 
 /************************************* */
 //              MY ORDERS
@@ -101,20 +115,16 @@ router.get('/my-account/orders', userMiddlewares.verifyUserLogin, userController
 router.get('/my-account/order/:id', userMiddlewares.verifyUserLogin, userController.viewOrder)
 
 
+//ONLINE PAYMENT
 router.patch('/my-account/order/cancel', userMiddlewares.verifyUserLogin, userController.cancelOrder)
 
 router.patch('/my-account/order/return', userMiddlewares.verifyUserLogin, userController.returnOrder)
 
- 
+
 //COD
 router.patch('/my-account/order/cancel-cod', userMiddlewares.verifyUserLogin, userController.cancelCodOrder)
 
 router.patch('/my-account/order/return-cod', userMiddlewares.verifyUserLogin, userController.returnCodOrder)
 
-
-// paypal
-// router.post('/pay', async(req,res)=>{
-//   await paypal_o.paypal_helper("kkkk", "kkkkkk", "kkkk", res, router)
-// });
 
 module.exports = router

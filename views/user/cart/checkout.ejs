@@ -75,8 +75,48 @@
         </div>
         <div class="col-md-7">
           <div class="order_review">
-            <div class="mb-20">
-              <h4>Your Orders</h4>
+            <div class="coupon mb-30">
+              <div class="toggle_info">
+                <span><i class="fi-rs-label mr-10"></i>
+                  <span class="text-muted">Have a coupon?</span>
+                  <a href="#coupon" data-bs-toggle="collapse" class="collapsed" aria-expanded="false">Click here to enter your
+                    code</a>
+                </span>
+              </div>
+              <div class="panel-collapse collapse coupon_form <% if (locals.couponInfo.couponApplied) { %>show<% } %>" id="coupon">
+                <div class="panel-body">
+                  <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
+                  <% if (locals.couponInfo.couponApplied) { %>
+                  <% if(couponInfo.couponIsUsed) { %>
+                  <h5 class="p-2 mb-3 alert-danger">Oops! coupon code already redeemed!</h5>
+                  <% } else if(!couponInfo.couponIsActive){ %>
+                  <h5 class="p-2 mb-3 alert-danger">Uh oh... coupon has expired!</h5>
+                  <% } else{  %>
+                  <h5 class="p-2 mb-3 alert-success">Coupon applied successfully!</h5>
+                  <%  } %>
+                  <div class="couponWrap">
+                    <div class="couponFormWrap">
+                      <input name="coupon" type="text" required placeholder="Enter Coupon Code..." value="<%= couponInfo.couponApplied %>" disabled>
+                    </div>
+                    <div class="couponBtnWrap">
+                      <a href="/checkout/remove-coupon/<%= user._id %>" class="btn btn-md btn-secondary" name="login">Remove Coupon</a>
+                    </div>
+                  </div>
+                  <% }else{ %>
+                  <form method="post" action="/checkout/apply-coupon">
+                    <div class="couponWrap">
+                      <div class="couponFormWrap">
+                        <input name="coupon" type="text" required placeholder="Enter Coupon Code..." value="EVARA50">
+                        <input name="userId" type="text" required hidden value="<%= user._id %>">
+                      </div>
+                      <div class="couponBtnWrap">
+                        <button class="btn btn-md btn-primary" name="login">Apply Coupon</button>
+                      </div>
+                    </div>
+                  </form>
+                  <% } %>
+                </div>
+              </div>
             </div>
             <div class="table-responsive order_table text-center">
               <table class="table">
@@ -99,7 +139,7 @@
                       </span>
                     </td>
                     <td>₹<span>
-                        <%= element.product.regularPrice*element.quantity %>
+                        <%= element.finalPrice*element.quantity %>
                       </span></td>
                   </tr>
                   <% } %>
@@ -108,6 +148,14 @@
                     <th>SubTotal</th>
                     <td class="product-subtotal" colspan="2">₹<span id="checkoutTotal"><%= user.cart.total %></span></td>
                   </tr>
+                  <% if (locals.couponInfo.couponApplied) { %>
+                  <tr>
+                    <th>Coupon discount</th>
+                    <td class="product-subtotal" colspan="2">
+                      <span id="coupon discount">-₹<%= couponInfo.couponDiscount %></span>
+                    </td>
+                  </tr>
+                  <% } %>
                   <tr>
                     <th>Shipping</th>
                     <td colspan="2"><em>Free Shipping</em></td>
@@ -121,27 +169,6 @@
               </table>
             </div>
             <div class="bt-1 border-color-1 mt-30 mb-30"></div>
-            <div class="coupon mt-30 mb-30">
-              <div class="toggle_info">
-                <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a
-                    coupon?</span> <a href="#coupon" data-bs-toggle="collapse" class="collapsed" aria-expanded="false">Click here to enter your
-                    code</a></span>
-              </div>
-              <div class="panel-collapse collapse coupon_form " id="coupon">
-                <div class="panel-body">
-                  <p class="mb-30 font-sm">If you have a coupon code, please apply it below.
-                  </p>
-                  <form method="post">
-                    <div class="form-group">
-                      <input type="text" placeholder="Enter Coupon Code...">
-                    </div>
-                    <div class="form-group">
-                      <button class="btn  btn-md" name="login">Apply Coupon</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
             <div class="payment_method">
               <div class="mb-25">
                 <h5>Payment</h5>

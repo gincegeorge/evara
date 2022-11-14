@@ -10,6 +10,13 @@ function addToCart(productId) {
                 let count = $('#cartCount').html()
                 count = parseInt(count) + 1
                 $('#cartCount').html(count)
+
+
+                //HIDE ADD TO WISHLIST BUTTON
+                let addtocartBtn = '#' + productId + '-addToCart'
+                let gotocartBtn = '#' + productId + '-goToCart'
+                $(addtocartBtn).remove();
+                $(gotocartBtn).addClass('visible')
             }
         }
     })
@@ -76,8 +83,8 @@ function removeProductFromCart(cartId, productId, productName) {
                         if (response.productRemoved) {
                             Swal.fire({
                                 title: 'Removed',
-                                text: productName + ' removed from your cart',
-                                timer: 1500
+                                timer: 700,
+                                showConfirmButton: false
                             })
                             const ProRow = document.getElementById(productId + '-tr')
                             $(ProRow).remove()
@@ -392,7 +399,6 @@ function returnCodOrder(orderId, productId) {
     })
 }
 
-
 /*--------------------------------------------------------------*/
 //                         DATA TABLES
 /*--------------------------------------------------------------*/
@@ -408,6 +414,110 @@ $(document).ready(function () {
         info: false,
         bFilter: false,
         bInfo: false,
-        bLengthChange: false
+        bLengthChange: false,
+        order: [[4, 'asc']],
     });
 });
+
+/*--------------------------------------------------------------*/
+//                         ADD TO WISHLIST
+/*--------------------------------------------------------------*/
+function addToWishlist(productId) {
+    $.ajax({
+        url: '/wishlist/add-product/' + productId,
+        method: 'get',
+        success: (response) => {
+            if (response.success) {
+                //HIDE ADD TO WISHLIST BUTTON
+                let wishlistWrap = '#' + productId + '-wishlistWrap'
+                $(wishlistWrap).addClass("productInWishlist");
+            }
+        }
+    })
+}
+
+/*--------------------------------------------------------------*/
+//                 REMOVE FROM WISHLIST- TOGGLE
+/*--------------------------------------------------------------*/
+function removeFromWishlist(productId) {
+    $.ajax({
+        url: '/wishlist/remove-product',
+        data: {
+            product: productId
+        },
+        method: 'delete',
+        success: (response) => {
+            if (response.productRemoved) {
+                //HIDE ADD TO WISHLIST BUTTON
+                let wishlistWrap = '#' + productId + '-wishlistWrap'
+                $(wishlistWrap).removeClass("productInWishlist");
+            }
+        }
+    })
+}
+/*--------------------------------------------------------------*/
+//               REMOVE PRODUCT FROM -WISHLIST
+/*--------------------------------------------------------------*/
+function removeProductFromWishlist(productId) {
+    Swal.fire({
+        title: 'Remove item',
+        text: 'Are you sure you want to remove this item?',
+        showCancelButton: true,
+        confirmButtonText: 'Remove',
+        iconHtml: null
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/wishlist/remove-product',
+                data: {
+                    product: productId
+                },
+                method: 'delete',
+                success: (response) => {
+                    if (response.wishlistCount === 0) {
+                        window.location.reload()
+                    } else {
+                        if (response.productRemoved) {
+                            const ProRow = document.getElementById(productId + '-tr')
+                            $(ProRow).remove()
+                            Swal.fire({
+                                title: 'Removed',
+                                timer: 700,
+                                showConfirmButton: false
+                            })
+
+                        }
+                    }
+                }
+            })
+        }
+    })
+}
+/*--------------------------------------------------------------*/
+//                  ADD TO CART FROM WISHLIST
+/*--------------------------------------------------------------*/
+function addtocartFromWishlist(wishlistId, productId) {
+    $.ajax({
+        url: '/wishlist/addtocart',
+        data: {
+            wishlist: wishlistId,
+            product: productId
+        },
+        method: 'patch',
+        success: (response) => {
+            if (response.wishlistCount === 0) {
+                window.location.reload()
+            } else {
+                if (response.productRemoved) {
+                    const ProRow = document.getElementById(productId + '-tr')
+                    $(ProRow).remove()
+                    Swal.fire({
+                        title: 'Added to cart',
+                        timer: 700,
+                        showConfirmButton: false
+                    })
+                }
+            }
+        }
+    })
+}

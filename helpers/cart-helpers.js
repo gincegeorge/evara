@@ -3,7 +3,7 @@ var collection = require('../config/collections')
 const collections = require('../config/collections')
 const { render, response } = require('../app')
 const { ReturnDocument } = require('mongodb')
-const { CART_COLLECTION, PRODUCTS_COLLECTION } = require('../config/collections')
+const { CART_COLLECTION, PRODUCTS_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, WISHLIST_COLLECTION } = require('../config/collections')
 const { adminDebug } = require('./debug')
 var objectId = require('mongodb').ObjectId
 
@@ -23,17 +23,6 @@ const doAddToCart = (productId, userId) => {
 
             if (productExists >= 0) {
                 adminDebug('product exists')
-                // db.get().collection(CART_COLLECTION)
-                //     .updateOne(
-                //         {
-                //             user: objectId(userId),
-                //             'products.item': objectId(productId)
-                //         },
-                //         {
-                //             $inc: { 'products.$.quantity': 1 }
-                //         }).then(() => {
-                //             resolve()
-                //         })
             } else {
                 db.get().collection(CART_COLLECTION).updateOne(
                     { user: objectId(userId) },
@@ -73,7 +62,7 @@ const getCartProducts = (userId) => {
             {
                 $project: {
                     item: '$products.item',
-                    quantity: '$products.quantity'
+                    quantity: '$products.quantity',
                 }
             },
             {
@@ -90,9 +79,68 @@ const getCartProducts = (userId) => {
                 }
             },
             {
+                $lookup: {
+                    from: PRODUCTS_CATEGORIES_COLLECTION,
+                    localField: 'product.productCategories',
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
+            {
+                $unwind: '$category'
+            },
+            {
+                $project: {
+                    item: 1, quantity: 1, product: 1, category: 1,
+                    biggerDiscount:
+                    {
+                        $cond:
+                        {
+                            if:
+                            {
+                                $gt: [
+                                    { $toInt: "$product.Discount" },
+                                    { $toInt: '$category.categoryDiscount' }
+                                ]
+                            }, then: "$product.Discount", else: '$category.categoryDiscount'
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    discountedAmount:
+                    {
+                        $round:
+                        {
+                            $divide: [
+                                {
+                                    $multiply: [
+                                        { $toInt: "$product.regularPrice" },
+                                        { $toInt: "$biggerDiscount" }
+                                    ]
+                                }, 100]
+                        }
+                    },
+                }
+            },
+            {
+                $addFields: {
+                    finalPrice:
+                    {
+                        $round:
+                        {
+                            $subtract: [
+                                { $toInt: "$product.regularPrice" },
+                                { $toInt: "$discountedAmount" }]
+                        }
+                    }
+                }
+            },
+            {
                 $addFields: {
                     total: {
-                        $multiply: ["$quantity", { $toInt: "$product.regularPrice" }],
+                        $multiply: ["$quantity", { $toInt: "$finalPrice" }],
                     }
                 }
             }
@@ -103,8 +151,12 @@ const getCartProducts = (userId) => {
             reject()
         }
     }).catch((err) => {
-        resolve(response)
+        console.log(err);
     })
+}
+
+const getCartCouponInfo = async (userId) => {
+    return await db.get().collection(CART_COLLECTION).findOne({ user: objectId(userId) }, { products: 0, _id: 0 })
 }
 
 const getCartCount = (userId) => {
@@ -171,7 +223,8 @@ const doDeleteProductFromCart = (data) => {
 module.exports = {
     doAddToCart,
     getCartProducts,
+    getCartCouponInfo,
     getCartCount,
     doChangeProductQuantity,
-    doDeleteProductFromCart
+    doDeleteProductFromCart,
 }

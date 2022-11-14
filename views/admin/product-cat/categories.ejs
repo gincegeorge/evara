@@ -25,8 +25,7 @@
               </div>
               <div class="mb-4">
                 <label for="cat_discount" class="form-label">Discount</label>
-                <input name="categoryDiscount" type="number" placeholder="%" class="form-control"
-                  id="cat_discount"/>
+                <input name="categoryDiscount" type="number" placeholder="%" class="form-control" value="0" id="cat_discount"/>
               </div>
               <div class="mb-4">
                 <label class="form-label">Description</label>
@@ -48,8 +47,8 @@
                       </div>
                     </th>
                     <th>Name</th>
-                    <th>Description</th>
                     <th>Slug</th>
+                    <th>Disocunt</th>
                     <th class="text-end">Action</th>
                   </tr>
                 </thead>
@@ -62,8 +61,8 @@
                         </div>
                       </td>
                       <td> <a class="dropdown-item" href="product-categories/edit?id=<%= element._id %>"><b><%= element.categoryName %></b></a></td>
-                      <td><%= element.categoryDesc %></td>
                       <td>/<%= element.categorySlug %></td>
+                      <td><%= element.categoryDiscount %>%</td>
                       <td class="text-end">
                         <div class="dropdown">
                           <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i

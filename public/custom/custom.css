@@ -88,8 +88,6 @@ input[type=number] {
   color: #088178;
 }
 
-
-
 /* Browse category dropdown */
 .categori-dropdown-active-large.open {
   z-index: 99;
@@ -169,7 +167,7 @@ body b {
   font-weight: 600;
 }
 
-/* My order page */
+/* MY ORDER PAGE */
 .row.order-wrap {
   max-width: 1000px;
 }
@@ -238,13 +236,17 @@ a.paginate_button.item.active {
 }
 
 
-/* Search */
+/* SEARCH */
 #myDataTable_filter {
   padding: 0 0 1.3rem;
 }
 
 #myDataTable_filter label {
   width: 30%;
+}
+
+.row.dt-table {
+  margin-top: 20px;
 }
 
 .dataTable td {
@@ -255,6 +257,56 @@ a.paginate_button.item.active {
 div.dt-buttons {
   margin-bottom: 15px;
 }
-.table > tfoot {
+
+.table>tfoot {
   background: #f7f8f9;
+}
+
+
+/* CHECKOUT PAGE */
+.couponWrap {
+  display: flex;
+}
+
+.couponFormWrap {
+  width: 70%;
+  padding-right: 10px;
+}
+
+.couponBtnWrap {
+  width: 30%;
+}
+
+.couponBtnWrap .btn {
+  width: 100%;
+  display: block;
+}
+
+
+/* SHOP PAGE */
+a.gotocartBtn,
+a.removeFromWishlist {
+  background-color: #088178 !important;
+  border-color: #088178 !important;
+  color: #fff !important;
+}
+
+/* goToCart */
+ a.gotocartBtn {
+  display: none !important;
+}
+a.gotocartBtn.visible {
+  display: inline-block !important;
+}
+
+
+/* WISHLIST BUTTON TOGGLE */
+.productInWishlist .addToWishlist {
+  display: none !important;
+}
+a.removeFromWishlist {
+  display: none !important;
+}
+.productInWishlist .removeFromWishlist {
+  display: inline-block !important;
 }

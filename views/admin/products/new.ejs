@@ -31,23 +31,32 @@
             <textarea required name="description" placeholder="Type here" class="form-control" rows="8"></textarea>
           </div>
           <div class="row">
-            <div class="col-lg-4">
+            <div class="col-lg-3">
               <div class="mb-4">
                 <label class="form-label">Regular price</label>
                 <div class="row gx-2">
-                  <input required name="regularPrice" placeholder="₹" type="number" class="form-control">
+                  <input id="regularPrice" required name="regularPrice" placeholder="₹" type="number" class="form-control">
                 </div>
               </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-3">
               <div class="mb-4">
                 <label class="form-label">Discount(%)</label>
                 <div class="row gx-2">
-                  <input name="Discount" placeholder="10%" type="number" class="form-control">
+                  <input id="discountPercentage" name="Discount" placeholder="10%" type="number" class="form-control" max="100" value="0">
                 </div>
               </div>
             </div>
-            <div class="col-lg-4">
+            <!-- TODO calculate sale price  -->
+            <div class="col-lg-3">
+              <div class="mb-4">
+                <label class="form-label">Sale price</label>
+                <div class="row gx-2">
+                  <input name="salePrice" id="salePrice" class="form-control" disabled value="Enter price and discount">
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3">
               <div class="mb-4">
                 <label class="form-label">Stock</label>
                 <div class="row gx-2">

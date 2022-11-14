@@ -23,6 +23,7 @@ router.get('/', adminMiddlewares.verifyAdminLogin, adminController.getAdminDashb
 //               PRODUCTS
 /************************************* */
 //GET products page
+//TODO FIX SORTING
 router.get('/products', adminMiddlewares.verifyAdminLogin, adminController.getProducts)
 
 //New product page
@@ -30,8 +31,7 @@ router.route('/products/new')
 
   .get(adminMiddlewares.verifyAdminLogin, adminController.getNewProduct)
 
-  //TODO product created date
-  .post(adminMiddlewares.verifyAdminLogin, store.array('productImages', 5), adminController.postNewProduct)
+  .post(adminMiddlewares.verifyAdminLogin, store.array('productImages', 6), adminController.postNewProduct)
 
 //GET edit product
 router.get('/products/edit/:productSlug', adminMiddlewares.verifyAdminLogin, adminController.getEditProduct)
@@ -114,7 +114,15 @@ router.get('/coupons', adminMiddlewares.verifyAdminLogin, adminController.getCou
 router.route('/coupons/new')
 
   .get(adminMiddlewares.verifyAdminLogin, adminController.newCoupon)
-  
-  .post(adminMiddlewares.verifyAdminLogin,  adminController.postNewCoupon)
+
+  .post(adminMiddlewares.verifyAdminLogin, adminController.postNewCoupon)
+
+router.route('/coupons/edit')
+
+  .get(adminMiddlewares.verifyAdminLogin, adminController.editCoupon)
+
+  .post(adminMiddlewares.verifyAdminLogin, adminController.postEditCoupon)
+
+  router.get('/coupons/delete', adminMiddlewares.verifyAdminLogin, adminController.deleteCoupon)
 
 module.exports = router;

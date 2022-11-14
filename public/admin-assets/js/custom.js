@@ -135,7 +135,7 @@ function cancelCodOrder(orderId, productId) {
 //                         DATA TABLES
 /*--------------------------------------------------------------*/
 $(document).ready(function () {
-    $('#myDataTable').DataTable({
+    $('#productsTable').DataTable({
         language: {
             'paginate': {
                 'previous': '<i class="material-icons md-chevron_left"></i>',
@@ -146,6 +146,40 @@ $(document).ready(function () {
         info: false,
         bFilter: false,
         bInfo: false,
+        //bSort:true,
+        //order: [[9, 'desc']],
+        bLengthChange: false,
+        "oLanguage": { "sSearch": "" }
+    });
+    $('#ordersTable').DataTable({
+        language: {
+            'paginate': {
+                'previous': '<i class="material-icons md-chevron_left"></i>',
+                'next': '<i class="material-icons md-chevron_right"></i>'
+            }
+        },
+        searching: true,
+        info: false,
+        bFilter: false,
+        bInfo: false,
+        //bSort:false,
+        order: [[7, 'desc']],
+        bLengthChange: false,
+        "oLanguage": { "sSearch": "" }
+    });
+    $('#couponsTable').DataTable({
+        language: {
+            'paginate': {
+                'previous': '<i class="material-icons md-chevron_left"></i>',
+                'next': '<i class="material-icons md-chevron_right"></i>'
+            }
+        },
+        searching: true,
+        info: false,
+        bFilter: false,
+        bInfo: false,
+        //bSort:false,
+        order: [[4, 'asc']],
         bLengthChange: false,
         "oLanguage": { "sSearch": "" }
     });
@@ -191,3 +225,5 @@ $('#reportTable1').DataTable({
         'pdfHtml5'
     ]
 });
+
+

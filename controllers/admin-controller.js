@@ -64,8 +64,10 @@ const getNewProduct = (req, res) => {
     })
 }
 const postNewProduct = (req, res) => {
-    productHelpers.addProduct(req, (result) => {
+    productHelpers.addProduct(req).then(() => {
         res.redirect('/admin/products')
+    }).catch((err) => {
+        console.log('sdkjfhj', err);
     })
 }
 const getEditProduct = async (req, res) => {
@@ -206,8 +208,15 @@ const yearlyReport = (req, res) => {
 }
 
 //COUPONS
-const getCoupons = (req, res) => {
-    res.render('admin/coupon/coupons')
+const getCoupons = async (req, res) => {
+    try {
+        const coupons = await adminHelpers.getCoupons()
+        adminDebug(coupons)
+        res.render('admin/coupon/coupons', { coupons })
+    } catch (err) {
+        console.log(err);
+        res.redirect('/admin')
+    }
 }
 
 //NEW COUPON
@@ -216,8 +225,43 @@ const newCoupon = (req, res) => {
 }
 
 //POST NEW COUPON
-const postNewCoupon = (req,res)=>{
+const postNewCoupon = async (req, res) => {
+    await adminHelpers.createNewCoupon(req.body)
     res.redirect('/admin/coupons')
+}
+
+//GET EDIT COUPON
+const editCoupon = async (req, res) => {
+    couponId = req.query.id
+    try {
+        const couponData = await adminHelpers.getEditCoupon(couponId)
+        res.render('admin/coupon/edit', { couponData })
+    } catch (err) {
+        userDebug(err)
+    }
+}
+
+//POST - EDIT COUPON
+const postEditCoupon = async (req, res) => {
+    try {
+        const couponData = await adminHelpers.postEditCoupon(req.body)
+        adminDebug(couponData)
+        res.redirect('/admin/coupons')
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+//DELETE COUPON
+const deleteCoupon = async (req, res) => {
+    couponId = req.query.id
+    try {
+        await adminHelpers.deleteCoupon(couponId)
+        res.redirect('/admin/coupons')
+    } catch (err) {
+        console.log(err);
+        res.redirect('/admin/coupons')
+    }
 }
 
 module.exports = {
@@ -267,4 +311,7 @@ module.exports = {
     getCoupons,
     newCoupon,
     postNewCoupon,
+    editCoupon,
+    postEditCoupon,
+    deleteCoupon,
 } 

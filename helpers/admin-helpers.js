@@ -1,6 +1,6 @@
 var db = require('../config/connection')
 var collection = require('../config/collections');
-const { ORDER_COLLECTION, PRODUCTS_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION } = require('../config/collections');
+const { ORDER_COLLECTION, PRODUCTS_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, COUPON_COLLECTION } = require('../config/collections');
 const { adminDebug, debugDb, userDebug } = require('./debug');
 var objectId = require('mongodb').ObjectId
 
@@ -453,7 +453,6 @@ const getMonthlyReport = (monthAndYear) => {
     })
 }
 
-
 //YEARLY REPORT 
 const getYearlyReport = (year) => {
     startDate = year + '-01-01'
@@ -478,6 +477,58 @@ const getYearlyReport = (year) => {
     })
 }
 
+//NEW COUPON
+const createNewCoupon = (couponData) => {
+
+    couponData.date = new Date()
+
+    return new Promise((resolve, reject) => {
+        db.get().collection(COUPON_COLLECTION).insertOne(couponData)
+            .then((response) => {
+                if (response) {
+                    resolve(response)
+                } else {
+                    reject()
+                }
+            })
+    }).catch((err) => {
+        adminDebug(err);
+    })
+}
+
+//GET COUPONS
+const getCoupons = async () => {
+    return await db.get().collection(COUPON_COLLECTION).find().sort({ expiryDate: -1 }).toArray()
+}
+
+//EDIT COUPON
+const getEditCoupon = async (couponId) => {
+    return await db.get().collection(COUPON_COLLECTION).findOne({ _id: objectId(couponId) })
+}
+
+//POST EDIT COUPON
+const postEditCoupon = async (couponDetails) => {
+    couponId = couponDetails.id
+    return await db.get().collection(COUPON_COLLECTION).updateOne(
+        { _id: objectId(couponId) },
+        {
+            $set: {
+                couponCode:couponDetails.couponCode,
+                couponDiscount: couponDetails.couponDiscount,
+                expiryDate:  couponDetails.expiryDate
+            }
+        })
+}
+
+//DELETE COUPON
+const deleteCoupon = async(couponId)=>{
+    await db.get().collection(COUPON_COLLECTION).deleteOne(
+        {_id:objectId(couponId)}
+    )
+}
+
+
+
 module.exports = {
     //login
     doAdminLogin,
@@ -501,5 +552,12 @@ module.exports = {
     //reports
     getDailyReport,
     getMonthlyReport,
-    getYearlyReport
+    getYearlyReport,
+
+    //coupons
+    createNewCoupon,
+    getCoupons,
+    getEditCoupon,
+    postEditCoupon,
+    deleteCoupon,
 }

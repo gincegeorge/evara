@@ -2,9 +2,10 @@ const userHelpers = require('../helpers/user-helpers')
 const productHelpers = require('../helpers/product-helpers')
 const cartHelpers = require('../helpers/cart-helpers')
 const orderHelpers = require('../helpers/order-helpers')
-// const { response } = require('../app')
+const wishlistHelpers = require('../helpers/wishlist-helpers')
 const paypal = require('paypal-rest-sdk')
-const { userDebug } = require('../helpers/debug')
+const { userDebug, adminDebug, debugDb } = require('../helpers/debug')
+const { response } = require('../app')
 
 
 //PAYPAL PAYMENT
@@ -21,13 +22,6 @@ const getHomepage = async (req, res, next) => {
     })
 }
 
-//SHOP PAGE
-const getShoppage = (req, res, next) => {
-    productHelpers.getAllProducts().then((products) => {
-        res.render('user/shop/shop', { products })
-    })
-}
-
 //LOGIN PAGE
 const getLogin = (req, res) => {
     if (req.session.userLoginStatus) {
@@ -38,8 +32,8 @@ const getLogin = (req, res) => {
         res.setHeader("Expires", "0");
         userLoginError = req.session.userLoginError
         user = null
-        res.render('user/login/login', { user, userLoginError })
         req.session.userLoginError = false
+        res.render('user/login/login', { user, userLoginError })
     }
 }
 
@@ -103,7 +97,7 @@ const postOtpLogin = (req, res) => {
             req.session.userLoginStatus = response.user.userLoginStatus
             res.redirect('/verify-otp')
         } else {
-            res.render('user/otp-login', { user: false })
+            res.render('user/login/otp-login', { user: false })
         }
     })
 }
@@ -135,16 +129,69 @@ const postVerifyOtp = (req, res) => {
     })
 }
 
+//SHOP PAGE
+const getShoppage = (req, res, next) => {
+    productHelpers.getAllProducts().then(async (products) => {
+
+        let cart = await cartHelpers.getCartProducts(user._id)
+        let wishlist = await wishlistHelpers.getWishlist(user._id)
+
+        //finding products in cart
+        for (i = 0; i < cart.length; i++) {
+            for (j = 0; j < products.length; j++) {
+                cartId = cart[i].product._id.toString()
+                productId = products[j]._id.toString()
+                if (cartId == productId) {
+                    products[j].productInCart = true
+                }
+            }
+        }
+
+        //finding products in wishlist
+        for (i = 0; i < wishlist.length; i++) {
+            for (j = 0; j < products.length; j++) {
+                wishlistId = wishlist[i].product._id.toString()
+                productId = products[j]._id.toString()
+                if (wishlistId == productId) {
+                    products[j].productInWishlist = true
+                }
+            }
+        }
+
+
+        res.render('user/shop/shop', { products })
+    })
+}
+
 //GET SINGLE PRODUCT
 const getSingleProduct = async (req, res) => {
+
     let productSlug = req.params.productSlug
-    let productDetails = await productHelpers.getProductDetails(productSlug);
-
+    let productDetails = await productHelpers.getProductDetails(productSlug)
     discountAmount = (productDetails.regularPrice * productDetails.Discount) / 100
-
-    let finalPrice = productDetails.regularPrice - discountAmount
-
+    let finalPrice = Math.round(productDetails.regularPrice - discountAmount)
     productDetails.finalPrice = finalPrice
+
+
+    let cart = await cartHelpers.getCartProducts(user._id)
+    let wishlist = await wishlistHelpers.getWishlist(user._id)
+
+    productId = productDetails._id.toString()
+
+    //finding products in cart
+    for (i = 0; i < cart.length; i++) {
+        cartId = cart[i].product._id.toString()
+        if (cartId == productId) {
+            productDetails.productInCart = true
+        }
+    }
+    //finding products in wishlist
+    for (i = 0; i < wishlist.length; i++) {
+        wishlistId = wishlist[i].product._id.toString()
+        if (wishlistId == productId) {
+            productDetails.productInWishlist = true
+        }
+    }
 
     res.render('user/shop/single-product', { productDetails })
 }
@@ -154,7 +201,7 @@ const addToCart = (req, res) => {
     //FIXME ADD TO CART WHEN LOGGED OUT
     productId = req.params.id
     userId = user._id
-    //console.log(productId,userId);
+    //console.log(productId,userId)
     cartHelpers.doAddToCart(productId, userId).then(() => {
         res.json({
             success: true
@@ -165,11 +212,8 @@ const addToCart = (req, res) => {
 //GET - CART
 const getCart = async (req, res) => {
     let products = await cartHelpers.getCartProducts(user._id)
-
-    userDebug(products)
-
-
-    res.render('user/cart/cart', { products })
+    const couponInfo = await cartHelpers.getCartCouponInfo(user._id)
+    res.render('user/cart/cart', { products, couponInfo })
 }
 
 //CHANGE PRODUCT QUANTITY
@@ -189,12 +233,82 @@ const deleteProductFromCart = (req, res) => {
     })
 }
 
+//GET WISHLIST
+const getWishlist = async (req, res) => {
+    userId = req.session.userData._id
+    let products = await wishlistHelpers.getWishlist(userId)
+    adminDebug(products)
+    res.render('user/cart/wishlist', { products })
+
+}
+
+//ADD TO WISHLIST
+const addToWishlist = (req, res) => {
+    productId = req.params.id
+    userId = user._id
+    //console.log(productId,userId);
+    wishlistHelpers.addToWishlist(productId, userId).then(() => {
+        res.json({
+            success: true
+        })
+    })
+}
+
+//DELETE PRODUCT FROM CART
+const deleteProductFromWishlist = (req, res) => {
+
+    productId = req.body.product
+    userId = user._id
+
+    wishlistHelpers.deleteProductFromWishlist(userId, productId).then(async (response) => {
+        const userWishlist = await wishlistHelpers.getWishlistCount(user._id)
+        response.wishlistCount = userWishlist.products.length
+
+        adminDebug(response)
+        res.json(response)
+    })
+}
+
+//ADD TO CART FROM WISHLIST
+const addToCartFromWishlist = (req, res) => {
+
+    productId = req.body.product
+    wishlistId = req.body.wishlist
+    userId = user._id
+
+    wishlistHelpers.addToCartFromWishlist(productId, userId).then((response) => {
+        wishlistHelpers.deleteProductFromWishlist(req.body).then(async (response) => {
+            const userWishlist = await wishlistHelpers.getWishlistCount(user._id)
+            response.wishlistCount = userWishlist.products.length
+            res.json(response)
+        })
+    })
+}
+
 //GET CHECKOUT
 const getCheckout = async (req, res) => {
     const cartTotal = await orderHelpers.getCheckoutData(user._id)
     const products = await cartHelpers.getCartProducts(user._id)
     const addressList = await userHelpers.getAddresses(user._id)
-    res.render('user/cart/checkout', { cartTotal, products, addressList })
+    const couponInfo = await cartHelpers.getCartCouponInfo(user._id)
+    userDebug(cartTotal)
+    res.render('user/cart/checkout', { cartTotal, products, addressList, couponInfo })
+}
+
+//APPLY COUPON
+const applyCoupon = async (req, res) => {
+    const cartTotal = await orderHelpers.getCheckoutData(user._id)
+    result = await userHelpers.applyCoupon(req.body, cartTotal)
+    res.redirect('/checkout')
+}
+
+//REMOVE COUPON
+const removeCoupon = async (req, res) => {
+    userId = req.params.id
+    userDebug(userId)
+    await userHelpers.removeCoupon(userId)
+
+    res.redirect('/checkout')
 }
 
 //ADD NEW ADDRESS
@@ -219,10 +333,6 @@ const getPlaceOrder = async (req, res) => {
     } else if (paymentOption === 'Paypal') {
         await userHelpers.payWithPaypal(insertedId, cartTotal, paymentOption)
             .then((result) => {
-
-                req.session.paypalOrderId = result.orderId
-                //FIXME GET ORDER ID FROM PAYPAL
-
                 res.json(result)
             })
     } else {
@@ -342,7 +452,7 @@ const returnCodOrder = async (req, res) => {
 
 module.exports = {
     getHomepage,
-    getShoppage,
+
     getLogin,
     postLogin,
     getLogout,
@@ -352,24 +462,38 @@ module.exports = {
     getVerifyOtp,
     postOtpLogin,
     postVerifyOtp,
+
+    getShoppage,
     getSingleProduct,
+
     addToCart,
     getCart,
     changeProductQuantity,
     deleteProductFromCart,
+
     getCheckout,
+    applyCoupon,
+    removeCoupon,
     getPlaceOrder,
-    addNewAddres,
     orderPlaced,
+
     myAccount,
     myAddress,
-    myOrders,
+    addNewAddres,
     deleteAddress,
+
+    myOrders,
     viewOrder,
     cancelOrder,
-    verifyPayment,
     returnOrder,
     cancelCodOrder,
     returnCodOrder,
-    verifyPaypal
+
+    verifyPayment,
+    verifyPaypal,
+
+    getWishlist,
+    addToWishlist,
+    deleteProductFromWishlist,
+    addToCartFromWishlist,
 }

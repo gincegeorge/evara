@@ -5,18 +5,22 @@
       <h2 class="content-title card-title">Products</h2>
     </div>
     <div>
-      <a href="#" class="btn btn-light rounded font-md">Export</a>
+      <!-- <a href="#" class="btn btn-light rounded font-md">Export</a> -->
       <a href="/admin/products/new" class="btn btn-primary btn-sm rounded">Create new</a>
     </div>
   </div>
   <div class="card mb-4">
     <!-- card-header end// -->
     <div class="card-body">
-      <table class="table" id="myDataTable">
+      <table class="table" id="productsTable">
         <thead>
           <tr>
             <th scope="col">Product name</th>
-            <th scope="col">Price</th>
+            <th scope="col">Regular price</th>
+            <th scope="col">Discount</th>
+            <th scope="col">Category</th>
+            <th scope="col">Discount</th>
+            <th scope="col">Final price</th>
             <th scope="col">Stock</th>
             <th scope="col">Date</th>
             <th scope="col">Action</th>
@@ -44,19 +48,32 @@
               <span>₹<%= element.regularPrice %></span>
             </td>
             <td>
-                <%= element.Stock %>
+              <span><% if(element.Discount){ %> <%= element.Discount %>%<% } %></span>
+            </td>
+            <td>
+              <span><%= element.category.categoryName %></span>
+            </td>
+            <td>
+              <span><%= element.category.categoryDiscount %>%</span>
+            </td>
+            <td>
+              <span>₹<%= element.finalPrice %></span>
+            </td>
+            <td>
+              <%= element.Stock %>
             </td>
             <td>
               <!-- //TODO add correct date -->
               <span><%= `${date}-${month}-${year}` %></span>
             </td>
             <td>
-              <a href="/admin/products/edit/<%= element.slug %>" class="btn btn-sm font-sm rounded btn-brand">
-                <i class="material-icons md-edit"></i> Edit
-              </a>
-              <a href="/admin/products/delete/<%= element.slug %>" class="btn btn-sm font-sm btn-light rounded" onclick="return confirm('Do you want to delete <%= element.name %>')">
-                <i class="material-icons md-delete_forever"></i> Delete
-              </a>
+              <div class="dropdown">
+                <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="/admin/products/edit/<%= element.slug %>">Edit</a>
+                  <a class="dropdown-item text-danger" href="/admin/products/delete/<%= element.slug %>" onclick="return confirm('Do you want to delete <%= element.name %>')">Delete</a>
+                </div>
+              </div> <!-- dropdown //end -->
             </td>
           </tr>
           <!-- itemlist  .// -->

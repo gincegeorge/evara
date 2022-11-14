@@ -67,7 +67,7 @@
                               <td><%= `${date}-${month}-${year}` %></td>
                               <td>₹<%= order.cartTotal %></td>
                               <td>
-                                <% if(order.orderStatus=='Processing') { %>
+                                <% if(order.orderPlaced) { %>
                                 <span class="badge rounded-pill alert-success">Success</span>
                                 <% }else{ %>
                                 <span class="badge rounded-pill alert-danger">Failed</span>
