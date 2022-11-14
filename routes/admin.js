@@ -23,6 +23,7 @@ router.get('/', adminMiddlewares.verifyAdminLogin, adminController.getAdminDashb
 //               PRODUCTS
 /************************************* */
 //GET products page
+//TODO FIX SORTING
 router.get('/products', adminMiddlewares.verifyAdminLogin, adminController.getProducts)
 
 //New product page
@@ -30,7 +31,6 @@ router.route('/products/new')
 
   .get(adminMiddlewares.verifyAdminLogin, adminController.getNewProduct)
 
-  //TODO product created date
   .post(adminMiddlewares.verifyAdminLogin, store.array('productImages', 6), adminController.postNewProduct)
 
 //GET edit product

@@ -16,9 +16,16 @@
                   </a>
                 </div>
                 <div class="product-action-1">
-                  <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                  <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                  <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+
+                  <!-- wishlist buttons -->
+                  <span id="<%= element._id %>-wishlistWrap" class="<% if (element.productInWishlist) { %>productInWishlist<% } %>">
+                    <a onclick="addToWishlist('<%= element._id %>')" aria-label="Add To Wishlist" class="addToWishlist action-btn">
+                      <i class="fi-rs-heart"></i>
+                    </a>
+                    <a onclick="removeFromWishlist('<%= element._id %>')" aria-label="Remove from Wishlist" class="removeFromWishlist action-btn">
+                      <i class="fi-rs-heart"></i>
+                    </a>
+                  </span>
                 </div>
                 <% if(element.finalPrice < element.regularPrice ){ %>
                 <div class="product-badges product-badges-position product-badges-mrg">
@@ -43,8 +50,13 @@
                 <% } %>
               </div>
               <div class="product-action-1 show">
-                <button onclick="addToCart('<%= element._id %>')" aria-label="Add To Cart" class="action-btn hover-up"><i class="fi-rs-shopping-bag-add"></i></button>
-                <!-- <button aria-label="Go to cart" class="action-btn hover-up"><i class="fi-rs-shopping-bag"></i></button> -->
+
+                <!-- add to cart -->
+                <% if (!element.productInCart) { %>
+                <button id="<%= element._id %>-addToCart" onclick="addToCart('<%= element._id %>')" aria-label="Add To Cart" class="action-btn hover-up"><i class="fi-rs-shopping-bag-add"></i></button>
+                <% } %>
+                <a id="<%= element._id %>-goToCart" href="/cart" aria-label="Go to cart" class="action-btn hover-up gotocartBtn <% if (element.productInCart) { %>visible<% } %>"><i class="fi-rs-shopping-bag"></i></a>
+
               </div>
             </div>
           </div>

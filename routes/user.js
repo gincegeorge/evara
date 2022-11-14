@@ -62,12 +62,26 @@ router.post('/change-product-quantity', userMiddlewares.verifyUserLogin, userCon
 router.post('/delete-product-from-cart', userMiddlewares.verifyUserLogin, userController.deleteProductFromCart)
 
 /************************************* */
+//                WISHLIST
+/************************************* */
+router.get('/wishlist/add-product/:id', userMiddlewares.verifyUserLogin, userController.addToWishlist)
+
+router.get('/wishlist', userMiddlewares.verifyUserLogin, userController.getWishlist)
+
+router.delete('/wishlist/remove-product', userMiddlewares.verifyUserLogin, userController.deleteProductFromWishlist)
+
+router.patch('/wishlist/addtocart', userMiddlewares.verifyUserLogin, userController.addToCartFromWishlist)
+
+/************************************* */
 //              CHECKOUT
 /************************************* */
 router.get('/checkout', userMiddlewares.verifyUserLogin, userController.getCheckout)
 
 //APPLY COUPON
-router.get('/checkout/apply-coupon', userMiddlewares.verifyUserLogin, userController.applyCoupon)
+router.post('/checkout/apply-coupon', userMiddlewares.verifyUserLogin, userController.applyCoupon)
+
+//REMOVE COUPON
+router.get('/checkout/remove-coupon/:id', userMiddlewares.verifyUserLogin, userController.removeCoupon)
 
 //PLACE ORDER
 router.post('/place-order', userMiddlewares.verifyUserLogin, userController.getPlaceOrder)
@@ -93,7 +107,6 @@ router.post('/my-account/address/new', userMiddlewares.verifyUserLogin, userCont
 
 router.delete('/my-account/address/delete', userMiddlewares.verifyUserLogin, userController.deleteAddress)
 
-
 /************************************* */
 //              MY ORDERS
 /************************************* */
@@ -102,6 +115,7 @@ router.get('/my-account/orders', userMiddlewares.verifyUserLogin, userController
 router.get('/my-account/order/:id', userMiddlewares.verifyUserLogin, userController.viewOrder)
 
 
+//ONLINE PAYMENT
 router.patch('/my-account/order/cancel', userMiddlewares.verifyUserLogin, userController.cancelOrder)
 
 router.patch('/my-account/order/return', userMiddlewares.verifyUserLogin, userController.returnOrder)

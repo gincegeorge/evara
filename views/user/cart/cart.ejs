@@ -125,6 +125,15 @@
                         <td class="cart_total_amount"> <i class="ti-gift mr-5"></i> Free
                           Shipping</td>
                       </tr>
+                      <% if (locals.couponInfo.couponApplied) { %>
+                        <tr>
+                          <th>Coupon</th>
+                          <td class="product-subtotal" colspan="2">
+                            <span id="coupon discount">-₹<%= couponInfo.couponDiscount %></span>
+                            <span style="opacity: .8">(<%= couponInfo.couponApplied %>)</span>
+                          </td>
+                        </tr>
+                        <% } %>
                       <tr>
                         <td class="cart_total_label">Total</td>
                         <td class="cart_total_amount">

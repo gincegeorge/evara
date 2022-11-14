@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt')
 const collections = require('../config/collections')
 // const { render, response } = require('../app')
 // const { ReturnDocument } = require('mongodb')
-const { CART_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, PRODUCTS_COLLECTION, USERS_COLLECTION, ORDER_COLLECTION } = require('../config/collections')
+const { CART_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, PRODUCTS_COLLECTION, USERS_COLLECTION, ORDER_COLLECTION, COUPON_COLLECTION } = require('../config/collections')
 var objectId = require('mongodb').ObjectId
 const client = require("twilio")(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 const crypto = require("crypto")
@@ -13,6 +13,8 @@ const Razorpay = require("razorpay");
 const CC = require('currency-converter-lt')
 let currencyConverter = new CC()
 const paypal = require('paypal-rest-sdk')
+const { userDebug, adminDebug, debugDb } = require('./debug')
+const { response } = require('../app')
 
 
 
@@ -290,6 +292,98 @@ const getAddresses = (userId) => {
     })
 }
 
+//APPLY COUPON
+const applyCoupon = async (addedCoupon, cartTotal) => {
+    let response = {}
+
+    adminDebug(addedCoupon)
+    //getting coupon data
+    let coupon = await db.get().collection(COUPON_COLLECTION).findOne({ couponCode: addedCoupon.coupon })
+
+    userDebug(coupon)
+
+    const [currentDate, currentMonth, currentYear] = new Date().toLocaleDateString().split('/')
+    const dateNow = currentYear + '-' + currentMonth + '-' + currentDate
+
+    //check if coupon expired
+    if (dateNow < coupon.expiryDate) {
+
+        userDebug('coupon active')
+
+        let couponUsed = await db.get().collection(COUPON_COLLECTION).findOne({ couponCode: addedCoupon.coupon, couponUsedBy: addedCoupon.userId })
+
+        if (!couponUsed) {
+
+            //calculating final price
+            couponDiscount = coupon.couponDiscount
+            response.discountedAmount = Math.round((cartTotal * couponDiscount / 100))
+            // response.finalPrice = Math.round(cartTotal - response.discountedAmount)
+
+            response.isActive = true
+            response.isUsed = false
+ 
+            //updating cart
+            await db.get().collection(CART_COLLECTION).updateOne(
+                { user: objectId(addedCoupon.userId) },
+                {
+                    $set: {
+                        couponApplied: addedCoupon.coupon,
+                        couponIsActive: true,
+                        couponIsUsed: false,
+                        couponDiscount: response.discountedAmount
+                    }
+                })
+
+        } else {
+            userDebug('coupon used')
+            response.isUsed = true
+
+            //updating cart
+            await db.get().collection(CART_COLLECTION).updateOne(
+                { user: objectId(addedCoupon.userId) },
+                {
+                    $set: {
+                        couponApplied: addedCoupon.coupon,
+                        couponIsActive: true,
+                        couponIsUsed: true,
+                        couponDiscount: 0
+                    }
+                }) 
+        }
+    } else {
+        userDebug('coupon expired')
+        response.isActive = false
+
+        //updating cart
+        await db.get().collection(CART_COLLECTION).updateOne(
+            { user: objectId(addedCoupon.userId) },
+            {
+                $set: { 
+                    couponApplied: addedCoupon.coupon,
+                    couponIsActive: false,
+                    couponIsUsed: false,
+                    couponDiscount: 0
+                }
+            })
+    }
+    return response;
+}
+
+//REMOVE COUPON
+const removeCoupon = async (userId) => {
+    await db.get().collection(CART_COLLECTION).updateOne(
+        { user: objectId(userId) },
+        {
+            $unset: {
+                couponApplied: "",
+                couponDiscount: "",
+                couponIsActive: "",
+                couponIsUsed: ""
+            }
+        }
+    )
+}
+
 // ADDRESSS - DELETE
 const doDeleteAddress = (data) => {
 
@@ -458,8 +552,6 @@ const payWithPaypal = async (orderId, cartTotal, paymentOption) => {
     }).catch((err) => {
         console.log(err);
     })
-
-
 }
 
 
@@ -467,15 +559,22 @@ module.exports = {
     doSignup,
     doLogin,
     getUsers,
+
     doBlockUser,
     doUnblockUser,
+
     doOtpLogin,
     doVerifyOtp,
+
     addNewAddres,
     getAddresses,
     doDeleteAddress,
+
     //getMyAccount,
     viewOrder,
+
+    applyCoupon,
+    removeCoupon,
     generateRazorpay,
     verifyPayment,
     changePaymentStatus,

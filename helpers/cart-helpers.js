@@ -3,7 +3,7 @@ var collection = require('../config/collections')
 const collections = require('../config/collections')
 const { render, response } = require('../app')
 const { ReturnDocument } = require('mongodb')
-const { CART_COLLECTION, PRODUCTS_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION } = require('../config/collections')
+const { CART_COLLECTION, PRODUCTS_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, WISHLIST_COLLECTION } = require('../config/collections')
 const { adminDebug } = require('./debug')
 var objectId = require('mongodb').ObjectId
 
@@ -23,17 +23,6 @@ const doAddToCart = (productId, userId) => {
 
             if (productExists >= 0) {
                 adminDebug('product exists')
-                // db.get().collection(CART_COLLECTION)
-                //     .updateOne(
-                //         {
-                //             user: objectId(userId),
-                //             'products.item': objectId(productId)
-                //         },
-                //         {
-                //             $inc: { 'products.$.quantity': 1 }
-                //         }).then(() => {
-                //             resolve()
-                //         })
             } else {
                 db.get().collection(CART_COLLECTION).updateOne(
                     { user: objectId(userId) },
@@ -73,7 +62,7 @@ const getCartProducts = (userId) => {
             {
                 $project: {
                     item: '$products.item',
-                    quantity: '$products.quantity'
+                    quantity: '$products.quantity',
                 }
             },
             {
@@ -166,6 +155,10 @@ const getCartProducts = (userId) => {
     })
 }
 
+const getCartCouponInfo = async (userId) => {
+    return await db.get().collection(CART_COLLECTION).findOne({ user: objectId(userId) }, { products: 0, _id: 0 })
+}
+
 const getCartCount = (userId) => {
     return new Promise(async (resolve, reject) => {
         let count = 0;
@@ -230,7 +223,8 @@ const doDeleteProductFromCart = (data) => {
 module.exports = {
     doAddToCart,
     getCartProducts,
+    getCartCouponInfo,
     getCartCount,
     doChangeProductQuantity,
-    doDeleteProductFromCart
+    doDeleteProductFromCart,
 }

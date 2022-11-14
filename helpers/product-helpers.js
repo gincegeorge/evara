@@ -30,6 +30,7 @@ const addProduct = (req) => {
             req.body.slug = slugify(req.body.slug, { lower: true })
         }
 
+        //product created date
         req.body.date = new Date()
         req.body.productCategories = objectId(req.body.productCategories)
 
@@ -139,7 +140,7 @@ const getAllProducts = () => {
             }
         ]).toArray()
 
-        adminDebug(products)
+        //adminDebug(products)
 
         if (products) {
             resolve(products)
@@ -228,7 +229,8 @@ const updateProduct = (productId, req) => {
                 Discount: productDetails.Discount,
                 slug: productDetails.slug,
                 productCategories: objectId(productDetails.productCategories),
-                salePrice: productDetails.salePrice
+                salePrice: productDetails.salePrice,
+                Stock: productDetails.Stock
             }
         }).then((response) => {
             if (response) {

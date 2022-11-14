@@ -26,7 +26,6 @@
           </thead>
           <tbody>
             <% coupons.forEach(coupon => {
-
                 const [day,month,date,year] = coupon.date.toString().split(' ')
                 const [currentDate,currentMonth,currentYear] = new Date().toLocaleDateString().split('/')
                 const dateNow = currentYear+'-'+currentMonth+'-'+currentDate
