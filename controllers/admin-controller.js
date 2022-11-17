@@ -18,6 +18,7 @@ const getAdminLogin = (req, res) => {
 }
 const postAdminLogin = (req, res) => {
     adminHelpers.doAdminLogin(req.body).then((response) => {
+
         if (response.adminLoginStatus) {
             req.session.adminData = response.adminData
 
@@ -40,6 +41,9 @@ const getLogout = (req, res) => {
 }
 const getAdminDashboard = async function (req, res, next) {
 
+    
+
+
     const productsCount = await adminHelpers.getProductsCount()
     const CategoriesCount = await adminHelpers.getCategoriesCount()
     const totalRevenue = await adminHelpers.getTotalRevenue()
@@ -48,15 +52,16 @@ const getAdminDashboard = async function (req, res, next) {
     const monthlyRevenue = await adminHelpers.monthlyRevenue()
     let monthlyData = await adminHelpers.monthlyData()
     monthlyData.reverse()
-
-    adminDebug(monthlyData)
     res.render('admin/index', { productsCount, CategoriesCount, totalRevenue, ordersCount, revenueByPaymentOption, monthlyRevenue, monthlyData })
 }
 
-const getProducts = (req, res) => {
-    productHelpers.getAllProducts().then((products) => {
-        res.render('admin/products/products', { products })
-    })
+const getProducts = async (req, res) => {
+
+    userDebug(req.active)
+
+    let products = await productHelpers.getAllProductsAdmin()
+    res.render('admin/products/products', { products })
+
 }
 const getNewProduct = (req, res) => {
     productHelpers.getAllCategories().then((productCats) => {
@@ -264,6 +269,13 @@ const deleteCoupon = async (req, res) => {
     }
 }
 
+//CHANGE DARKMODE
+
+const changeDarkMode = async (req, res) => {
+    await adminHelpers.changeDarkMode(req.params.mode)
+    res.json({ response: true })
+}
+
 module.exports = {
     //LOGIN
     getAdminLogin,
@@ -272,6 +284,7 @@ module.exports = {
 
     //DASHBOARD
     getAdminDashboard,
+    changeDarkMode,
 
     //PRODUCTS
     getProducts,

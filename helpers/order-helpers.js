@@ -133,7 +133,6 @@ const getCheckoutData = (userId) => {
             } else {
                 resolve(cartTotal[0].cartTotal)
             }
-            // resolve(cartTotal[0].cartTotal)
         } else {
             resolve('0')
         }

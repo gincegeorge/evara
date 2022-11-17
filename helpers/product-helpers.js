@@ -6,8 +6,8 @@ const slugify = require('slugify')
 const path = require('path');
 const fs = require('fs')
 const { promisify } = require('util')
-const { resolve } = require('path')
-const { adminDebug, debugDb } = require('./debug')
+// const { resolve } = require('path')
+const { adminDebug, debugDb, userDebug } = require('./debug')
 const { PRODUCTS_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION } = require('../config/collections')
 const unlinkAsync = promisify(fs.unlink)
 
@@ -53,28 +53,28 @@ const addProduct = (req) => {
 
 }
 
-const getAllProductsAdmin = () => {
-    return new Promise(async (resolve, reject) => {
-        let products = db.get().collection(COLLECTION.PRODUCTS_COLLECTION).find().sort({ 'date': -1 }).toArray()
+// const getAllProductsAdmin = () => {
+//     return new Promise(async (resolve, reject) => {
+//         let products = db.get().collection(COLLECTION.PRODUCTS_COLLECTION).find().sort({ 'date': -1 }).toArray()
 
-        adminDebug(products)
+//         adminDebug(products)
 
-        if (products) {
-            resolve(products)
-        } else {
-            reject()
-        }
-    }).catch((err) => {
-        console.log(err);
-    })
-}
+//         if (products) {
+//             resolve(products)
+//         } else {
+//             reject()
+//         }
+//     }).catch((err) => {
+//         console.log(err);
+//     })
+// }
 
-const getAllProducts = () => {
-    return new Promise(async (resolve, reject) => {
-        //let products = db.get().collection(COLLECTION.PRODUCTS_COLLECTION).find().sort({ 'date': -1 }).toArray()
+const getAllProducts = async (startIndex, limit) => {
 
 
-        let products = await db.get().collection(PRODUCTS_COLLECTION).aggregate([
+    userDebug(startIndex, limit)
+    try {
+        return await db.get().collection(PRODUCTS_COLLECTION).aggregate([
             {
                 $lookup: {
                     from: PRODUCTS_CATEGORIES_COLLECTION,
@@ -133,23 +133,177 @@ const getAllProducts = () => {
                         }
                     }
                 }
-            }, {
+            },
+            {
+                $sort: {
+                    date: -1
+                }
+            },
+            {
+                $skip: startIndex
+            },
+            {
+                $limit: limit
+            },
+
+        ]).toArray()
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+//get all products in admin side
+const getAllProductsAdmin = async () => {
+
+    try {
+        return await db.get().collection(PRODUCTS_COLLECTION).aggregate([
+            {
+                $lookup: {
+                    from: PRODUCTS_CATEGORIES_COLLECTION,
+                    localField: 'productCategories',
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
+            {
+                $unwind: '$category'
+            },
+            {
+                $project: {
+                    _id: 1, name: 1, slug: 1, regularPrice: 1, Stock: 1, Discount: 1, salePrice: 1, productImages: 1, category: 1, date: 1,
+                    biggerDiscount:
+                    {
+                        $cond:
+                        {
+                            if:
+                            {
+                                $gt: [
+                                    { $toInt: "$Discount" },
+                                    { $toInt: '$category.categoryDiscount' }
+                                ]
+                            }, then: "$Discount", else: '$category.categoryDiscount'
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    discountedAmount:
+                    {
+                        $round:
+                        {
+                            $divide: [
+                                {
+                                    $multiply: [
+                                        { $toInt: "$regularPrice" },
+                                        { $toInt: "$biggerDiscount" }
+                                    ]
+                                }, 100]
+                        }
+                    },
+                }
+            },
+            {
+                $addFields: {
+                    finalPrice:
+                    {
+                        $round:
+                        {
+                            $subtract: [
+                                { $toInt: "$regularPrice" },
+                                { $toInt: "$discountedAmount" }]
+                        }
+                    }
+                }
+            },
+            {
                 $sort: {
                     date: -1
                 }
             }
+
         ]).toArray()
+    } catch (error) {
+        console.log(error);
+    }
+}
 
-        //adminDebug(products)
+const getNewForShopPage = async () => {
+    try {
 
-        if (products) {
-            resolve(products)
-        } else {
-            reject()
-        }
-    }).catch((err) => {
-        console.log(err);
-    })
+        return await db.get().collection(PRODUCTS_COLLECTION).aggregate([
+            {
+                $lookup: {
+                    from: PRODUCTS_CATEGORIES_COLLECTION,
+                    localField: 'productCategories',
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
+            {
+                $unwind: '$category'
+            },
+            {
+                $project: {
+                    _id: 1, name: 1, slug: 1, regularPrice: 1, Stock: 1, Discount: 1, salePrice: 1, productImages: 1, category: 1, date: 1,
+                    biggerDiscount:
+                    {
+                        $cond:
+                        {
+                            if:
+                            {
+                                $gt: [
+                                    { $toInt: "$Discount" },
+                                    { $toInt: '$category.categoryDiscount' }
+                                ]
+                            }, then: "$Discount", else: '$category.categoryDiscount'
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    discountedAmount:
+                    {
+                        $round:
+                        {
+                            $divide: [
+                                {
+                                    $multiply: [
+                                        { $toInt: "$regularPrice" },
+                                        { $toInt: "$biggerDiscount" }
+                                    ]
+                                }, 100]
+                        }
+                    },
+                }
+            },
+            {
+                $addFields: {
+                    finalPrice:
+                    {
+                        $round:
+                        {
+                            $subtract: [
+                                { $toInt: "$regularPrice" },
+                                { $toInt: "$discountedAmount" }]
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    date: -1
+                }
+            },
+            {
+                $limit: 3
+            }
+        ]).toArray()
+    }
+    catch (error) {
+        console.log(error);
+    }
 }
 
 const getProductDetails = (productSlug) => {
@@ -289,14 +443,224 @@ const doDeleteProductImage = (data) => {
     })
 }
 
+const productsInCategory = (categorySlug, startIndex, limit) => {
+
+    return new Promise(async (resolve, reject) => {
+
+        let products = await db.get().collection(PRODUCTS_CATEGORIES_COLLECTION).aggregate([
+            {
+                $match: { categorySlug: categorySlug }
+            },
+            {
+                $project: { _id: 1, categoryDiscount: 1, categoryName: 1, categoryDesc: 1 }
+            },
+            {
+                $lookup: {
+                    from: PRODUCTS_COLLECTION,
+                    localField: '_id',
+                    foreignField: 'productCategories',
+                    as: 'productsInCat'
+                }
+            },
+            {
+                $unwind: '$productsInCat'
+            },
+            {
+                $project: {
+                    _id: 1, categoryDiscount: 1, categoryName: 1, categoryDesc: 1, productsInCat: 1,
+                    biggerDiscount:
+                    {
+                        $cond:
+                        {
+                            if:
+                            {
+                                $gt: [
+                                    { $toInt: "$categoryDiscount" },
+                                    { $toInt: '$productsInCat.Discount' }
+                                ]
+                            }, then: "$categoryDiscount", else: '$productsInCat.Discount'
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    discountedAmount:
+                    {
+                        $round:
+                        {
+                            $divide: [
+                                {
+                                    $multiply: [
+                                        { $toInt: "$productsInCat.regularPrice" },
+                                        { $toInt: "$biggerDiscount" }
+                                    ]
+                                }, 100]
+                        }
+                    },
+                }
+            },
+            {
+                $addFields: {
+                    finalPrice:
+                    {
+                        $round:
+                        {
+                            $subtract: [
+                                { $toInt: "$productsInCat.regularPrice" },
+                                { $toInt: "$discountedAmount" }]
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    date: -1
+                }
+            },
+            {
+                $skip: startIndex
+            },
+            {
+                $limit: limit
+            },
+        ]).toArray()
+        if (products) {
+            resolve(products)
+        } else {
+            reject()
+        }
+    }).catch((err) => {
+        console.log(err);
+    })
+}
+
+const productsInCategoryCount = async (categorySlug) => {
+    try {
+        return await db.get().collection(PRODUCTS_CATEGORIES_COLLECTION).aggregate([
+            {
+                $match: { categorySlug: categorySlug }
+            },
+            {
+                $project: { _id: 1 }
+            },
+            {
+                $lookup: {
+                    from: PRODUCTS_COLLECTION,
+                    localField: '_id',
+                    foreignField: 'productCategories',
+                    as: 'productsInCat'
+                }
+            },
+            {
+                $unwind: '$productsInCat'
+            },
+            {
+                $project: {
+                    _id: 1, productsInCat: 1
+                }
+            }
+        ]).toArray()
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const getNewProducts = async (categorySlug) => {
+    try {
+
+        return await db.get().collection(PRODUCTS_CATEGORIES_COLLECTION).aggregate([
+            {
+                $match: { categorySlug: categorySlug }
+            },
+            {
+                $project: { _id: 1, categoryDiscount: 1, categoryName: 1, categoryDesc: 1 }
+            },
+            {
+                $lookup: {
+                    from: PRODUCTS_COLLECTION,
+                    localField: '_id',
+                    foreignField: 'productCategories',
+                    as: 'productsInCat'
+                }
+            },
+            {
+                $unwind: '$productsInCat'
+            },
+            {
+                $project: {
+                    _id: 1, categoryDiscount: 1, categoryName: 1, categoryDesc: 1, productsInCat: 1,
+                    biggerDiscount:
+                    {
+                        $cond:
+                        {
+                            if:
+                            {
+                                $gt: [
+                                    { $toInt: "$categoryDiscount" },
+                                    { $toInt: '$productsInCat.Discount' }
+                                ]
+                            }, then: "$categoryDiscount", else: '$productsInCat.Discount'
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    discountedAmount:
+                    {
+                        $round:
+                        {
+                            $divide: [
+                                {
+                                    $multiply: [
+                                        { $toInt: "$productsInCat.regularPrice" },
+                                        { $toInt: "$biggerDiscount" }
+                                    ]
+                                }, 100]
+                        }
+                    },
+                }
+            },
+            {
+                $addFields: {
+                    finalPrice:
+                    {
+                        $round:
+                        {
+                            $subtract: [
+                                { $toInt: "$productsInCat.regularPrice" },
+                                { $toInt: "$discountedAmount" }]
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    date: -1
+                }
+            }, {
+                $limit: 3
+            }
+        ]).toArray()
+    }
+    catch (error) {
+        console.log(error);
+    }
+}
 
 module.exports = {
     addProduct,
     getAllProducts,
     getAllProductsAdmin,
+    getNewForShopPage,
     getProductDetails,
     updateProduct,
     deleteProduct,
     getAllCategories,
-    doDeleteProductImage
+    doDeleteProductImage,
+
+    productsInCategory,
+    productsInCategoryCount,
+    getNewProducts,
 }
