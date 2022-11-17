@@ -1,8 +1,9 @@
-var db = require('../config/connection')
-var collection = require('../config/collections');
-const { ORDER_COLLECTION, PRODUCTS_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, COUPON_COLLECTION } = require('../config/collections');
+const db = require('../config/connection')
+const collection = require('../config/collections');
+const { ORDER_COLLECTION, PRODUCTS_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, COUPON_COLLECTION, ADMIN_COLLECTION } = require('../config/collections');
 const { adminDebug, debugDb, userDebug } = require('./debug');
-var objectId = require('mongodb').ObjectId
+const objectId = require('mongodb').ObjectId
+
 
 const doAdminLogin = (adminData) => {
     let adminCredentials = { email: 'admin@mail.com', password: '1233' };
@@ -78,9 +79,6 @@ const viewSingleOrder = (orderId) => {
 const changeOrderStatus = (orderDetails) => {
 
     const { orderId, productId, orderStatus } = orderDetails
-
-    adminDebug(orderId, productId, orderStatus);
-
 
     if (orderStatus === 'Delivered') {
 
@@ -395,7 +393,6 @@ const getDailyReport = (date) => {
     startDate = date.date + 'T00:00:00'
     endDate = date.date + 'T23:59:59'
 
-    adminDebug(startDate, endDate)
     return new Promise((resolve, reject) => {
         db.get().collection(ORDER_COLLECTION).aggregate([
             {
@@ -419,8 +416,6 @@ const getDailyReport = (date) => {
 //GET MONTHLY REPORT
 const getMonthlyReport = (monthAndYear) => {
 
-    adminDebug(monthAndYear)
-
     //Create end date of the month
     const [year, month] = monthAndYear.toString().split('-')
     var d = new Date(year, month, 0);
@@ -428,9 +423,6 @@ const getMonthlyReport = (monthAndYear) => {
 
     let startDate = year + '-' + month + '-01'
     let endDate = year + '-' + month + '-' + day
-
-    userDebug(startDate);
-    adminDebug(endDate)
 
     return new Promise((resolve, reject) => {
         db.get().collection(ORDER_COLLECTION).aggregate([
@@ -513,18 +505,26 @@ const postEditCoupon = async (couponDetails) => {
         { _id: objectId(couponId) },
         {
             $set: {
-                couponCode:couponDetails.couponCode,
+                couponCode: couponDetails.couponCode,
                 couponDiscount: couponDetails.couponDiscount,
-                expiryDate:  couponDetails.expiryDate
+                expiryDate: couponDetails.expiryDate
             }
         })
 }
 
 //DELETE COUPON
-const deleteCoupon = async(couponId)=>{
+const deleteCoupon = async (couponId) => {
     await db.get().collection(COUPON_COLLECTION).deleteOne(
-        {_id:objectId(couponId)}
+        { _id: objectId(couponId) }
     )
+}
+
+const changeDarkMode = async (mode) => {
+    try {
+        return db.get().collection(ADMIN_COLLECTION).updateOne({ 'username': 'admin@gmail.com' }, { $set: { theme: mode } })
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 
@@ -541,6 +541,7 @@ module.exports = {
     cancelCodOrder,
 
     //dashboard
+    changeDarkMode,
     getProductsCount,
     getCategoriesCount,
     getTotalRevenue,

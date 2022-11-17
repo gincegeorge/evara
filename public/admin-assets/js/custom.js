@@ -225,5 +225,22 @@ $('#reportTable1').DataTable({
         'pdfHtml5'
     ]
 });
-
-
+/*--------------------------------------------------------------*/
+//                          DARKMODE
+/*--------------------------------------------------------------*/
+function enableDarkmode() {
+    if ($('body').hasClass('dark')) {
+        changeModeTo = 'light'
+    } else {
+        changeModeTo = 'dark'
+    }
+    $.ajax({
+        url: '/admin/theme/' + changeModeTo,
+        method: 'get',
+        success: (response) => {
+            if (response) {
+                $('body').toggleClass('dark')
+            }
+        }
+    })
+}

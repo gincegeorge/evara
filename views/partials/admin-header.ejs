@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/custom/custom.css">
 </head>
 
-<body>
+<body class="<% if (locals.theme==='dark') { %>dark<% } %> ">
   <div class="screen-overlay"></div>
   <aside class="navbar-aside" id="offcanvas_aside">
     <div class="aside-top">
@@ -33,13 +33,13 @@
     </div>
     <nav>
       <ul class="menu-aside">
-        <li class="menu-item active">
+        <li class="menu-item <% if(!locals.menuUrl!=''){ %>active<% } %>">
           <a class="menu-link" href="/admin">
             <i class="icon material-icons md-home"></i>
             <span class="text">Dashboard</span>
           </a>
         </li>
-        <li class="menu-item has-submenu">
+        <li class="menu-item has-submenu<% if(menuUrl==='products'||menuUrl==='product-categories'){ %> active<% } %>">
           <a class="menu-link" href="/admin/products">
             <i class="icon material-icons md-shopping_bag"></i>
             <span class="text">Products</span>
@@ -50,13 +50,13 @@
             <a href="/admin/product-categories">Categories</a>
           </div>
         </li>
-        <li class="menu-item">
+        <li class="menu-item<% if(menuUrl==='orders'){ %> active<% } %>">
           <a class="menu-link" href="/admin/orders">
             <i class="icon material-icons md-shopping_cart"></i>
             <span class="text">Orders</span>
           </a>
         </li>
-        <li class="menu-item has-submenu">
+        <li class="menu-item has-submenu<% if(menuUrl==='coupons'){ %> active<% } %>">
           <a class="menu-link" href="coupons">
             <i class="icon material-icons md-monetization_on"></i>
             <span class="text">Coupons</span>
@@ -66,7 +66,7 @@
             <a href="/admin/coupons/new">Add new coupon</a>
           </div>
         </li>
-        <li class="menu-item">
+        <li class="menu-item<% if(menuUrl==='users'){ %> active<% } %>">
           <a class="menu-link" href="/admin/users">
             <i class="icon material-icons md-person"></i>
             <span class="text">Users</span>
@@ -101,7 +101,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link btn-icon darkmode" href="#">
+            <a class="nav-link btn-icon darkMode" onclick="enableDarkmode()">
               <i class="material-icons md-nights_stay"></i>
             </a>
           </li>
@@ -119,10 +119,19 @@
               <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i>Billing</a>
               <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help center</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item text-danger" href="/admin/logout"><i
-                  class="material-icons md-exit_to_app"></i>Logout</a>
+              <a class="dropdown-item text-danger" href="/admin/logout"><i class="material-icons md-exit_to_app"></i>Logout</a>
             </div>
           </li>
         </ul>
       </div>
     </header>
+
+    <!-- <script>
+      //ADDING 'ACTIVE' TO PAGINATION 
+      const params = menuUrl
+      let value = params.page;
+      if (value) {
+        var element = document.getElementById('page-' + value);
+        element.classList.add('active');
+      }
+    </script> -->

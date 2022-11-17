@@ -27,8 +27,7 @@
                   <%= element.address.name %>,
                   <%= element.address.phone %>,
                   <%= element.address.addressLine %>,
-                  <%= element.address.city %>,
-                  <%= element.address.zipCode %>...
+                  <%= element.address.city %>...
                 </label>
               </div>
               <% count++ }) %>
@@ -146,7 +145,27 @@
                   <% }) %>
                   <tr>
                     <th>SubTotal</th>
-                    <td class="product-subtotal" colspan="2">₹<span id="checkoutTotal"><%= user.cart.total %></span></td>
+                    <td class="product-subtotal" colspan="2">₹<span id="checkoutTotal">
+                        <%
+                         let totalRegularPrice =0; 
+                         products.forEach(element=> { 
+                           totalRegularPrice +=   parseInt(element.product.regularPrice) 
+                         }) 
+                         %>
+                        <%= totalRegularPrice %>
+                      </span></td>
+                  </tr>
+                  <tr>
+                    <th>Product discount</th>
+                    <td colspan="2"><em>
+                        <%
+                         let totalFinalPrice =0; 
+                         products.forEach(element=> { 
+                          totalFinalPrice +=   parseInt(element.finalPrice) 
+                         }) 
+                         %>
+                       -₹<%= totalRegularPrice-totalFinalPrice %>
+                      </em></td>
                   </tr>
                   <% if (locals.couponInfo.couponApplied) { %>
                   <tr>
@@ -205,7 +224,6 @@
       </div>
     </div>
   </section>
-
   <% } %>
 </main>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

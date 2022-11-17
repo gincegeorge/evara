@@ -5,7 +5,11 @@ const orderHelpers = require('../helpers/order-helpers')
 const wishlistHelpers = require('../helpers/wishlist-helpers')
 const paypal = require('paypal-rest-sdk')
 const { userDebug, adminDebug, debugDb } = require('../helpers/debug')
-const { response } = require('../app')
+
+
+var db = require('../config/connection')
+const collections = require('../config/collections')
+const { CART_COLLECTION, PRODUCTS_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, WISHLIST_COLLECTION } = require('../config/collections')
 
 
 //PAYPAL PAYMENT
@@ -130,37 +134,63 @@ const postVerifyOtp = (req, res) => {
 }
 
 //SHOP PAGE
-const getShoppage = (req, res, next) => {
-    productHelpers.getAllProducts().then(async (products) => {
+const getShoppage = async (req, res, next) => {
 
-        let cart = await cartHelpers.getCartProducts(user._id)
-        let wishlist = await wishlistHelpers.getWishlist(user._id)
+    // let products = await productHelpers.getAllProducts()
+    let cart = await cartHelpers.getCartProducts(user._id)
+    let wishlist = await wishlistHelpers.getWishlist(user._id)
+    let newProducts = await productHelpers.getNewForShopPage()
 
-        //finding products in cart
-        for (i = 0; i < cart.length; i++) {
-            for (j = 0; j < products.length; j++) {
-                cartId = cart[i].product._id.toString()
-                productId = products[j]._id.toString()
-                if (cartId == productId) {
-                    products[j].productInCart = true
-                }
+    // pagination start-----------------------------------------
+    let results = {}
+
+    page = parseInt(req.query.page) - 1 || 0
+
+    limit = 9
+    startIndex = (page) * limit
+    endIndex = (page + 1) * limit
+
+    productsCount = await db.get().collection(PRODUCTS_COLLECTION).count()
+
+    if (endIndex < productsCount) {
+        results.next = {
+            page: page + 2,
+            limit: limit
+        }
+    }
+
+    if (page > 0) {
+        results.previous = {
+            page: page,
+            limit: limit
+        }
+    }
+    results.products = await productHelpers.getAllProducts(startIndex, limit)
+    // pagination end-----------------------------------------
+
+    //finding products in cart
+    for (i = 0; i < cart.length; i++) {
+        for (j = 0; j < results.products.length; j++) {
+            cartId = cart[i].product._id.toString()
+            productId = results.products[j]._id.toString()
+            if (cartId == productId) {
+                results.products[j].productInCart = true
             }
         }
-
-        //finding products in wishlist
-        for (i = 0; i < wishlist.length; i++) {
-            for (j = 0; j < products.length; j++) {
-                wishlistId = wishlist[i].product._id.toString()
-                productId = products[j]._id.toString()
-                if (wishlistId == productId) {
-                    products[j].productInWishlist = true
-                }
+    }
+    //finding products in wishlist
+    for (i = 0; i < wishlist.length; i++) {
+        for (j = 0; j < results.products.length; j++) {
+            wishlistId = wishlist[i].product._id.toString()
+            productId = results.products[j]._id.toString()
+            if (wishlistId == productId) {
+                results.products[j].productInWishlist = true
             }
         }
+    }
 
+    res.render('user/shop/shop', { results, newProducts, productsCount })
 
-        res.render('user/shop/shop', { products })
-    })
 }
 
 //GET SINGLE PRODUCT
@@ -201,7 +231,6 @@ const addToCart = (req, res) => {
     //FIXME ADD TO CART WHEN LOGGED OUT
     productId = req.params.id
     userId = user._id
-    //console.log(productId,userId)
     cartHelpers.doAddToCart(productId, userId).then(() => {
         res.json({
             success: true
@@ -237,16 +266,13 @@ const deleteProductFromCart = (req, res) => {
 const getWishlist = async (req, res) => {
     userId = req.session.userData._id
     let products = await wishlistHelpers.getWishlist(userId)
-    adminDebug(products)
     res.render('user/cart/wishlist', { products })
-
 }
 
 //ADD TO WISHLIST
 const addToWishlist = (req, res) => {
     productId = req.params.id
     userId = user._id
-    //console.log(productId,userId);
     wishlistHelpers.addToWishlist(productId, userId).then(() => {
         res.json({
             success: true
@@ -263,8 +289,6 @@ const deleteProductFromWishlist = (req, res) => {
     wishlistHelpers.deleteProductFromWishlist(userId, productId).then(async (response) => {
         const userWishlist = await wishlistHelpers.getWishlistCount(user._id)
         response.wishlistCount = userWishlist.products.length
-
-        adminDebug(response)
         res.json(response)
     })
 }
@@ -291,7 +315,6 @@ const getCheckout = async (req, res) => {
     const products = await cartHelpers.getCartProducts(user._id)
     const addressList = await userHelpers.getAddresses(user._id)
     const couponInfo = await cartHelpers.getCartCouponInfo(user._id)
-    userDebug(cartTotal)
     res.render('user/cart/checkout', { cartTotal, products, addressList, couponInfo })
 }
 
@@ -305,7 +328,6 @@ const applyCoupon = async (req, res) => {
 //REMOVE COUPON
 const removeCoupon = async (req, res) => {
     userId = req.params.id
-    userDebug(userId)
     await userHelpers.removeCoupon(userId)
 
     res.redirect('/checkout')
@@ -375,7 +397,6 @@ const verifyPaypal = (req, res) => {
             console.log(error.response);
             throw error;
         } else {
-            //console.log(JSON.stringify(payment));
             orderId = payment.transactions[0].description
             userId = req.session.userData._id
 
@@ -450,6 +471,71 @@ const returnCodOrder = async (req, res) => {
     res.json(orderStatus)
 }
 
+
+//GET CATEGORIES PAGE
+const getCategoryPage = async (req, res) => {
+
+    const categorySlug = req.params.categorySlug
+    const newProducts = await productHelpers.getNewProducts(categorySlug)
+    let cart = await cartHelpers.getCartProducts(user._id)
+    let wishlist = await wishlistHelpers.getWishlist(user._id)
+
+
+    // pagination start-----------------------------------------
+    let results = {}
+
+    page = parseInt(req.query.page) - 1 || 0
+
+    limit = 9
+    startIndex = (page) * limit
+    endIndex = (page + 1) * limit
+
+    productsInCategory = await productHelpers.productsInCategoryCount(categorySlug)
+    productsCount = productsInCategory.length
+
+    if (endIndex < productsCount) {
+        results.next = {
+            page: page + 2,
+            limit: limit
+        }
+    }
+
+    if (page > 0) {
+        results.previous = {
+            page: page,
+            limit: limit
+        }
+    }
+
+    results.products = await productHelpers.productsInCategory(categorySlug, startIndex, limit)
+    // pagination end-----------------------------------------
+
+    //finding products in cart
+    for (i = 0; i < cart.length; i++) {
+        for (j = 0; j < results.products.length; j++) {
+            cartId = cart[i].product._id.toString()
+            productId = results.products[j].productsInCat._id.toString()
+            if (cartId == productId) {
+                results.products[j].productInCart = true
+            }
+        }
+    }
+
+    //finding products in wishlist
+    for (i = 0; i < wishlist.length; i++) {
+        for (j = 0; j < results.products.length; j++) {
+            wishlistId = wishlist[i].product._id.toString()
+            productId = results.products[j].productsInCat._id.toString()
+            if (wishlistId == productId) {
+                results.products[j].productInWishlist = true
+            }
+        }
+    }
+
+    res.render('user/shop/product-category', { results, newProducts })
+}
+
+
 module.exports = {
     getHomepage,
 
@@ -496,4 +582,6 @@ module.exports = {
     addToWishlist,
     deleteProductFromWishlist,
     addToCartFromWishlist,
+
+    getCategoryPage,
 }

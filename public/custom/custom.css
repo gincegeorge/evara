@@ -284,17 +284,21 @@ div.dt-buttons {
 
 
 /* SHOP PAGE */
-a.gotocartBtn,
 a.removeFromWishlist {
   background-color: #088178 !important;
   border-color: #088178 !important;
   color: #fff !important;
 }
 
+a.gotocartBtn {
+  border-color: #088178 !important;
+}
+
 /* goToCart */
- a.gotocartBtn {
+a.gotocartBtn {
   display: none !important;
 }
+
 a.gotocartBtn.visible {
   display: inline-block !important;
 }
@@ -304,9 +308,11 @@ a.gotocartBtn.visible {
 .productInWishlist .addToWishlist {
   display: none !important;
 }
+
 a.removeFromWishlist {
   display: none !important;
 }
+
 .productInWishlist .removeFromWishlist {
   display: inline-block !important;
 }

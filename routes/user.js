@@ -3,7 +3,9 @@ const router = express.Router();
 const userController = require('../controllers/user-controller');
 const userMiddlewares = require('../middlewares/user-middlewares')
 
-/* GET home page. */
+/************************************* */
+//              HOMEPAGE
+/************************************* */
 router.get('/', userMiddlewares.verifyUserLogin, userController.getHomepage)
 
 /************************************* */
@@ -14,7 +16,6 @@ router.route('/login')
   .get(userController.getLogin)
 
   .post(userController.postLogin)
-
 
 router.get('/logout', userController.getLogout)
 
@@ -49,6 +50,8 @@ router.route('/verify-otp')
 router.get('/shop', userMiddlewares.verifyUserLogin, userController.getShoppage)
 
 router.get('/product/:productSlug', userMiddlewares.verifyUserLogin, userController.getSingleProduct)
+
+router.get('/categories/:categorySlug', userMiddlewares.verifyUserLogin, userController.getCategoryPage)
 
 /************************************* */
 //                CART
@@ -125,6 +128,7 @@ router.patch('/my-account/order/return', userMiddlewares.verifyUserLogin, userCo
 router.patch('/my-account/order/cancel-cod', userMiddlewares.verifyUserLogin, userController.cancelCodOrder)
 
 router.patch('/my-account/order/return-cod', userMiddlewares.verifyUserLogin, userController.returnCodOrder)
+
 
 
 module.exports = router

@@ -1,8 +1,6 @@
 var db = require('../config/connection')
-var collection = require('../config/collections')
+// var collection = require('../config/collections')
 const collections = require('../config/collections')
-const { render, response } = require('../app')
-const { ReturnDocument } = require('mongodb')
 const { CART_COLLECTION, PRODUCTS_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, WISHLIST_COLLECTION } = require('../config/collections')
 const { adminDebug } = require('./debug')
 var objectId = require('mongodb').ObjectId

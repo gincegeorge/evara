@@ -1,20 +1,16 @@
-var db = require('../config/connection')
-var collection = require('../config/collections')
+const db = require('../config/connection')
+const collection = require('../config/collections')
 const bcrypt = require('bcrypt')
 const collections = require('../config/collections')
-// const { render, response } = require('../app')
-// const { ReturnDocument } = require('mongodb')
 const { CART_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, PRODUCTS_COLLECTION, USERS_COLLECTION, ORDER_COLLECTION, COUPON_COLLECTION } = require('../config/collections')
-var objectId = require('mongodb').ObjectId
+const objectId = require('mongodb').ObjectId
 const client = require("twilio")(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 const crypto = require("crypto")
-// const { resolve } = require('path')
 const Razorpay = require("razorpay");
 const CC = require('currency-converter-lt')
-let currencyConverter = new CC()
+const currencyConverter = new CC()
 const paypal = require('paypal-rest-sdk')
 const { userDebug, adminDebug, debugDb } = require('./debug')
-const { response } = require('../app')
 
 
 

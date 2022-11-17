@@ -18,52 +18,52 @@
               <div class="product-cart-wrap mb-30">
                 <div class="product-img-action-wrap">
                   <div class="product-img product-img-zoom">
-                    <a href="/product/<%= element.slug %>">
-                      <img class="default-img" src="/products-uploads/<%= element.productImages[0] %>" alt="">
-                      <img class="hover-img" src="/products-uploads/<%= element.productImages[1] %>" alt="">
+                    <a href="/product/<%= element.productsInCat.slug %>">
+                      <img class="default-img" src="/products-uploads/<%= element.productsInCat.productImages[0] %>" alt="">
+                      <img class="hover-img" src="/products-uploads/<%= element.productsInCat.productImages[1] %>" alt="">
                     </a>
                   </div>
                   <div class="product-action-1">
 
                     <!-- wishlist buttons -->
-                    <span id="<%= element._id %>-wishlistWrap" class="<% if (element.productInWishlist) { %>productInWishlist<% } %>">
-                      <a onclick="addToWishlist('<%= element._id %>')" aria-label="Add To Wishlist" class="addToWishlist action-btn">
+                    <span id="<%= element.productsInCat._id %>-wishlistWrap" class="<% if (element.productInWishlist) { %>productInWishlist<% } %>">
+                      <a onclick="addToWishlist('<%= element.productsInCat._id %>')" aria-label="Add To Wishlist" class="addToWishlist action-btn">
                         <i class="fi-rs-heart"></i>
                       </a>
-                      <a onclick="removeFromWishlist('<%= element._id %>')" aria-label="Remove from Wishlist" class="removeFromWishlist action-btn">
+                      <a onclick="removeFromWishlist('<%= element.productsInCat._id %>')" aria-label="Remove from Wishlist" class="removeFromWishlist action-btn">
                         <i class="fi-rs-heart"></i>
                       </a>
                     </span>
                   </div>
-                  <% if(element.finalPrice < element.regularPrice ){ %>
+                  <% if(element.productsInCat.finalPrice < element.productsInCat.regularPrice ){ %>
                   <div class="product-badges product-badges-position product-badges-mrg">
-                    <span class="hot">-<%= element.biggerDiscount %>%</span>
+                    <span class="hot">-<%= element.productsInCat.biggerDiscount %>%</span>
                   </div>
                   <% } %>
                 </div>
                 <div class="product-content-wrap">
                   <div class="product-category">
-                    <a href="#">Clothing</a>
+                    <a href="shop-grid-right.html">Clothing</a>
                   </div>
-                  <h2><a href="product/<%= element.slug %>"><%= element.name %></a></h2>
+                  <h2><a href="product/<%= element.productsInCat.slug %>"><%= element.productsInCat.name %></a></h2>
                   <div class=" rating-result" title="90%">
                     <span><span></span></span>
                   </div>
                   <div class="product-price">
-                    <% if(element.finalPrice < element.regularPrice ){ %>
-                    <span>₹<%= element.finalPrice %></span>
-                    <span class="old-price">₹<%= element.regularPrice %></span>
+                    <% if(element.productsInCat.finalPrice < element.productsInCat.regularPrice ){ %>
+                    <span>₹<%= element.productsInCat.finalPrice %></span>
+                    <span class="old-price">₹<%= element.productsInCat.regularPrice %></span>
                     <% } else{ %>
-                    <span>₹<%= element.regularPrice %></span>
+                    <span>₹<%= element.productsInCat.regularPrice %></span>
                     <% } %>
                   </div>
                   <div class="product-action-1 show">
 
                     <!-- add to cart -->
                     <% if (!element.productInCart) { %>
-                    <button id="<%= element._id %>-addToCart" onclick="addToCart('<%= element._id %>')" aria-label="Add To Cart" class="action-btn hover-up"><i class="fi-rs-shopping-bag-add"></i></button>
+                    <button id="<%= element.productsInCat._id %>-addToCart" onclick="addToCart('<%= element.productsInCat._id %>')" aria-label="Add To Cart" class="action-btn hover-up"><i class="fi-rs-shopping-bag-add"></i></button>
                     <% } %>
-                    <a id="<%= element._id %>-goToCart" href="/cart" aria-label="Go to cart" class="action-btn hover-up gotocartBtn <% if (element.productInCart) { %>visible<% } %>"><i class="fi-rs-shopping-bag"></i></a>
+                    <a id="<%= element.productsInCat._id %>-goToCart" href="/cart" aria-label="Go to cart" class="action-btn hover-up gotocartBtn <% if (element.productInCart) { %>visible<% } %>"><i class="fi-rs-shopping-bag"></i></a>
 
                   </div>
                 </div>
@@ -72,7 +72,6 @@
 
             <% }) %>
           </div>
-
           <!--pagination-->
           <% pageCount = Math.ceil(productsCount/9)%>
           <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
@@ -80,16 +79,16 @@
               <ul class="pagination justify-content-start">
                 <% if (results.previous) { %>
                 <li class="page-item">
-                  <a class="page-link" href="/shop?page=<%= results.previous.page %>"><i class="fi-rs-angle-double-small-left"></i></a>
+                  <a class="page-link" href="?page=<%= results.previous.page %>"><i class="fi-rs-angle-double-small-left"></i></a>
                 </li>
                 <% } %>
                 <% for(i=1;i<=pageCount; i++){ %>
                 <li id="page-<%= i %>" class="page-item">
-                  <a class="page-link" href="/shop?page=<%= i %>"><%= i %></a>
+                  <a class="page-link" href="?page=<%= i %>"><%= i %></a>
                 </li>
                 <% } %>
                 <% if (results.next) { %>
-                <li class="page-item"><a class="page-link" href="/shop?page=<%= results.next.page %>"><i class="fi-rs-angle-double-small-right"></i></a></li>
+                <li class="page-item"><a class="page-link" href="?page=<%= results.next.page %>"><i class="fi-rs-angle-double-small-right"></i></a></li>
                 <% } %>
               </ul>
             </nav>
@@ -115,17 +114,18 @@
             <% newProducts.forEach(element=> { %>
             <div class="single-post clearfix">
               <div class="image">
-                <a href="product/<%= element.slug %>">
-                  <img src="/products-uploads/<%= element.productImages[0] %>" alt="#">
+                <a href="product/<%= element.productsInCat.slug %>">
+                  <img src="/products-uploads/<%= element.productsInCat.productImages[0] %>" alt="#">
                 </a>
               </div>
               <div class="content pt-10">
-                <h5><a href="product/<%= element.slug %>"><%= element.name %></a></h5>
+                <h5><a href="product/<%= element.productsInCat.slug %>"><%= element.productsInCat.name %></a></h5>
                 <p class="price mb-0 mt-5">
-                  <% if(element.finalPrice < element.regularPrice ){ %>
-                  <span>₹<%= element.finalPrice %></span>
+                  <% if(element.productsInCat.finalPrice < element.productsInCat.regularPrice ){ %>
+                  <span>₹<%= element.productsInCat.finalPrice %></span>
+                  <span class="old-price">₹<%= element.productsInCat.regularPrice %></span>
                   <% } else{ %>
-                  <span>₹<%= element.regularPrice %></span>
+                  <span>₹<%= element.productsInCat.regularPrice %></span>
                   <% } %>
                 </p>
                 <div class="product-rate">
@@ -141,7 +141,7 @@
             <div class="banner-text">
               <span>Women Zone</span>
               <h4>Save 17% on <br>Office Dress</h4>
-              <a href="shop-grid-right.html">Shop Now <i class="fi-rs-arrow-right"></i></a>
+              <a href="#">Shop Now <i class="fi-rs-arrow-right"></i></a>
             </div>
           </div>
         </div>
@@ -149,7 +149,6 @@
     </div>
   </section>
 </main>
-
 <script>
   //ADDING 'ACTIVE' TO PAGINATION 
   const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -161,5 +160,4 @@
     element.classList.add('active');
   }
 </script>
-
 <%- include('../../partials/user-footer') %>

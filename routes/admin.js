@@ -16,7 +16,14 @@ router.post('/login', adminController.postAdminLogin)
 router.get('/logout', adminController.getLogout)
 
 
-/* GET dashboard. */
+/************************************* */
+//              DARKMODE
+/************************************* */
+router.get('/theme/:mode', adminMiddlewares.verifyAdminLogin, adminController.changeDarkMode)
+
+/************************************* */
+//              DASHBOARD
+/************************************* */
 router.get('/', adminMiddlewares.verifyAdminLogin, adminController.getAdminDashboard);
 
 /************************************* */
@@ -123,6 +130,6 @@ router.route('/coupons/edit')
 
   .post(adminMiddlewares.verifyAdminLogin, adminController.postEditCoupon)
 
-  router.get('/coupons/delete', adminMiddlewares.verifyAdminLogin, adminController.deleteCoupon)
+router.get('/coupons/delete', adminMiddlewares.verifyAdminLogin, adminController.deleteCoupon)
 
 module.exports = router;
