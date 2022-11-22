@@ -24,7 +24,6 @@
                     </a>
                   </div>
                   <div class="product-action-1">
-
                     <!-- wishlist buttons -->
                     <span id="<%= element._id %>-wishlistWrap" class="<% if (element.productInWishlist) { %>productInWishlist<% } %>">
                       <a onclick="addToWishlist('<%= element._id %>')" aria-label="Add To Wishlist" class="addToWishlist action-btn">
@@ -34,6 +33,7 @@
                         <i class="fi-rs-heart"></i>
                       </a>
                     </span>
+                    <!-- wishlist buttons -->
                   </div>
                   <% if(element.finalPrice < element.regularPrice ){ %>
                   <div class="product-badges product-badges-position product-badges-mrg">
@@ -64,7 +64,7 @@
                     <button id="<%= element._id %>-addToCart" onclick="addToCart('<%= element._id %>')" aria-label="Add To Cart" class="action-btn hover-up"><i class="fi-rs-shopping-bag-add"></i></button>
                     <% } %>
                     <a id="<%= element._id %>-goToCart" href="/cart" aria-label="Go to cart" class="action-btn hover-up gotocartBtn <% if (element.productInCart) { %>visible<% } %>"><i class="fi-rs-shopping-bag"></i></a>
-
+                    <!-- add to cart -->
                   </div>
                 </div>
               </div>
@@ -157,7 +157,7 @@
   });
   let value = params.page;
   if (value) {
-    var element = document.getElementById('page-'+value);
+    var element = document.getElementById('page-' + value);
     element.classList.add('active');
   }
 </script>

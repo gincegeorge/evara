@@ -38,6 +38,7 @@
                                 <th>Email</th>
                                 <th>Status</th>
                                 <th>Registered</th>
+                                <th>Wallet</th>
                                 <th class="text-end"> Action </th>
                             </tr>
                         </thead>
@@ -65,6 +66,7 @@
                                             <% } %>
                                     </td>
                                     <td>08.07.2020</td>
+                                    <td>₹<%= element.wallet %></td>
                                     <td class="text-end">
                                         <% if (element.isBlocked) { %>
                                             <a href="/admin/users/unblock?id=<%= element._id %>"

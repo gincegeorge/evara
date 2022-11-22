@@ -44,6 +44,10 @@ input[type=number] {
   min-height: 310px;
 }
 
+.carausel-4-columns .product-cart-wrap .product-img-action-wrap .product-img a {
+  min-height: auto;
+}
+
 .product-cart-wrap .product-img-action-wrap a img {
   object-fit: cover;
 }
@@ -179,6 +183,11 @@ span.badge.rounded-pill.badge-secondary {
 
 td.button-td {
   min-width: 150px;
+}
+
+.old-price{
+  text-decoration: line-through;
+  color: #888;
 }
 
 /* CHECKOUT PAGE */

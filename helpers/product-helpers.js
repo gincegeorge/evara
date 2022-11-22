@@ -306,19 +306,169 @@ const getNewForShopPage = async () => {
     }
 }
 
-const getProductDetails = (productSlug) => {
-    return new Promise((resolve, reject) => {
-        db.get().collection(COLLECTION.PRODUCTS_COLLECTION).findOne({ slug: productSlug })
-            .then((productDetails) => {
-                if (productDetails) {
-                    resolve(productDetails)
-                } else {
-                    reject()
+
+const getProductsHomepage = async () => {
+    try {
+
+        return await db.get().collection(PRODUCTS_COLLECTION).aggregate([
+            {
+                $lookup: {
+                    from: PRODUCTS_CATEGORIES_COLLECTION,
+                    localField: 'productCategories',
+                    foreignField: '_id',
+                    as: 'category'
                 }
-            })
-    }).catch((err) => {
-        console.log(err);
-    })
+            },
+            {
+                $unwind: '$category'
+            },
+            {
+                $project: {
+                    _id: 1, name: 1, slug: 1, regularPrice: 1, Stock: 1, Discount: 1, salePrice: 1, productImages: 1, category: 1, date: 1,
+                    biggerDiscount:
+                    {
+                        $cond:
+                        {
+                            if:
+                            {
+                                $gt: [
+                                    { $toInt: "$Discount" },
+                                    { $toInt: '$category.categoryDiscount' }
+                                ]
+                            }, then: "$Discount", else: '$category.categoryDiscount'
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    discountedAmount:
+                    {
+                        $round:
+                        {
+                            $divide: [
+                                {
+                                    $multiply: [
+                                        { $toInt: "$regularPrice" },
+                                        { $toInt: "$biggerDiscount" }
+                                    ]
+                                }, 100]
+                        }
+                    },
+                }
+            },
+            {
+                $addFields: {
+                    finalPrice:
+                    {
+                        $round:
+                        {
+                            $subtract: [
+                                { $toInt: "$regularPrice" },
+                                { $toInt: "$discountedAmount" }]
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    date: -1
+                }
+            },
+            {
+                $limit: 8
+            }
+        ]).toArray()
+    }
+    catch (error) {
+        console.log(error);
+    }
+}
+
+// const getProductDetails = (productSlug) => {
+//     return new Promise((resolve, reject) => {
+//         db.get().collection(COLLECTION.PRODUCTS_COLLECTION).findOne({ slug: productSlug })
+//             .then((productDetails) => {
+//                 if (productDetails) {
+//                     resolve(productDetails)
+//                 } else {
+//                     reject()
+//                 }
+//             })
+//     }).catch((err) => {
+//         console.log(err);
+//     })
+// }
+
+const getProductDetails = async (productSlug) => {
+
+    productDetails = await db.get().collection(COLLECTION.PRODUCTS_COLLECTION).aggregate([
+        {
+            $match: { slug: productSlug }
+        },
+        {
+            $lookup: {
+                from: PRODUCTS_CATEGORIES_COLLECTION,
+                localField: 'productCategories',
+                foreignField: '_id',
+                as: 'category'
+            }
+        },
+        {
+            $unwind: '$category'
+        },
+        {
+            $project: {
+                _id: 1, name: 1, slug: 1, description: 1, regularPrice: 1, Stock: 1, Discount: 1, salePrice: 1, productImages: 1, category: 1, date: 1,
+                biggerDiscount:
+                {
+                    $cond:
+                    {
+                        if:
+                        {
+                            $gt: [
+                                { $toInt: "$Discount" },
+                                { $toInt: '$category.categoryDiscount' }
+                            ]
+                        }, then: "$Discount", else: '$category.categoryDiscount'
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                discountedAmount:
+                {
+                    $round:
+                    {
+                        $divide: [
+                            {
+                                $multiply: [
+                                    { $toInt: "$regularPrice" },
+                                    { $toInt: "$biggerDiscount" }
+                                ]
+                            }, 100]
+                    }
+                },
+            }
+        },
+        {
+            $addFields: {
+                finalPrice:
+                {
+                    $round:
+                    {
+                        $subtract: [
+                            { $toInt: "$regularPrice" },
+                            { $toInt: "$discountedAmount" }]
+                    }
+                }
+            }
+        }
+    ]).toArray()
+
+    return productDetails[0]
+
 }
 
 const getAllCategories = (productSlug) => {
@@ -649,11 +799,17 @@ const getNewProducts = async (categorySlug) => {
     }
 }
 
+//REDUCE STOCK
+const resuceStock = (userid) => {
+
+}
+
 module.exports = {
     addProduct,
     getAllProducts,
     getAllProductsAdmin,
     getNewForShopPage,
+    getProductsHomepage,
     getProductDetails,
     updateProduct,
     deleteProduct,
@@ -663,4 +819,5 @@ module.exports = {
     productsInCategory,
     productsInCategoryCount,
     getNewProducts,
+    resuceStock,
 }

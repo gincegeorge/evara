@@ -1,4 +1,111 @@
 <%- include('../partials/user-header') %>
+<section class="home-slider position-relative pt-50">
+  <div class="hero-slider-1 dot-style-1 dot-style-1-position-1">
+    <div class="single-hero-slider single-animation-wrap">
+      <div class="container">
+        <div class="row align-items-center slider-animated-1">
+          <div class="col-lg-5 col-md-6">
+            <div class="hero-slider-content-2">
+              <h4 class="animated">Trade-in offer</h4>
+              <h2 class="animated fw-900">Supper value deals</h2>
+              <h1 class="animated fw-900 text-brand">On all products</h1>
+              <p class="animated">Save more with coupons & up to 70% off</p>
+              <a class="animated btn btn-brush btn-brush-3" href="/shop"> Shop Now </a>
+            </div>
+          </div>
+          <div class="col-lg-7 col-md-6">
+            <div class="single-slider-img single-slider-img-1">
+              <img class="animated slider-1-1" src="user-assets/imgs/slider/slider-1.png" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="single-hero-slider single-animation-wrap">
+      <div class="container">
+        <div class="row align-items-center slider-animated-1">
+          <div class="col-lg-5 col-md-6">
+            <div class="hero-slider-content-2">
+              <h4 class="animated">Womens Fasion</h4>
+              <h2 class="animated fw-900">All new Colleciton</h2>
+              <h1 class="animated fw-900 text-7">25K+ new styles</h1>
+              <p class="animated">Save more with coupons & up to 20% off</p>
+              <a class="animated btn btn-brush btn-brush-2" href="/categories/women"> Discover Now </a>
+            </div>
+          </div>
+          <div class="col-lg-7 col-md-6">
+            <div class="single-slider-img single-slider-img-1">
+              <img class="animated slider-1-2" src="user-assets/imgs/slider/slider-2.png" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="single-hero-slider single-animation-wrap">
+      <div class="container">
+        <div class="row align-items-center slider-animated-1">
+          <div class="col-lg-5 col-md-6">
+            <div class="hero-slider-content-2">
+              <h4 class="animated">Upcoming Offer</h4>
+              <h2 class="animated fw-900">Big Deals From</h2>
+              <h1 class="animated fw-900 text-8">Manufacturer</h1>
+              <p class="animated">Clothing, Shoes, Bags, Wallets...</p>
+              <a class="animated btn btn-brush btn-brush-1" href="/categories/accessories"> Shop Now </a>
+            </div>
+          </div>
+          <div class="col-lg-7 col-md-6">
+            <div class="single-slider-img single-slider-img-1">
+              <img class="animated slider-1-3" src="user-assets/imgs/slider/slider-3.png" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slider-arrow hero-slider-1-arrow"></div>
+</section>
+<section class="featured section-padding position-relative">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-2 col-md-4 mb-md-3 mb-lg-0">
+        <div class="banner-features wow fadeIn animated hover-up">
+          <img src="user-assets/imgs/theme/icons/feature-1.png" alt="">
+          <h4 class="bg-1">Free Shipping</h4>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 mb-md-3 mb-lg-0">
+        <div class="banner-features wow fadeIn animated hover-up">
+          <img src="user-assets/imgs/theme/icons/feature-2.png" alt="">
+          <h4 class="bg-3">Online Order</h4>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 mb-md-3 mb-lg-0">
+        <div class="banner-features wow fadeIn animated hover-up">
+          <img src="user-assets/imgs/theme/icons/feature-3.png" alt="">
+          <h4 class="bg-2">Save Money</h4>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 mb-md-3 mb-lg-0">
+        <div class="banner-features wow fadeIn animated hover-up">
+          <img src="user-assets/imgs/theme/icons/feature-4.png" alt="">
+          <h4 class="bg-4">Promotions</h4>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 mb-md-3 mb-lg-0">
+        <div class="banner-features wow fadeIn animated hover-up">
+          <img src="user-assets/imgs/theme/icons/feature-5.png" alt="">
+          <h4 class="bg-5">Happy Customers</h4>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 mb-md-3 mb-lg-0">
+        <div class="banner-features wow fadeIn animated hover-up">
+          <img src="user-assets/imgs/theme/icons/feature-6.png" alt="">
+          <h4 class="bg-6">24/7 Support</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 <section class="product-tabs section-padding position-relative wow fadeIn animated">
   <div class="bg-square"></div>
   <div class="container">
@@ -6,7 +113,134 @@
       <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
         <div class="row product-grid-4">
           <% products.forEach(element=> { %>
-            <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+          <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+            <div class="product-cart-wrap mb-30">
+              <div class="product-img-action-wrap">
+                <div class="product-img product-img-zoom">
+                  <a href="/product/<%= element.slug %>">
+                    <img class="default-img" src="/products-uploads/<%= element.productImages[0] %>" alt="">
+                    <img class="hover-img" src="/products-uploads/<%= element.productImages[1] %>" alt="">
+                  </a>
+                </div>
+                <div class="product-action-1">
+                  <!-- wishlist buttons -->
+                  <span id="<%= element._id %>-wishlistWrap" class="<% if (element.productInWishlist) { %>productInWishlist<% } %>">
+                    <a onclick="addToWishlist('<%= element._id %>')" aria-label="Add To Wishlist" class="addToWishlist action-btn">
+                      <i class="fi-rs-heart"></i>
+                    </a>
+                    <a onclick="removeFromWishlist('<%= element._id %>')" aria-label="Remove from Wishlist" class="removeFromWishlist action-btn">
+                      <i class="fi-rs-heart"></i>
+                    </a>
+                  </span>
+                </div>
+                <% if(element.salePrice < element.regularPrice ){ %>
+                <div class="product-badges product-badges-position product-badges-mrg">
+                  <span class="hot">-<%= element.Discount %>%</span>
+                </div>
+                <% } %>
+              </div>
+              <div class="product-content-wrap">
+                <div class="product-category">
+                  <a href="shop-grid-right.html">Clothing</a>
+                </div>
+                <h2><a href="product/<%= element.slug %>""><%= element.name %></a></h2>
+                    <div class=" rating-result" title="90%">
+                    <span><span></span></span>
+              </div>
+              <div class="product-price">
+                <% if(element.salePrice < element.regularPrice ){ %>
+                <span>₹<%= element.salePrice %></span>
+                <span class="old-price">₹<%= element.regularPrice %></span>
+                <% } else{ %>
+                <span>₹<%= element.regularPrice %></span>
+                <% } %>
+              </div>
+              <div class="product-action-1 show">
+                <!-- add to cart -->
+                <% if (!element.productInCart) { %>
+                <button id="<%= element._id %>-addToCart" onclick="addToCart('<%= element._id %>')" aria-label="Add To Cart" class="action-btn hover-up"><i class="fi-rs-shopping-bag-add"></i></button>
+                <% } %>
+                <a id="<%= element._id %>-goToCart" href="/cart" aria-label="Go to cart" class="action-btn hover-up gotocartBtn <% if (element.productInCart) { %>visible<% } %>"><i class="fi-rs-shopping-bag"></i></a>
+                <!-- add to cart -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+      <!--End product-grid-4-->
+    </div>
+    <!--En tab three (New added)-->
+  </div>
+  <!--End tab-content-->
+  </div>
+</section>
+<section class="banners mb-40">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-4 col-md-6">
+        <div class="banner-img wow fadeIn animated">
+          <img src="user-assets/imgs/banner/banner-1.png" alt="">
+          <div class="banner-text">
+            <span>Smart Offer</span>
+            <h4>Save 20% on <br>Woman Bag</h4>
+            <a href="/shop">Shop Now <i class="fi-rs-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="banner-img wow fadeIn animated">
+          <img src="user-assets/imgs/banner/banner-2.png" alt="">
+          <div class="banner-text">
+            <span>Sale off</span>
+            <h4>Great Summer <br>Collection</h4>
+            <a href="/shop">Shop Now <i class="fi-rs-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 d-md-none d-lg-flex">
+        <div class="banner-img wow fadeIn animated  mb-sm-0">
+          <img src="user-assets/imgs/banner/banner-3.png" alt="">
+          <div class="banner-text">
+            <span>New Arrivals</span>
+            <h4>Shop Today’s <br>Deals & Offers</h4>
+            <a href="/shop">Shop Now <i class="fi-rs-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="bg-grey-9 section-padding">
+  <div class="container pt-25 pb-25">
+    <div class="heading-tab d-flex">
+      <div class="heading-tab-left wow fadeIn animated">
+        <h3 class="section-title mb-20"><span>Monthly</span> Best Sell</h3>
+      </div>
+      <div class="heading-tab-right wow fadeIn animated">
+
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-3 d-none d-lg-flex">
+        <div class="banner-img style-2 wow fadeIn animated">
+          <img src="user-assets/imgs/banner/banner-9.jpg" alt="">
+          <div class="banner-text">
+            <span>Woman Area</span>
+            <h4 class="mt-5">Save 17% on <br>Clothing</h4>
+            <a href="/shop" class="text-white">Shop Now <i class="fi-rs-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-9 col-md-12">
+        <div class="tab-content wow fadeIn animated" id="myTabContent-1">
+          <div class="tab-pane fade show active" id="tab-one-1" role="tabpanel" aria-labelledby="tab-one-1">
+            <div class="carausel-4-columns-cover arrow-center position-relative">
+              <div class="slider-arrow slider-arrow-2 carausel-4-columns-arrow" id="carausel-4-columns-arrows"></div>
+              <div class="carausel-4-columns carausel-arrow-center" id="carausel-4-columns">
+
+
+                <% products.forEach(element=> { %>
                 <div class="product-cart-wrap mb-30">
                   <div class="product-img-action-wrap">
                     <div class="product-img product-img-zoom">
@@ -16,9 +250,6 @@
                       </a>
                     </div>
                     <div class="product-action-1">
-                      <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                      <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                      <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
                     </div>
                     <% if(element.salePrice < element.regularPrice ){ %>
                     <div class="product-badges product-badges-position product-badges-mrg">
@@ -31,7 +262,7 @@
                       <a href="shop-grid-right.html">Clothing</a>
                     </div>
                     <h2><a href="product/<%= element.slug %>""><%= element.name %></a></h2>
-                    <div class=" rating-result" title="90%">
+                          <div class=" rating-result" title="90%">
                         <span><span></span></span>
                   </div>
                   <div class="product-price">
@@ -43,21 +274,20 @@
                     <% } %>
                   </div>
                   <div class="product-action-1 show">
-                    <button onclick="addToCart('<%= element._id %>')" aria-label="Add To Cart" class="action-btn hover-up"><i class="fi-rs-shopping-bag-add"></i></button>
-                    <!-- <button aria-label="Go to cart" class="action-btn hover-up"><i class="fi-rs-shopping-bag"></i></button> -->
                   </div>
                 </div>
               </div>
+              <% }) %>
+
+
             </div>
-          <% }) %>
+          </div>
         </div>
-        <!--End product-grid-4-->
       </div>
-      <!--En tab three (New added)-->
+      <!--End tab-content-->
     </div>
-    <!--End tab-content-->
+    <!--End Col-lg-9-->
+  </div>
   </div>
 </section>
-
-
 <%- include('../partials/user-footer') %>
