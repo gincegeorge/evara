@@ -20,10 +20,10 @@
 
       </div>
       <div class="row order-wrap mx-auto">
-        <div class="col-6 pe-3">
+        <div class="col-4 pe-3">
           <h4 class="mb-35 text-brand">Delivery Address</h4>
           <div class="table-responsive">
-            <table class="table shopping-summery text-center">
+            <table class="table shopping-summery">
               <tbody>
                 <tr>
                   <!-- TODO exeption if no category is found -->
@@ -52,9 +52,9 @@
           </div>
         </div>
 
-        <div class="col-6">
+        <div class="col-4">
           <h4 class="mb-35 text-brand">Order Details</h4>
-          <table class="table shopping-summery text-center">
+          <table class="table shopping-summery">
             <tbody>
               <tr>
                 <td>Order ID: </td>
@@ -74,9 +74,50 @@
                 <td>Payment method: </td>
                 <td><%= orderDetails.paymentOption %></td>
               </tr>
+              <% if (orderDetails.couponApplied) { %>
+              <tr>
+                <td>Coupon Applied: </td>
+                <td><%= orderDetails.couponApplied %> </td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
 
+        <div class="col-4">
+          <h4 class="mb-35 text-brand">Payment Details</h4>
+          <table class="table shopping-summery">
+            <tbody>
               <tr>
                 <td>Total: </td>
+                <td>
+                  <%
+                  let totalRegularPrice =0; 
+                  orderDetails.products.forEach(element => {
+                    totalRegularPrice += parseInt(element.product.regularPrice*element.quantity) 
+                  }) 
+                  %>
+                  ₹<%= totalRegularPrice %>
+                </td>
+              </tr>
+              <tr>
+                <td>Product discount: </td>
+                <td>
+                  <%
+                  let totalFinalPrice =0; 
+                  orderDetails.products.forEach(element => {
+                    totalFinalPrice += parseInt(element.finalPrice) 
+                  }) 
+                  %>
+                  -₹<%= totalRegularPrice-totalFinalPrice %>
+                </td>
+              </tr>
+              <tr>
+                <td>Coupon discount: </td>
+                <td>-₹<%= orderDetails.couponDiscount %> </td>
+              </tr>
+              <tr>
+                <td>Grand Total: </td>
                 <td><b>₹<%= orderDetails.cartTotal %> </b></td>
               </tr>
             </tbody>
@@ -96,6 +137,7 @@
                 <tr class="main-heading">
                   <th scope="col">Image</th>
                   <th scope="col">Product</th>
+                  <th scope="col">Unit price</th>
                   <th scope="col">Quantity</th>
                   <th scope="col">Price</th>
                   <th scope="col">Order Status</th>
@@ -113,6 +155,12 @@
                   </td>
                   <td class="product-des product-name">
                     <h5 class="product-name"><a href="/product/<%= element.product.slug %>"><%= element.product.name %></a></h5>
+                  </td>
+                  <td class="text-center">
+                    ₹<%= element.finalPrice %>
+                    <% if(element.finalPrice<element.product.regularPrice){ %>
+                    <span class="old-price"> ₹<%= element.product.regularPrice %></span>
+                    <% } %>
                   </td>
                   <td class="text-center"><%= element.quantity %></td>
                   <td class="price" data-title="Price"><span>₹<%= element.finalPrice * element.quantity %></span></td>

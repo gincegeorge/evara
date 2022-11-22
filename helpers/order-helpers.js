@@ -1,18 +1,12 @@
 var db = require('../config/connection')
 var collection = require('../config/collections')
 const collections = require('../config/collections')
-const { render, response } = require('../app')
-const { ReturnDocument } = require('mongodb')
 const { CART_COLLECTION, PRODUCTS_COLLECTION, USERS_COLLECTION, ORDER_COLLECTION, PRODUCTS_CATEGORIES_COLLECTION, COUPON_COLLECTION } = require('../config/collections')
 var objectId = require('mongodb').ObjectId
 const cartHelpers = require('../helpers/cart-helpers')
 const userHelpers = require('../helpers/user-helpers')
 const { v4: uuidv4 } = require('uuid')
-const { userDebug } = require('./debug')
-
-
-
-
+const { userDebug, debugDb } = require('./debug')
 
 
 const getCheckoutData = (userId) => {
@@ -189,7 +183,6 @@ const newOrder = async (orderDetails) => {
     const paymentOption = orderDetails.paymentOption
     const couponInfo = await cartHelpers.getCartCouponInfo(user._id)
 
-    //TODO remove orderStatus its not being used
     const orderStatus = orderDetails.paymentOption === 'COD' ? 'Processing' : 'Pending'
     const paymentStatus = orderDetails.paymentOption === 'COD' ? 'Pending' : 'on-hold'
     const orderPlaced = orderDetails.paymentOption === 'COD' ? true : false
@@ -212,7 +205,8 @@ const newOrder = async (orderDetails) => {
         couponApplied: couponInfo.couponApplied,
         couponIsActive: couponInfo.couponIsActive,
         couponIsUsed: couponInfo.couponIsUsed,
-        couponDiscount: couponInfo.couponDiscount
+        couponDiscount: couponInfo.couponDiscount,
+        couponDiscountPercentage: couponInfo.couponDiscountPercentage
     }
 
     return new Promise((resolve, reject) => {
@@ -231,6 +225,9 @@ const newOrder = async (orderDetails) => {
                 )
 
                 if (paymentOption === 'COD') {
+
+
+
                     //clearing cart
                     db.get().collection(CART_COLLECTION).deleteOne({ user: objectId(userId) })
                 }
@@ -389,7 +386,27 @@ const returnCodOrder = (orderDetails) => {
     }).catch((err) => {
         console.log(err);
     })
+}
 
+
+const getRefundDetails = async (orderId, productId) => {
+    return await db.get().collection(ORDER_COLLECTION)
+        .aggregate([
+            { $match: { '_id': objectId(orderId) } },
+            {
+                $project: {
+                    products: {
+                        $filter: {
+                            input: '$products',
+                            as: 'products',
+                            cond: { $eq: ['$$products.item', objectId(productId)] }
+                        }
+                    },
+                    _id: 0,
+                    couponDiscountPercentage: 1
+                }
+            }
+        ]).toArray()
 }
 
 module.exports = {
@@ -400,5 +417,6 @@ module.exports = {
     cancelOrder,
     returnOrder,
     cancelCodOrder,
-    returnCodOrder
+    returnCodOrder,
+    getRefundDetails
 }

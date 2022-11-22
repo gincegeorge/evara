@@ -144,12 +144,12 @@
                   <% } %>
                   <% }) %>
                   <tr>
-                    <th>SubTotal</th>
+                    <th>Total</th>
                     <td class="product-subtotal" colspan="2">₹<span id="checkoutTotal">
                         <%
                          let totalRegularPrice =0; 
                          products.forEach(element=> { 
-                           totalRegularPrice +=   parseInt(element.product.regularPrice) 
+                           totalRegularPrice +=   parseInt(element.product.regularPrice*element.quantity) 
                          }) 
                          %>
                         <%= totalRegularPrice %>
@@ -161,7 +161,7 @@
                         <%
                          let totalFinalPrice =0; 
                          products.forEach(element=> { 
-                          totalFinalPrice +=   parseInt(element.finalPrice) 
+                          totalFinalPrice += parseInt(element.finalPrice) 
                          }) 
                          %>
                        -₹<%= totalRegularPrice-totalFinalPrice %>
@@ -180,7 +180,7 @@
                     <td colspan="2"><em>Free Shipping</em></td>
                   </tr>
                   <tr>
-                    <th>Total</th>
+                    <th>Grand total</th>
                     <td colspan="2" class="product-subtotal"><span class="font-xl text-brand fw-900">₹<span id="checkoutTotal"><%= user.cart.total %></span></span>
                     </td>
                   </tr>

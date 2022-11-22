@@ -1,12 +1,18 @@
+const { Router } = require('express');
 var express = require('express');
 const router = express.Router();
 const userController = require('../controllers/user-controller');
+const { userDebug } = require('../helpers/debug');
 const userMiddlewares = require('../middlewares/user-middlewares')
 
 /************************************* */
+//              SEARCH
+/************************************* */
+router.post('/search',userController.searchResults)
+/************************************* */
 //              HOMEPAGE
 /************************************* */
-router.get('/', userMiddlewares.verifyUserLogin, userController.getHomepage)
+router.get('/', userMiddlewares.accessWithoutLogin, userController.getHomepage)
 
 /************************************* */
 //              LOGIN
@@ -47,11 +53,11 @@ router.route('/verify-otp')
 /************************************* */
 //            SHOP PAGES
 /************************************* */
-router.get('/shop', userMiddlewares.verifyUserLogin, userController.getShoppage)
+router.get('/shop', userMiddlewares.accessWithoutLogin, userController.getShoppage)
 
-router.get('/product/:productSlug', userMiddlewares.verifyUserLogin, userController.getSingleProduct)
+router.get('/product/:productSlug', userMiddlewares.accessWithoutLogin, userController.getSingleProduct)
 
-router.get('/categories/:categorySlug', userMiddlewares.verifyUserLogin, userController.getCategoryPage)
+router.get('/categories/:categorySlug', userMiddlewares.accessWithoutLogin, userController.getCategoryPage)
 
 /************************************* */
 //                CART
@@ -94,6 +100,7 @@ router.post('/verify-payment', userMiddlewares.verifyUserLogin, userController.v
 
 //PAYPAL
 router.get('/success', userController.verifyPaypal);
+
 router.get('/cancel', (req, res) => res.redirect('/checkout'));
 
 //ORDER PLACED PAGE
@@ -119,7 +126,7 @@ router.get('/my-account/order/:id', userMiddlewares.verifyUserLogin, userControl
 
 
 //ONLINE PAYMENT
-router.patch('/my-account/order/cancel', userMiddlewares.verifyUserLogin, userController.cancelOrder)
+router.patch('/my-account/order/cancel', userController.cancelOrder)
 
 router.patch('/my-account/order/return', userMiddlewares.verifyUserLogin, userController.returnOrder)
 

@@ -19,11 +19,43 @@ paypal.configure({
     'client_secret': process.env.CLIENT_SECRET
 })
 
+//SEARCH
+const searchResults = (req, res) => {
+    console.log(req.body.query)
+    userHelpers.searchResults(req.body.query)
+}
+
 //HOMEPAGE
 const getHomepage = async (req, res, next) => {
-    productHelpers.getAllProducts().then((products) => {
-        res.render('user/index', { products })
-    })
+    let products = await productHelpers.getProductsHomepage()
+
+    if (req.session.userLoginStatus) {
+        let cart = await cartHelpers.getCartProducts(user._id)
+        let wishlist = await wishlistHelpers.getWishlist(user._id)
+
+        //finding products in cart
+        for (i = 0; i < cart.length; i++) {
+            for (j = 0; j < products.length; j++) {
+                cartId = cart[i].product._id.toString()
+                productId = products[j]._id.toString()
+                if (cartId == productId) {
+                    products[j].productInCart = true
+                }
+            }
+        }
+        //finding products in wishlist
+        for (i = 0; i < wishlist.length; i++) {
+            for (j = 0; j < products.length; j++) {
+                wishlistId = wishlist[i].product._id.toString()
+                productId = products[j]._id.toString()
+                if (wishlistId == productId) {
+                    products[j].productInWishlist = true
+                }
+            }
+        }
+    }
+    res.render('user/index', { products })
+
 }
 
 //LOGIN PAGE
@@ -65,6 +97,7 @@ const postLogin = (req, res) => {
 //LOGIN PAGE - GET
 const getLogout = (req, res) => {
     req.session.userLoginStatus = false
+    req.session.pageWithoutLogin = null
     res.redirect('/login')
 }
 
@@ -136,11 +169,6 @@ const postVerifyOtp = (req, res) => {
 //SHOP PAGE
 const getShoppage = async (req, res, next) => {
 
-    // let products = await productHelpers.getAllProducts()
-    let cart = await cartHelpers.getCartProducts(user._id)
-    let wishlist = await wishlistHelpers.getWishlist(user._id)
-    let newProducts = await productHelpers.getNewForShopPage()
-
     // pagination start-----------------------------------------
     let results = {}
 
@@ -150,7 +178,8 @@ const getShoppage = async (req, res, next) => {
     startIndex = (page) * limit
     endIndex = (page + 1) * limit
 
-    productsCount = await db.get().collection(PRODUCTS_COLLECTION).count()
+    let productsCount = await db.get().collection(PRODUCTS_COLLECTION).count()
+    let newProducts = await productHelpers.getNewForShopPage()
 
     if (endIndex < productsCount) {
         results.next = {
@@ -166,29 +195,36 @@ const getShoppage = async (req, res, next) => {
         }
     }
     results.products = await productHelpers.getAllProducts(startIndex, limit)
+
     // pagination end-----------------------------------------
 
-    //finding products in cart
-    for (i = 0; i < cart.length; i++) {
-        for (j = 0; j < results.products.length; j++) {
-            cartId = cart[i].product._id.toString()
-            productId = results.products[j]._id.toString()
-            if (cartId == productId) {
-                results.products[j].productInCart = true
-            }
-        }
-    }
-    //finding products in wishlist
-    for (i = 0; i < wishlist.length; i++) {
-        for (j = 0; j < results.products.length; j++) {
-            wishlistId = wishlist[i].product._id.toString()
-            productId = results.products[j]._id.toString()
-            if (wishlistId == productId) {
-                results.products[j].productInWishlist = true
-            }
-        }
-    }
+    if (req.session.userLoginStatus) {
 
+        let cart = await cartHelpers.getCartProducts(user._id)
+        let wishlist = await wishlistHelpers.getWishlist(user._id)
+
+        //finding products in cart
+        for (i = 0; i < cart.length; i++) {
+            for (j = 0; j < results.products.length; j++) {
+                cartId = cart[i].product._id.toString()
+                productId = results.products[j]._id.toString()
+                if (cartId == productId) {
+                    results.products[j].productInCart = true
+                }
+            }
+        }
+
+        //finding products in wishlist
+        for (i = 0; i < wishlist.length; i++) {
+            for (j = 0; j < results.products.length; j++) {
+                wishlistId = wishlist[i].product._id.toString()
+                productId = results.products[j]._id.toString()
+                if (wishlistId == productId) {
+                    results.products[j].productInWishlist = true
+                }
+            }
+        }
+    }
     res.render('user/shop/shop', { results, newProducts, productsCount })
 
 }
@@ -203,23 +239,25 @@ const getSingleProduct = async (req, res) => {
     productDetails.finalPrice = finalPrice
 
 
-    let cart = await cartHelpers.getCartProducts(user._id)
-    let wishlist = await wishlistHelpers.getWishlist(user._id)
+    if (req.session.userLoginStatus) {
+        let cart = await cartHelpers.getCartProducts(user._id)
+        let wishlist = await wishlistHelpers.getWishlist(user._id)
 
-    productId = productDetails._id.toString()
+        productId = productDetails._id.toString()
 
-    //finding products in cart
-    for (i = 0; i < cart.length; i++) {
-        cartId = cart[i].product._id.toString()
-        if (cartId == productId) {
-            productDetails.productInCart = true
+        //finding products in cart
+        for (i = 0; i < cart.length; i++) {
+            cartId = cart[i].product._id.toString()
+            if (cartId == productId) {
+                productDetails.productInCart = true
+            }
         }
-    }
-    //finding products in wishlist
-    for (i = 0; i < wishlist.length; i++) {
-        wishlistId = wishlist[i].product._id.toString()
-        if (wishlistId == productId) {
-            productDetails.productInWishlist = true
+        //finding products in wishlist
+        for (i = 0; i < wishlist.length; i++) {
+            wishlistId = wishlist[i].product._id.toString()
+            if (wishlistId == productId) {
+                productDetails.productInWishlist = true
+            }
         }
     }
 
@@ -240,7 +278,7 @@ const addToCart = (req, res) => {
 
 //GET - CART
 const getCart = async (req, res) => {
-    let products = await cartHelpers.getCartProducts(user._id)
+    const products = await cartHelpers.getCartProducts(user._id)
     const couponInfo = await cartHelpers.getCartCouponInfo(user._id)
     res.render('user/cart/cart', { products, couponInfo })
 }
@@ -315,6 +353,8 @@ const getCheckout = async (req, res) => {
     const products = await cartHelpers.getCartProducts(user._id)
     const addressList = await userHelpers.getAddresses(user._id)
     const couponInfo = await cartHelpers.getCartCouponInfo(user._id)
+
+
     res.render('user/cart/checkout', { cartTotal, products, addressList, couponInfo })
 }
 
@@ -449,6 +489,18 @@ const viewOrder = async (req, res) => {
 //CANCEL ORDER
 const cancelOrder = async (req, res) => {
     const orderStatus = await orderHelpers.cancelOrder(req.body)
+
+    //finding refund amount
+    // let refundDetails = await orderHelpers.getRefundDetails(req.body.orderId, req.body.productId)
+    // refundAmound = refundDetails[0].products[0].finalPrice
+    // couponDiscountPercentage = refundDetails[0].couponDiscountPercentage
+    // discountAmount = (refundAmound * couponDiscountPercentage) / 100
+    // amountToBeRefunded = refundAmound - discountAmount
+
+
+    // adminDebug('amountToBeRefunded',amountToBeRefunded,'refundAmound:',refundAmound)
+    //updating wallet
+    // await userHelpers.refundToWallet(user._id, amountToBeRefunded)
     res.json(orderStatus)
 }
 
@@ -477,9 +529,6 @@ const getCategoryPage = async (req, res) => {
 
     const categorySlug = req.params.categorySlug
     const newProducts = await productHelpers.getNewProducts(categorySlug)
-    let cart = await cartHelpers.getCartProducts(user._id)
-    let wishlist = await wishlistHelpers.getWishlist(user._id)
-
 
     // pagination start-----------------------------------------
     let results = {}
@@ -510,24 +559,30 @@ const getCategoryPage = async (req, res) => {
     results.products = await productHelpers.productsInCategory(categorySlug, startIndex, limit)
     // pagination end-----------------------------------------
 
-    //finding products in cart
-    for (i = 0; i < cart.length; i++) {
-        for (j = 0; j < results.products.length; j++) {
-            cartId = cart[i].product._id.toString()
-            productId = results.products[j].productsInCat._id.toString()
-            if (cartId == productId) {
-                results.products[j].productInCart = true
+    if (req.session.userLoginStatus) {
+
+        let cart = await cartHelpers.getCartProducts(user._id)
+        let wishlist = await wishlistHelpers.getWishlist(user._id)
+
+        //finding products in cart
+        for (i = 0; i < cart.length; i++) {
+            for (j = 0; j < results.products.length; j++) {
+                cartId = cart[i].product._id.toString()
+                productId = results.products[j].productsInCat._id.toString()
+                if (cartId == productId) {
+                    results.products[j].productInCart = true
+                }
             }
         }
-    }
 
-    //finding products in wishlist
-    for (i = 0; i < wishlist.length; i++) {
-        for (j = 0; j < results.products.length; j++) {
-            wishlistId = wishlist[i].product._id.toString()
-            productId = results.products[j].productsInCat._id.toString()
-            if (wishlistId == productId) {
-                results.products[j].productInWishlist = true
+        //finding products in wishlist
+        for (i = 0; i < wishlist.length; i++) {
+            for (j = 0; j < results.products.length; j++) {
+                wishlistId = wishlist[i].product._id.toString()
+                productId = results.products[j].productsInCat._id.toString()
+                if (wishlistId == productId) {
+                    results.products[j].productInWishlist = true
+                }
             }
         }
     }
@@ -537,6 +592,7 @@ const getCategoryPage = async (req, res) => {
 
 
 module.exports = {
+    searchResults,
     getHomepage,
 
     getLogin,

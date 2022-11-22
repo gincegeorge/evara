@@ -1,5 +1,4 @@
 <%- include('../../partials/admin-header') %>
-
 <section class="content-main">
   <div class="content-header">
     <div class="col-6">
@@ -29,12 +28,16 @@
         <div class="col-md-4">
           <article class="icontext align-items-start">
             <span class="icon icon-sm rounded-circle bg-primary-light">
-              <i class="text-primary material-icons md-person"></i>
+              <i class="text-primary material-icons md-local_shipping"></i>
             </span>
             <div class="text">
-              <h6 class="mb-1">Customer</h6>
+              <h6 class="mb-1">Delivery Details</h6>
               <p class="mb-1">
-                <%= orderDetails.deliveryAddress.name %> <br> <a href="mailto:<%= orderDetails.deliveryAddress.email %>"><%= orderDetails.deliveryAddress.email %></a> <br> +91<%= orderDetails.deliveryAddress.phone %>
+                <%= orderDetails.deliveryAddress.name %> <br> <a href="mailto:<%= orderDetails.deliveryAddress.email %>"><%= orderDetails.deliveryAddress.email %></a>, +91<%= orderDetails.deliveryAddress.phone %>
+              </p>
+              <p class="mb-1">
+                Address: <%= orderDetails.deliveryAddress.addressLine %>, <br><%= orderDetails.deliveryAddress.city %>,
+                <%= orderDetails.deliveryAddress.state %>, <br><%= orderDetails.deliveryAddress.zipCode %>
               </p>
             </div>
           </article>
@@ -42,24 +45,43 @@
         <div class="col-md-4">
           <article class="icontext align-items-start">
             <span class="icon icon-sm rounded-circle bg-primary-light">
-              <i class="text-primary material-icons md-local_shipping"></i>
+              <i class="text-primary material-icons md-shopping_cart"></i>
             </span>
             <div class="text">
-              <h6 class="mb-1">Deliver to</h6>
-              <p class="mb-1">
-                Address: <%= orderDetails.deliveryAddress.addressLine %>, <br><%= orderDetails.deliveryAddress.city %><br>
-                <%= orderDetails.deliveryAddress.state %>, <br><%= orderDetails.deliveryAddress.zipCode %>
+              <h6 class="mb-1">Order info</h6>
+              <p>Items: <%= orderDetails.products.length %></p>
+              <p>Payment method: <%= orderDetails.paymentOption %></p>
+              <% if (orderDetails.couponApplied) { %>
+              <p>Coupon Applied: <%= orderDetails.couponApplied %></p>
+              <% } %>
+              <p>Payment: <%= orderDetails.paymentOption %></p>
             </div>
           </article>
         </div> <!-- col// -->
         <div class="col-md-4">
           <article class="icontext align-items-start">
             <span class="icon icon-sm rounded-circle bg-primary-light">
-              <i class="text-primary material-icons md-local_shipping"></i>
+              <i class="text-primary material-icons md-credit_card"></i>
             </span>
             <div class="text">
               <h6 class="mb-1">Payment details:</h6>
-              <p class="mb-1"> <%= orderDetails.paymentOption %>
+              <p>Total: <%
+                let totalRegularPrice =0; 
+                orderDetails.products.forEach(element => {
+                  totalRegularPrice += parseInt(element.product.regularPrice) 
+                }) 
+                %>
+                ₹<%= totalRegularPrice %></p>
+              <p>Product discount:
+                <%
+                  let totalFinalPrice =0; 
+                  orderDetails.products.forEach(element => {
+                    totalFinalPrice += parseInt(element.finalPrice) 
+                  }) 
+                  %>
+                -₹<%= totalRegularPrice-totalFinalPrice %></p>
+              <p>Coupon discount: -₹<%= orderDetails.couponDiscount %></p>
+              <p>Grand Total: <b>₹<%= orderDetails.cartTotal %></b></p>
             </div>
           </article>
         </div> <!-- col// -->

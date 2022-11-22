@@ -11,12 +11,13 @@ function addToCart(productId) {
                 count = parseInt(count) + 1
                 $('#cartCount').html(count)
 
-
                 //HIDE ADD TO WISHLIST BUTTON
                 let addtocartBtn = '#' + productId + '-addToCart'
                 let gotocartBtn = '#' + productId + '-goToCart'
                 $(addtocartBtn).remove();
                 $(gotocartBtn).addClass('visible')
+            } else if (response.loginRedirect) {
+                location.href = '/login'
             }
         }
     })
@@ -431,6 +432,8 @@ function addToWishlist(productId) {
                 //HIDE ADD TO WISHLIST BUTTON
                 let wishlistWrap = '#' + productId + '-wishlistWrap'
                 $(wishlistWrap).addClass("productInWishlist");
+            } else if (response.loginRedirect) {
+                location.href = '/login'
             }
         }
     })
@@ -521,4 +524,39 @@ function addtocartFromWishlist(wishlistId, productId) {
         }
     })
 }
+/*--------------------------------------------------------------*/
+//                           SEARCH
+/*--------------------------------------------------------------*/
+function sendData(data) {
 
+    console.log(data.value);
+    // fetch('search', {
+    //     method: 'post',
+    //     headers: { 'Content-type': 'application/json' },
+    //     body: JSON.stringify({ payload: data.value })
+    // })
+
+    $.ajax({
+        url: '/search',
+        data: {
+            query: data.value
+        },
+        method: 'post',
+        success: (response) => {
+            console.log('ssdfsdf');
+            // if (response.wishlistCount === 0) {
+            //     window.location.reload()
+            // } else {
+            //     if (response.productRemoved) {
+            //         const ProRow = document.getElementById(productId + '-tr')
+            //         $(ProRow).remove()
+            //         Swal.fire({
+            //             title: 'Added to cart',
+            //             timer: 700,
+            //             showConfirmButton: false
+            //         })
+            //     }
+            // }
+        }
+    })
+}

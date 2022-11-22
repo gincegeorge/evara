@@ -317,7 +317,7 @@ const applyCoupon = async (addedCoupon, cartTotal) => {
 
             response.isActive = true
             response.isUsed = false
- 
+
             //updating cart
             await db.get().collection(CART_COLLECTION).updateOne(
                 { user: objectId(addedCoupon.userId) },
@@ -326,7 +326,8 @@ const applyCoupon = async (addedCoupon, cartTotal) => {
                         couponApplied: addedCoupon.coupon,
                         couponIsActive: true,
                         couponIsUsed: false,
-                        couponDiscount: response.discountedAmount
+                        couponDiscount: response.discountedAmount,
+                        couponDiscountPercentage: coupon.couponDiscount
                     }
                 })
 
@@ -342,9 +343,10 @@ const applyCoupon = async (addedCoupon, cartTotal) => {
                         couponApplied: addedCoupon.coupon,
                         couponIsActive: true,
                         couponIsUsed: true,
-                        couponDiscount: 0
+                        couponDiscount: 0,
+                        couponDiscountPercentage: coupon.couponDiscount
                     }
-                }) 
+                })
         }
     } else {
         userDebug('coupon expired')
@@ -354,11 +356,12 @@ const applyCoupon = async (addedCoupon, cartTotal) => {
         await db.get().collection(CART_COLLECTION).updateOne(
             { user: objectId(addedCoupon.userId) },
             {
-                $set: { 
+                $set: {
                     couponApplied: addedCoupon.coupon,
                     couponIsActive: false,
                     couponIsUsed: false,
-                    couponDiscount: 0
+                    couponDiscount: 0,
+                    couponDiscountPercentage: coupon.couponDiscount
                 }
             })
     }
@@ -374,7 +377,8 @@ const removeCoupon = async (userId) => {
                 couponApplied: "",
                 couponDiscount: "",
                 couponIsActive: "",
-                couponIsUsed: ""
+                couponIsUsed: "",
+                couponDiscountPercentage: ""
             }
         }
     )
@@ -550,6 +554,30 @@ const payWithPaypal = async (orderId, cartTotal, paymentOption) => {
     })
 }
 
+//REFUND
+const refundToWallet = async (userId, amountToBeRefunded) => {
+    await db.get().collection(USERS_COLLECTION).updateOne(
+        { _id: objectId(userId) },
+        {
+            $inc: { wallet: amountToBeRefunded }
+        }
+    )
+}
+
+
+//searchResults
+
+const searchResults = async (query) => {
+    userDebug(query)
+    try {
+        result = await db.get().collection(PRODUCTS_COLLECTION).find({ stock: new RegExp('25', 'i') })
+            .toArray()
+    } catch (error) {
+
+    }
+
+    adminDebug(result)
+}
 
 module.exports = {
     doSignup,
@@ -574,5 +602,8 @@ module.exports = {
     generateRazorpay,
     verifyPayment,
     changePaymentStatus,
-    payWithPaypal
+    payWithPaypal,
+    refundToWallet,
+
+    searchResults
 }

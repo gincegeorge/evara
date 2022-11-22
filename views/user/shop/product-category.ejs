@@ -50,8 +50,8 @@
                     <span><span></span></span>
                   </div>
                   <div class="product-price">
-                    <% if(element.productsInCat.finalPrice < element.productsInCat.regularPrice ){ %>
-                    <span>₹<%= element.productsInCat.finalPrice %></span>
+                    <% if(element.finalPrice < element.productsInCat.regularPrice ){ %>
+                    <span>₹<%= element.finalPrice %></span>
                     <span class="old-price">₹<%= element.productsInCat.regularPrice %></span>
                     <% } else{ %>
                     <span>₹<%= element.productsInCat.regularPrice %></span>

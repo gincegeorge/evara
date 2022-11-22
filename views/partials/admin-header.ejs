@@ -3,7 +3,24 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Evara Dashboard</title>
+
+  <!-- TITLE -->
+  <% if(!locals.menuUrl!=''){ %>
+  <title>Dashboard | Evara Admin</title>
+  <% } else if(locals.menuUrl=='products'){ %>
+  <title>Products | Evara Admin</title>
+  <% } else if(locals.menuUrl=='orders'){ %>
+  <title>Orders | Evara Admin</title>
+  <% } else if(locals.menuUrl=='order'){ %>
+  <title>Order Info | Evara Admin</title>
+  <% } else if(locals.menuUrl=='coupons'){ %>
+  <title>Coupons | Evara Admin</title>
+  <% } else if(locals.menuUrl=='users'){ %>
+  <title>Users | Evara Admin</title>
+  <% } else if(locals.menuUrl=='product-categories'){ %>
+  <title>Categories | Evara Admin</title>
+  <% } %>
+
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <meta name="description" content="" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -106,18 +123,14 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="requestfullscreen nav-link btn-icon"><i class="material-icons md-cast"></i></a>
+            <a href="#" class="requestfullscreen nav-link btn-icon"><i class="material-icons md-fullscreen"></i></a>
           </li>
           <li class="dropdown nav-item">
             <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false">
               <img class="img-xs rounded-circle" src="/admin-assets/imgs/people/avatar2.jpg" alt="User" /></a>
             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
-              <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit
-                Profile</a>
-              <a class="dropdown-item" href="#"><i class="material-icons md-settings"></i>Account Settings</a>
-              <a class="dropdown-item" href="#"><i class="material-icons md-account_balance_wallet"></i>Wallet</a>
-              <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i>Billing</a>
-              <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help center</a>
+              <a class="dropdown-item" href="/admin/sales-report/new"><i class="material-icons md-receipt"></i>Sales report</a>
+              <a class="dropdown-item" href="/" target="_blank"><i class="material-icons md-material-icons md-visibility"></i>View website</a>
               <div class="dropdown-divider"></div>
               <a class="dropdown-item text-danger" href="/admin/logout"><i class="material-icons md-exit_to_app"></i>Logout</a>
             </div>

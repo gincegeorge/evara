@@ -18,7 +18,7 @@
         <div class="col-12">
 
           <div class="table-responsive">
-            <table class="table shopping-summery text-center clean">
+            <table class="table shopping-summery clean">
               <thead>
                 <tr class="main-heading">
                   <th scope="col">Image</th>
@@ -39,12 +39,17 @@
                     </a>
                   </td>
                   <td class="product-des product-name">
-                    <h5 class="product-name"><a href="/product/<%= element.product.slug %>">
-                        <%= element.product.name %>
+                    <h5 class="product-name">
+                      <a href="/product/<%= element.product.slug %>"><%= element.product.name %></a>
                     </h5>
                   </td>
                   <td class="price" data-title="Price">
+                    <% if(element.finalPrice < element.product.regularPrice ){ %>
                     <span>₹<%= element.finalPrice %></span>
+                    <span class="old-price">₹<%= element.product.regularPrice %></span>
+                    <% }else{ %>
+                      <span> ₹<%= element.finalPrice %></span>
+                    <% } %>
                   </td>
                   <td class="text-center" data-title="Stock">
                     <div class="detail-qty border radius  m-auto">
@@ -126,14 +131,14 @@
                           Shipping</td>
                       </tr>
                       <% if (locals.couponInfo.couponApplied) { %>
-                        <tr>
-                          <th>Coupon</th>
-                          <td class="product-subtotal" colspan="2">
-                            <span id="coupon discount">-₹<%= couponInfo.couponDiscount %></span>
-                            <span style="opacity: .8">(<%= couponInfo.couponApplied %>)</span>
-                          </td>
-                        </tr>
-                        <% } %>
+                      <tr>
+                        <th>Coupon</th>
+                        <td class="product-subtotal" colspan="2">
+                          <span id="coupon discount">-₹<%= couponInfo.couponDiscount %></span>
+                          <span style="opacity: .8">(<%= couponInfo.couponApplied %>)</span>
+                        </td>
+                      </tr>
+                      <% } %>
                       <tr>
                         <td class="cart_total_label">Total</td>
                         <td class="cart_total_amount">
