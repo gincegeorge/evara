@@ -18,9 +18,25 @@
                 <label for="product_name" class="form-label">Name</label>
                 <input required value="<%= //categoryDetails.categoryName %>" name="couponCode" type="text" placeholder="Type here" class="form-control" id="product_name" />
               </div>
-              <div class="mb-4">
-                <label for="cat_discount" class="form-label">Discount</label>
-                <input required value="<%= //categoryDetails.categoryDiscount %>" name="couponDiscount" type="number" placeholder="%" class="form-control" id="cat_discount" max="100"/>
+              <div class="row">
+                <div class="col-4">
+                  <div class="mb-4">
+                    <label for="cat_discount" class="form-label">Discount percentage</label>
+                    <input required value="<%= //categoryDetails.categoryDiscount %>" name="couponDiscount" type="number" placeholder="1%" class="form-control" id="cat_discount" max="100" />
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="mb-4">
+                    <label for="cat_discount" class="form-label">Max Discount</label>
+                    <input required value="<%= //categoryDetails.categoryDiscount %>" name="couponDiscount" type="number" placeholder="500" class="form-control" id="cat_discount" max="100" />
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="mb-4">
+                    <label for="cat_discount" class="form-label">Min cart value</label>
+                    <input required value="<%= //categoryDetails.categoryDiscount %>" name="couponDiscount" type="number" placeholder="2000" class="form-control" id="cat_discount" max="100" />
+                  </div>
+                </div>
               </div>
               <div class="mb-4">
                 <label for="cat_discount" class="form-label">Expiry date</label>

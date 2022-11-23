@@ -14,7 +14,8 @@
           <form action="/admin/sales-report/daily" method="POST">
             <div class="row">
               <div class="col-7">
-                <input required class="form-control mb-3" type="date" id="date" name="date">
+                <!-- <input required class="form-control mb-3" type="date" id="date" name="date"> -->
+                <input required class="form-control type=" text" name="daterange" style="padding-left: 10px;" />
               </div>
               <div class="col-5">
                 <button class="btn btn-primary btn-md rounded font-md">Get report</button>
@@ -67,3 +68,17 @@
 </section>
 <!-- content-main end// -->
 <%- include('../../partials/admin-footer') %>
+<script>
+  $(function() {
+    $('input[name="daterange"]').daterangepicker({
+      opens: 'center',
+      autoApply: true,
+      drops: 'auto',
+      locale: {
+        format: 'YYYY-MM-DD'
+      }
+    }, function(start, end, label) {
+      console.log("A new date selection was made: " + start.format('DD-MM-YYYY') + ' to ' + end.format('DD-MM-YYYY'));
+    });
+  });
+</script>

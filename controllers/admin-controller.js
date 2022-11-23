@@ -41,7 +41,7 @@ const getLogout = (req, res) => {
 }
 const getAdminDashboard = async function (req, res, next) {
 
-    
+
 
 
     const productsCount = await adminHelpers.getProductsCount()
@@ -189,9 +189,9 @@ const generateReport = (req, res) => {
 
 //DAILY REPORT
 const dailyReport = (req, res) => {
-    date = req.body
-    adminHelpers.getDailyReport(date).then((productsInfo) => {
-        res.render('admin/sales/sales-report', { date, productsInfo })
+    daterange = req.body.daterange
+    adminHelpers.getDailyReport(daterange).then((productsInfo) => {
+        res.render('admin/sales/sales-report', { daterange, productsInfo })
     })
 }
 

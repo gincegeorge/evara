@@ -528,35 +528,33 @@ function addtocartFromWishlist(wishlistId, productId) {
 //                           SEARCH
 /*--------------------------------------------------------------*/
 function sendData(data) {
-
-    console.log(data.value);
-    // fetch('search', {
-    //     method: 'post',
-    //     headers: { 'Content-type': 'application/json' },
-    //     body: JSON.stringify({ payload: data.value })
-    // })
-
-    $.ajax({
-        url: '/search',
-        data: {
-            query: data.value
-        },
+    fetch('search', {
         method: 'post',
-        success: (response) => {
-            console.log('ssdfsdf');
-            // if (response.wishlistCount === 0) {
-            //     window.location.reload()
-            // } else {
-            //     if (response.productRemoved) {
-            //         const ProRow = document.getElementById(productId + '-tr')
-            //         $(ProRow).remove()
-            //         Swal.fire({
-            //             title: 'Added to cart',
-            //             timer: 700,
-            //             showConfirmButton: false
-            //         })
-            //     }
-            // }
-        }
+        headers: { 'Content-type': 'application/json' },
+        body: JSON.stringify({ payload: data.value })
     })
+
+    // $.ajax({
+    //     url: '/search',
+    //     data: {
+    //         query: data.value
+    //     },
+    //     method: 'post',
+    //     success: (response) => {
+    //         console.log('ssdfsdf');
+    //         // if (response.wishlistCount === 0) {
+    //         //     window.location.reload()
+    //         // } else {
+    //         //     if (response.productRemoved) {
+    //         //         const ProRow = document.getElementById(productId + '-tr')
+    //         //         $(ProRow).remove()
+    //         //         Swal.fire({
+    //         //             title: 'Added to cart',
+    //         //             timer: 700,
+    //         //             showConfirmButton: false
+    //         //         })
+    //         //     }
+    //         // }
+    //     }
+    // })
 }
