@@ -388,10 +388,15 @@ const monthlyData = () => {
 }
 
 //GET DAILY REPORT
-const getDailyReport = (date) => {
+const getDailyReport = (dateRange) => {
 
-    startDate = date.date + 'T00:00:00'
-    endDate = date.date + 'T23:59:59'
+    let [startDate, endDate] = dateRange.split(' - ')
+
+    startDate += 'T00:00:00'
+    endDate += 'T23:59:59'
+
+    adminDebug(startDate)
+    adminDebug(endDate)
 
     return new Promise((resolve, reject) => {
         db.get().collection(ORDER_COLLECTION).aggregate([
