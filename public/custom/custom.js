@@ -528,33 +528,36 @@ function addtocartFromWishlist(wishlistId, productId) {
 //                           SEARCH
 /*--------------------------------------------------------------*/
 function sendData(data) {
-    fetch('search', {
+    const searchResults = document.getElementById('searchResults')
+    fetch('/search', {
         method: 'post',
         headers: { 'Content-type': 'application/json' },
         body: JSON.stringify({ payload: data.value })
+    }).then(res => res.json()).then(data => {
+        let result = data.searchQuery
+        searchResults.innerHTML = '';
+        if (data.resultfound) {
+            if (result.length < 1) {
+                searchResults.style.display = 'block';
+                searchResults.innerHTML = '<p>Sorry, nothing found!</p>'
+                return
+            }
+            searchResults.style.display = 'block';
+            result.forEach((item, index) => {
+                searchResults.innerHTML += `<p><a href="/product/${item.slug}">${item.name}</a></p>`
+            });
+        } else {
+            searchResults.style.display = 'none';
+        }
     })
-
-    // $.ajax({
-    //     url: '/search',
-    //     data: {
-    //         query: data.value
-    //     },
-    //     method: 'post',
-    //     success: (response) => {
-    //         console.log('ssdfsdf');
-    //         // if (response.wishlistCount === 0) {
-    //         //     window.location.reload()
-    //         // } else {
-    //         //     if (response.productRemoved) {
-    //         //         const ProRow = document.getElementById(productId + '-tr')
-    //         //         $(ProRow).remove()
-    //         //         Swal.fire({
-    //         //             title: 'Added to cart',
-    //         //             timer: 700,
-    //         //             showConfirmButton: false
-    //         //         })
-    //         //     }
-    //         // }
-    //     }
-    // })
 }
+
+//hide results when clicked outside
+document.addEventListener('click', function handleClickOutsideBox(event) {
+    const box = document.getElementById('searchWrap');
+    const searchResults = document.getElementById('searchResults');
+
+    if (!box.contains(event.target)) {
+        searchResults.style.display = 'none';
+    }
+});

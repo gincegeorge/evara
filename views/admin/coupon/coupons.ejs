@@ -18,6 +18,8 @@
             <tr>
               <th scope="col">Coupon code</th>
               <th scope="col">Discount(%)</th>
+              <th scope="col">Max disocunt</th>
+              <th scope="col">Min cart value</th>
               <th scope="col">Created on</th>
               <th scope="col">Expires on</th>
               <th scope="col">Status</th>
@@ -33,6 +35,8 @@
             <tr>
               <td><%= coupon.couponCode %></td>
               <td><%= coupon.couponDiscount %>%</td>
+              <td>₹<%= coupon.couponMaxDiscount %></td>
+              <td>₹<%= coupon.couponMinCartValue %></td>
               <td><%= `${date}-${month}-${year}` %></td>
               <td><%= coupon.expiryDate %></td>
               <td>

@@ -312,8 +312,14 @@ const applyCoupon = async (addedCoupon, cartTotal) => {
 
             //calculating final price
             couponDiscount = coupon.couponDiscount
+
             response.discountedAmount = Math.round((cartTotal * couponDiscount / 100))
-            // response.finalPrice = Math.round(cartTotal - response.discountedAmount)
+
+            //check if discount exeeds max coupon discount
+            if (response.discountedAmount > coupon.couponMaxDiscount) {
+                response.discountedAmount = coupon.couponMaxDiscount
+                response.maxDiscount = true
+            }
 
             response.isActive = true
             response.isUsed = false
@@ -327,7 +333,7 @@ const applyCoupon = async (addedCoupon, cartTotal) => {
                         couponIsActive: true,
                         couponIsUsed: false,
                         couponDiscount: response.discountedAmount,
-                        couponDiscountPercentage: coupon.couponDiscount
+                        couponDiscountPercentage: coupon.couponDiscount,
                     }
                 })
 
@@ -567,16 +573,15 @@ const refundToWallet = async (userId, amountToBeRefunded) => {
 
 //searchResults
 
-const searchResults = async (query) => {
-    userDebug(query)
+const searchResults = async (searchQuery) => {
+    userDebug(searchQuery)
     try {
-        result = await db.get().collection(PRODUCTS_COLLECTION).find({ stock: new RegExp('25', 'i') })
-            .toArray()
+        return await db.get().collection(PRODUCTS_COLLECTION).find({ name: new RegExp('^' + searchQuery + '.*', 'i') }).limit(5).toArray()
     } catch (error) {
-
+        console.log(error);
     }
 
-    adminDebug(result)
+
 }
 
 module.exports = {

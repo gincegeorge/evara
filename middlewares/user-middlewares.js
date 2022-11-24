@@ -1,80 +1,82 @@
-const cartHelpers = require('../helpers/cart-helpers')
-const { adminDebug, debugDb, userDebug } = require('../helpers/debug')
-const orderHelpers = require('../helpers/order-helpers')
-const db = require('../config/connection')
-const collection = require('../config/collections');
+/* eslint-disable linebreak-style */
+/* eslint-disable no-underscore-dangle */
+const cartHelpers = require('../helpers/cart-helpers');
+const orderHelpers = require('../helpers/order-helpers');
+const db = require('../config/connection');
 const { PRODUCTS_CATEGORIES_COLLECTION } = require('../config/collections');
+const { adminDebug, debugDb } = require('../helpers/debug');
 
-
-//verify user login
+// verify user login
 const verifyUserLogin = async (req, res, next) => {
+  
+  if (req.session.userLoginStatus) {
+    user = req.session.userData;
+    const cart = {};
+    cart.products = await cartHelpers.getCartProducts(user._id);
+    cart.count = await cartHelpers.getCartCount(user._id);
+    cart.total = await orderHelpers.getCheckoutData(user._id);
 
-    if (req.session.userLoginStatus) {
-        user = req.session.userData
-        let cart = {}
-        cart.products = await cartHelpers.getCartProducts(user._id)
-        cart.count = await cartHelpers.getCartCount(user._id)
-        cart.total = await orderHelpers.getCheckoutData(user._id)
+    user.userLoginStatus = req.session.userLoginStatus;
+    user.cart = cart;
+    res.locals.user = user;
 
-        user.userLoginStatus = req.session.userLoginStatus
-        user.cart = cart
-        res.locals.user = user
+    // getting categories for header
+    const categories = await db.get().collection(PRODUCTS_CATEGORIES_COLLECTION).find().toArray();
+    res.locals.categories = categories;
 
-        //getting categories for header
-        let categories = await db.get().collection(PRODUCTS_CATEGORIES_COLLECTION).find().toArray()
-        res.locals.categories = categories
+    next();
+  } else {
+    // getting categories for header
+    const categories = await db.get().collection(PRODUCTS_CATEGORIES_COLLECTION).find().toArray();
+    res.locals.categories = categories;
 
-        next()
+    req.session.UserUrlHistory = req.url;
+
+    if (req.xhr) {
+      req.session.UserUrlHistory = req.session.pageWithoutLogin;
+      res.json({
+        loginRedirect: true,
+      });
     } else {
-        //getting categories for header
-        let categories = await db.get().collection(PRODUCTS_CATEGORIES_COLLECTION).find().toArray()
-        res.locals.categories = categories
-
-        req.session.UserUrlHistory = req.url
-
-        if (req.xhr) {
-            req.session.UserUrlHistory = req.session.pageWithoutLogin
-            res.json({
-                loginRedirect: true
-            })
-        } else {
-            res.redirect('/login')
-        }
+      res.redirect('/login');
     }
-}
+  }
+};
 
 const accessWithoutLogin = async (req, res, next) => {
-    if (req.session.userLoginStatus) {
-        user = req.session.userData
 
-        let cart = {}
-        cart.products = await cartHelpers.getCartProducts(user._id)
-        cart.count = await cartHelpers.getCartCount(user._id)
-        cart.total = await orderHelpers.getCheckoutData(user._id)
+  if (req.session.userLoginStatus) {
+    user = req.session.userData;
 
-        user.userLoginStatus = req.session.userLoginStatus
-        user.cart = cart
-        res.locals.user = user
+    const cart = {};
+    cart.products = await cartHelpers.getCartProducts(user._id);
+    cart.count = await cartHelpers.getCartCount(user._id);
+    cart.total = await orderHelpers.getCheckoutData(user._id);
 
-        //getting categories for header
-        let categories = await db.get().collection(PRODUCTS_CATEGORIES_COLLECTION).find().toArray()
-        res.locals.categories = categories
+    adminDebug(cart.total)
 
-        next()
-    } else {
-        
-        //getting categories for header
-        let categories = await db.get().collection(PRODUCTS_CATEGORIES_COLLECTION).find().toArray()
-        res.locals.categories = categories
+    user.userLoginStatus = req.session.userLoginStatus;
+    user.cart = cart;
+    res.locals.user = user;
 
-        req.session.pageWithoutLogin = req.url
-        next()
-    }
+    // getting categories for header
+    const categories = await db.get().collection(PRODUCTS_CATEGORIES_COLLECTION).find().toArray();
+    res.locals.categories = categories;
 
-}
+    next();
+
+  } else {
+    // getting categories for header
+    const categories = await db.get().collection(PRODUCTS_CATEGORIES_COLLECTION).find().toArray();
+    res.locals.categories = categories;
+
+    req.session.pageWithoutLogin = req.url;
+    next();
+  }
+};
 
 module.exports = {
-    verifyUserLogin,
-    accessWithoutLogin
-    //getUserData
-}  
+  verifyUserLogin,
+  accessWithoutLogin,
+  // getUserData
+};

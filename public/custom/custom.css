@@ -185,7 +185,7 @@ td.button-td {
   min-width: 150px;
 }
 
-.old-price{
+.old-price {
   text-decoration: line-through;
   color: #888;
 }
@@ -324,4 +324,33 @@ a.removeFromWishlist {
 
 .productInWishlist .removeFromWishlist {
   display: inline-block !important;
+}
+
+/* DARKMODE ADMIN */
+body.dark a {
+  color: #0bffed;
+}
+
+/* SEARCH RESULTS */
+.search-style-2 {
+  position: relative;
+}
+
+#searchResults {
+  position: absolute;
+  top: 100%;
+  background-color: #ffffff;
+  z-index: 999;
+  width: 100%;
+  padding: 0 20px;
+  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 13%);
+}
+
+#searchResults p {
+  border-bottom: 1px solid #cce7d0;
+  padding: 10px 0;
+}
+
+#searchResults p:last-child {
+  border-bottom: 0;
 }
