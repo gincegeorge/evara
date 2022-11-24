@@ -1,5 +1,4 @@
 /node_modules
-/public/products-uploads/
 .env
 package-lock.json
 .eslintrc.json
