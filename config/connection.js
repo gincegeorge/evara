@@ -4,8 +4,8 @@ const state={
 }
 
 module.exports.connect= function(done){
-    const url ='mongodb://localhost:27017'
-    const dbname='ejs'
+    const url =process.env.MONGODB
+    const dbname='evara'
 
     mongoClient.connect(url,(err,data)=>{
         if(err) return done(err)

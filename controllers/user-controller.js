@@ -20,9 +20,14 @@ paypal.configure({
 })
 
 //SEARCH
-const searchResults = (req, res) => {
-    console.log(req.body.query)
-    userHelpers.searchResults(req.body.query)
+const searchResults = async (req, res) => {
+    let searchQuery = req.body.payload.trim()
+    if (searchQuery.length > 0) {
+        result = await userHelpers.searchResults(searchQuery)
+        res.send({ searchQuery: result, resultfound: true })
+    } else {
+        res.send({ searchQuery: '', resultfound: false })
+    }
 }
 
 //HOMEPAGE

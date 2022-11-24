@@ -1,12 +1,14 @@
+/* eslint-disable linebreak-style */
 require('dotenv').config();
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const db = require('./config/connection')
-const session = require('express-session')
-const paypal = require('paypal-rest-sdk')
+const session = require('express-session');
+// eslint-disable-next-line no-unused-vars
+const paypal = require('paypal-rest-sdk');
+const db = require('./config/connection');
 
 const app = express();
 /* -------------------------------------------------------------------------- */
@@ -14,11 +16,11 @@ const app = express();
 /* -------------------------------------------------------------------------- */
 db.connect((err) => {
   if (err) {
-    console.log('Database connection error' + err);
+    console.log(`Database connection error${err}`);
   } else {
     console.log('Database connected successfully on http://localhost:8080');
   }
-})
+});
 /* -------------------------------------------------------------------------- */
 /*                             Routes                                         */
 /* -------------------------------------------------------------------------- */
@@ -31,20 +33,20 @@ app.use(session({
   secret: 'Key',
   cookie: { maxAge: 600000 },
   resave: true,
-  saveUninitialized: true
+  saveUninitialized: true,
 }));
 /* -------------------------------------------------------------------------- */
 /*                             SPLITING URL                                   */
 /* -------------------------------------------------------------------------- */
 // app.use(function (req, res, next) {
-//   req.active = req.path.split('/')[2] 
+//   req.active = req.path.split('/')[2]
 //   next();
 // });
 /* -------------------------------------------------------------------------- */
 /*                             view engine setup                              */
 /* -------------------------------------------------------------------------- */
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs')
+app.set('view engine', 'ejs');
 /* -------------------------------------------------------------------------- */
 /*                                  APP.USE                                   */
 /* -------------------------------------------------------------------------- */
@@ -63,7 +65,7 @@ app.use('/admin', adminRouter);
 /*                catch 404 and forward to error handler                      */
 /* -------------------------------------------------------------------------- */
 // app.use(function (req, res, next) {
-//   next(createError(404)); 
+//   next(createError(404));
 // });
 /* -------------------------------------------------------------------------- */
 /*                      error handler middleware                              */

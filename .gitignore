@@ -2,3 +2,4 @@
 /public/products-uploads/
 .env
 package-lock.json
+.eslintrc.json
