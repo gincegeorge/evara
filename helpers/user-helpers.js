@@ -520,8 +520,8 @@ const payWithPaypal = async (orderId, cartTotal, paymentOption) => {
             "payment_method": "paypal"
         },
         "redirect_urls": {
-            "return_url": "http://localhost:8080/success",
-            "cancel_url": "http://localhost:8080/cancel"
+            "return_url": "https://evara.ml/success",
+            "cancel_url": "https://evara.ml/cancel"
         },
         "transactions": [{
             "amount": {
