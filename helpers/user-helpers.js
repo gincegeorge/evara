@@ -267,6 +267,44 @@ const addNewAddres = (formData, userId) => {
     })
 }
 
+// ADDRESSS - EDIT
+const editAddres = (data) => {
+
+    const { userId, addressId, name, phone, addressLine, state, city, zipCode, email } = data
+
+    return new Promise((resolve, reject) => {
+        db.get().collection(USERS_COLLECTION)
+            .updateOne(
+                {
+                    _id: objectId(userId),
+                    'address._id': objectId(addressId),
+                },
+                {
+                    $set: {
+                        'address.$.name': name,
+                        'address.$.phone': phone,
+                        'address.$.addressLine': addressLine,
+                        'address.$.state': state,
+                        'address.$.city': city,
+                        'address.$.zipCode': zipCode,
+                        'address.$.email': email,
+                    },
+                },
+            )
+            .then((result) => {
+                if (result) {
+                    resolve(result)
+                } else {
+                    reject()
+                }
+            })
+    }).catch((err) => {
+        console.log(err);
+    })
+
+}
+
+
 //ADDRESS - GET
 const getAddresses = (userId) => {
     return new Promise((resolve, reject) => {
@@ -596,6 +634,7 @@ module.exports = {
     doVerifyOtp,
 
     addNewAddres,
+    editAddres,
     getAddresses,
     doDeleteAddress,
 

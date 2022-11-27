@@ -28,6 +28,17 @@
                   <%= element.address.phone %>,
                   <%= element.address.addressLine %>,
                   <%= element.address.city %>...
+                  <a class="me-2" onclick="editAddress(
+                    '<%= user._id %>',
+                    '<%= element.address._id %>',
+                    '<%= element.address.name %>',
+                    '<%= element.address.phone %>',
+                    '<%= element.address.addressLine %>',
+                    '<%= element.address.state %>',
+                    '<%= element.address.city %>',
+                    '<%= element.address.zipCode %>',
+                    '<%= element.address.email %>',
+                    )" style="color:#088178; float:right;">Edit</a>
                 </label>
               </div>
               <% count++ }) %>
@@ -164,7 +175,7 @@
                           totalFinalPrice += parseInt(element.finalPrice) 
                          }) 
                          %>
-                       -₹<%= totalRegularPrice-totalFinalPrice %>
+                        -₹<%= totalRegularPrice-totalFinalPrice %>
                       </em></td>
                   </tr>
                   <% if (locals.couponInfo.couponApplied) { %>

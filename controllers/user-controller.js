@@ -385,6 +385,14 @@ const addNewAddres = (req, res) => {
     })
 }
 
+//ADD NEW ADDRESS
+const editAddres = (req, res) => {
+    userHelpers.editAddres(req.body).then(() => {
+        res.send({ addressEdited: true })
+    })
+}
+
+
 //NEW ORDER
 const getPlaceOrder = async (req, res) => {
 
@@ -627,6 +635,7 @@ module.exports = {
     myAccount,
     myAddress,
     addNewAddres,
+    editAddres,
     deleteAddress,
 
     myOrders,

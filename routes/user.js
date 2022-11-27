@@ -114,6 +114,8 @@ router.get('/my-account/address', userMiddlewares.verifyUserLogin, userControlle
 
 router.post('/my-account/address/new', userMiddlewares.verifyUserLogin, userController.addNewAddres);
 
+router.post('/my-account/address/edit', userMiddlewares.verifyUserLogin, userController.editAddres);
+
 router.delete('/my-account/address/delete', userMiddlewares.verifyUserLogin, userController.deleteAddress);
 
 /** *********************************** */
