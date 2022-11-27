@@ -241,11 +241,64 @@ function deleteAddress(userId, addressId) {
 /*--------------------------------------------------------------*/
 //                        EDIT ADDRESS
 /*--------------------------------------------------------------*/
-function editAddress() {
+function editAddress(userId, addressId, name, phone, addressLine, state, city, zipCode, email) {
     Swal.fire({
-        title: 'Nope',
-        text: 'Please delete it',
-        iconHtml: null
+        title: 'Edit address',
+        showCancelButton: true,
+        html: ` 
+        <form id="add-address-checkout" action="">
+                  <div class="form-group">
+                    <input id="Name" required type="text" name="name" placeholder="Full name *" value="`+ name + `">
+                  </div>
+                  <div class="form-group">
+                    <input id="addressLine" required type="text" name="addressLine" required="" placeholder="Address *" value="`+ addressLine + `">
+                  </div> 
+                  <div class="form-group">
+                    <input id="city" required type="text" name="city" placeholder="City / Town *" value="`+ city + `">
+                  </div>
+                  <div class="form-group">
+                    <input id="state" required type="text" name="state" placeholder="State / County *" value="`+ state + `">
+                  </div>
+                  <div class="form-group">
+                    <input required id="zipCode" type="text" name="zipCode" placeholder="Postcode / ZIP *" value="`+ zipCode + `">
+                  </div> 
+                  <div class="form-group">
+                    <input required id="phone" type="text" name="phone" placeholder="Phone *" value="`+ phone + `">
+                  </div>
+                  <div class="form-group">
+                    <input required id="email" type="text" name="email" placeholder="Email address *" value="`+ email + `">
+                  </div>
+                </form>
+        `,
+        confirmButtonText: 'Update address',
+        focusConfirm: false,
+        // preConfirm: () => {
+        //     name = Swal.getPopup().querySelector('#Name').value,
+        //         addressLine = Swal.getPopup().querySelector('#addressLine').value,
+        //         city = Swal.getPopup().querySelector('#city').value,
+        //         state = Swal.getPopup().querySelector('#state').value,
+        //         zipCode = Swal.getPopup().querySelector('#zipCode').value,
+        //         phone = Swal.getPopup().querySelector('#phone').value,
+        //         email = Swal.getPopup().querySelector('#email').value
+        //     if (!name || !addressLine || !city || !state || !zipCode || !phone || !email) {
+        //         Swal.showValidationMessage(`Please fill the required fields`)
+        //     }
+        //     return { userId, addressId, name, phone, addressLine, state, city, zipCode, email }
+        // }
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/my-account/address/edit',
+                method: 'post',
+                data: result.value,
+                success: (response) => {
+                    if (response.addressEdited) {
+                        window.location.reload()
+                    }
+                }
+            })
+        }
     })
 }
 /*--------------------------------------------------------------*/

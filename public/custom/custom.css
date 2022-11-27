@@ -354,3 +354,8 @@ body.dark a {
 #searchResults p:last-child {
   border-bottom: 0;
 }
+
+/* edit address form */
+.form-group:last-child {
+  margin: 0;
+}
