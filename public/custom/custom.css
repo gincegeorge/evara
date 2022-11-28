@@ -333,6 +333,29 @@ body.dark a {
 
 /* SEARCH RESULTS */
 .search-style-2 {
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+  max-width: 683px;
+}
+.search-style-2 input {
+  width: 100%;
+  border-radius: 0;
+  background-color: #fff;
+  border-color: #414648;
+  border-width: 0 0 3px 0;
+  border-style: solid;
+  font-size: 16px;
+  background-image: url(../user-assets/imgs/theme/icons/search.png);
+  background-repeat: no-repeat;
+  background-position: center left;
+  padding-left: 35px;
+  font-style: italic;
+}
+
+.search-style-2 {
   position: relative;
 }
 
